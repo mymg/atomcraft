@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "side": "atomcraft:block/assembler_side",
+    "top": "atomcraft:block/assembler_top",
+    "bottom": "atomcraft:block/machine_bottom"
+  }
+}
