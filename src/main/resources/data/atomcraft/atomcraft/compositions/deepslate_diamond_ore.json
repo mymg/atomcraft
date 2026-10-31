@@ -1,0 +1,10 @@
+{
+  "item": "minecraft:deepslate_diamond_ore",
+  "elements": {
+    "C": 512,
+    "Si": 1,
+    "O": 2,
+    "Mg": 1
+  },
+  "rarity": "rare"
+}

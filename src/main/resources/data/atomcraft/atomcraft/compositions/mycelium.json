@@ -1,0 +1,10 @@
+{
+  "item": "minecraft:mycelium",
+  "elements": {
+    "Si": 1,
+    "O": 2,
+    "C": 2,
+    "H": 4,
+    "N": 1
+  }
+}

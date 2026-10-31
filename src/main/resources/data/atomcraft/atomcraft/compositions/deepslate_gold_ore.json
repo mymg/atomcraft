@@ -1,0 +1,10 @@
+{
+  "item": "minecraft:deepslate_gold_ore",
+  "elements": {
+    "Au": 9,
+    "Si": 1,
+    "O": 2,
+    "Mg": 1
+  },
+  "rarity": "uncommon"
+}

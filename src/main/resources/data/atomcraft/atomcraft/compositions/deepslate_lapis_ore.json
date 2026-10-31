@@ -1,0 +1,13 @@
+{
+  "item": "minecraft:deepslate_lapis_ore",
+  "elements": {
+    "Na": 12,
+    "Ca": 4,
+    "Al": 12,
+    "Si": 13,
+    "O": 50,
+    "S": 4,
+    "Mg": 1
+  },
+  "rarity": "uncommon"
+}

@@ -1,0 +1,9 @@
+{
+  "item": "minecraft:diorite",
+  "elements": {
+    "Si": 1,
+    "O": 2,
+    "Ca": 1,
+    "Na": 1
+  }
+}

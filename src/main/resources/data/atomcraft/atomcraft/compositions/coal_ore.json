@@ -1,0 +1,8 @@
+{
+  "item": "minecraft:coal_ore",
+  "elements": {
+    "C": 8,
+    "Si": 1,
+    "O": 2
+  }
+}

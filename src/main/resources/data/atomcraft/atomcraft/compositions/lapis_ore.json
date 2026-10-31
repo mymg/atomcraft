@@ -1,0 +1,12 @@
+{
+  "item": "minecraft:lapis_ore",
+  "elements": {
+    "Na": 12,
+    "Ca": 4,
+    "Al": 12,
+    "Si": 13,
+    "O": 50,
+    "S": 4
+  },
+  "rarity": "uncommon"
+}

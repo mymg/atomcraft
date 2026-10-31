@@ -1,0 +1,11 @@
+{
+  "item": "minecraft:deepslate_emerald_ore",
+  "elements": {
+    "Be": 24,
+    "Al": 16,
+    "Si": 49,
+    "O": 146,
+    "Mg": 1
+  },
+  "rarity": "rare"
+}

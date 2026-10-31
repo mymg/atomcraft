@@ -1,0 +1,11 @@
+{
+  "item": "minecraft:elytra",
+  "elements": {
+    "En": 16,
+    "C": 20,
+    "H": 32,
+    "N": 6,
+    "O": 8
+  },
+  "rarity": "legendary"
+}

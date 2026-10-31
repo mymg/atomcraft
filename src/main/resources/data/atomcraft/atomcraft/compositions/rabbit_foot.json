@@ -1,0 +1,11 @@
+{
+  "item": "minecraft:rabbit_foot",
+  "elements": {
+    "C": 10,
+    "H": 16,
+    "N": 3,
+    "O": 4,
+    "Lm": 1
+  },
+  "rarity": "uncommon"
+}

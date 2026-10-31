@@ -1,0 +1,9 @@
+{
+  "item": "minecraft:blaze_rod",
+  "elements": {
+    "Lm": 2,
+    "S": 2,
+    "C": 2
+  },
+  "rarity": "uncommon"
+}

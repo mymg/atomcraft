@@ -1,6 +1,9 @@
 {
   "values": [
     "atomcraft:atomizer",
-    "atomcraft:assembler"
+    "atomcraft:analyzer",
+    "atomcraft:replicator",
+    "atomcraft:drive",
+    "atomcraft:atomic_cable"
   ]
 }

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SRS",
+    "RER",
+    "SSS"
+  ],
+  "key": {
+    "S": "minecraft:shulker_shell",
+    "R": "minecraft:redstone",
+    "E": "minecraft:ender_eye"
+  },
+  "result": {
+    "id": "atomcraft:element_disk_1m",
+    "count": 1
+  }
+}

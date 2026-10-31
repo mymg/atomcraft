@@ -1,8 +1,9 @@
 {
-  "parent": "minecraft:block/cube_bottom_top",
+  "parent": "minecraft:block/orientable",
   "textures": {
-    "side": "atomcraft:block/atomizer_side",
     "top": "atomcraft:block/atomizer_top",
-    "bottom": "atomcraft:block/machine_bottom"
+    "front": "atomcraft:block/atomizer_front",
+    "side": "atomcraft:block/machine_side",
+    "particle": "atomcraft:block/machine_side"
   }
 }

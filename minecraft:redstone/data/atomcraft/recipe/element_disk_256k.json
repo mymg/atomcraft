@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "DRD",
+    "RAR",
+    "DDD"
+  ],
+  "key": {
+    "D": "minecraft:diamond",
+    "R": "minecraft:redstone",
+    "A": "minecraft:amethyst_shard"
+  },
+  "result": {
+    "id": "atomcraft:element_disk_256k",
+    "count": 1
+  }
+}

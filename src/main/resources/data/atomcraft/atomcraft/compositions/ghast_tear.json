@@ -1,0 +1,11 @@
+{
+  "item": "minecraft:ghast_tear",
+  "elements": {
+    "Lm": 2,
+    "H": 4,
+    "O": 2,
+    "Na": 1,
+    "Cl": 1
+  },
+  "rarity": "rare"
+}

@@ -1,0 +1,9 @@
+{
+  "item": "minecraft:string",
+  "elements": {
+    "C": 6,
+    "H": 10,
+    "N": 2,
+    "O": 3
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "textures": {
+    "cable": "atomcraft:block/atomic_cable",
+    "particle": "atomcraft:block/atomic_cable"
+  },
+  "elements": [
+    {
+      "from": [
+        6,
+        6,
+        0
+      ],
+      "to": [
+        10,
+        10,
+        5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            6,
+            6,
+            10,
+            10
+          ],
+          "texture": "#cable"
+        },
+        "east": {
+          "uv": [
+            0,
+            6,
+            5,
+            10
+          ],
+          "texture": "#cable"
+        },
+        "west": {
+          "uv": [
+            0,
+            6,
+            5,
+            10
+          ],
+          "texture": "#cable"
+        },
+        "up": {
+          "uv": [
+            6,
+            0,
+            10,
+            5
+          ],
+          "texture": "#cable"
+        },
+        "down": {
+          "uv": [
+            6,
+            0,
+            10,
+            5
+          ],
+          "texture": "#cable"
+        }
+      }
+    }
+  ]
+}

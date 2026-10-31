@@ -1,0 +1,9 @@
+{
+  "item": "minecraft:basalt",
+  "elements": {
+    "Si": 1,
+    "O": 2,
+    "Mg": 1,
+    "Fe": 1
+  }
+}
