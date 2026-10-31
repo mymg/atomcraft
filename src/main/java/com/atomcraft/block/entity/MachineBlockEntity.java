@@ -43,6 +43,12 @@ public abstract class MachineBlockEntity extends BlockEntity implements MenuProv
         setChanged();
     }
 
+    public void setOwner(UUID uuid, String name) {
+        this.owner = uuid;
+        this.ownerName = name;
+        setChanged();
+    }
+
     public @Nullable UUID owner() {
         return owner;
     }

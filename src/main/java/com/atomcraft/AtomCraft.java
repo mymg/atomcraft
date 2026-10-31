@@ -57,6 +57,7 @@ public class AtomCraft {
 
     private static void onServerStarted(ServerStartedEvent event) {
         AtomicValues.recompute(event.getServer());
+        SelfTest.runIfRequested(event.getServer());
     }
 
     /** Disparado quando um jogador entra (player != null) e após /reload (player == null). */

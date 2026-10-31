@@ -118,19 +118,23 @@ public class ReplicatorBlockEntity extends MachineBlockEntity {
     /** Inicia (ou substitui) um pedido de replicação feito por um jogador na interface. */
     public void startJob(ServerPlayer player, Item item, int amount) {
         if (level == null || level.getServer() == null || amount <= 0) return;
-        if (AtomicValues.get(item, false) == null) return;
         if (!ResearchData.get(level.getServer()).isResearched(player.getUUID(), item)) {
             player.sendSystemMessage(Component.translatable("message.atomcraft.not_researched",
                     new ItemStack(item).getHoverName()).withStyle(ChatFormatting.RED));
             return;
         }
-        if (target == item && player.getUUID().equals(requester)) {
+        startJob(player.getUUID(), item, amount);
+    }
+
+    public void startJob(UUID player, Item item, int amount) {
+        if (amount <= 0 || AtomicValues.get(item, false) == null) return;
+        if (target == item && player.equals(requester)) {
             remaining = Math.min(MAX_REQUEST, remaining + amount);
         } else {
             cancelJob();
             target = item;
             remaining = Math.min(MAX_REQUEST, amount);
-            requester = player.getUUID();
+            requester = player;
         }
         setChanged();
     }
