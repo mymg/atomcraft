@@ -12,6 +12,8 @@ import com.atomcraft.registry.ModItems;
 import com.atomcraft.research.ResearchData;
 import com.atomcraft.storage.ElementNetwork;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
@@ -70,6 +72,11 @@ final class SelfTest {
         AtomicValue cake = AtomicValues.get(Items.CAKE, false);
         check(failures, cake == null || cake.composition().get(ChemicalElement.IRON) == 0, "bolo não inclui o ferro dos baldes devolvidos");
         AtomCraft.LOGGER.info("AtomCraft SELFTEST {} itens com valor", AtomicValues.serverValues().size());
+        for (String recipe : List.of("atomizer", "analyzer", "replicator", "drive", "atomic_cable",
+                "element_disk_16k", "element_disk_64k", "element_disk_256k", "element_disk_1m")) {
+            boolean exists = server.getRecipeManager().byKey(ResourceKey.create(Registries.RECIPE, AtomCraft.id(recipe))).isPresent();
+            check(failures, exists, "receita " + recipe + " carregada");
+        }
 
         // 2. Monta a rede: Drive no meio, máquinas encostadas
         ServerLevel level = server.overworld();

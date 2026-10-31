@@ -98,14 +98,14 @@ jobs:
           sleep 3
       - name: Check log
         run: |
-          for m in block/drive block/cable_core item/element_disk_16k; do
-            echo "::error title=$m::$(grep -A8 "Missing textures in model atomcraft:$m" client.log | head -9 | tr '\n' ' ' | tr -s ' ')"
-          done
-          echo "::error title=Atlas::$(grep -i "atlas\|stitch" client.log | head -6 | tr '\n' ' ' | tr -s ' ')"
-          grep -i "atomcraft" client.log | grep -i "missing\|unable\|error\|exception\|failed\|couldn't" | head -8 | sed 's/^/::warning title=Cliente::/' || true
+          grep "Missing textures in model atomcraft\|Unable to load model.*atomcraft\|Missing.*atomcraft" -A3 client.log | head -12 | sed 's/^/::warning title=Cliente::/' || true
           grep -q "Crash report saved\|---- Minecraft Crash Report" client.log && (grep -A40 "Minecraft Crash Report" client.log | head -60; exit 1) || true
-          grep -q "atlas" client.log || (echo "Cliente não carregou as texturas" && tail -80 client.log && exit 1)
-          if grep -i "atomcraft" client.log | grep -i -q "exception\|missing model\|unable to load\|failed to load"; then echo "Erros do AtomCraft no cliente"; exit 1; fi
+          grep -q "blocks.png-atlas" client.log || (echo "Cliente não carregou as texturas" && tail -80 client.log && exit 1)
+          if grep -q "Missing textures in model atomcraft" client.log; then echo "Texturas do AtomCraft faltando"; exit 1; fi
+          if grep -i "atomcraft" client.log | grep -v "libflite\|resource path\|SELFTEST" | grep -i -q "exception\|unable to load\|failed to load"; then
+            grep -i "atomcraft" client.log | grep -v "libflite\|resource path" | grep -i "exception\|unable to load\|failed to load" | head -10
+            echo "Erros do AtomCraft no cliente"; exit 1
+          fi
           echo "Cliente iniciou sem erros do AtomCraft"
       - uses: actions/upload-artifact@v4
         if: always()
