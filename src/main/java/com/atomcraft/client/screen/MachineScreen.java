@@ -12,9 +12,7 @@ import net.minecraft.world.inventory.Slot;
 public abstract class MachineScreen<M extends BaseMenu> extends AbstractContainerScreen<M> {
 
     protected MachineScreen(M menu, Inventory inventory, Component title, int width, int height) {
-        super(menu, inventory, title);
-        this.imageWidth = width;
-        this.imageHeight = height;
+        super(menu, inventory, title, width, height);
         this.inventoryLabelY = height - 94;
     }
 

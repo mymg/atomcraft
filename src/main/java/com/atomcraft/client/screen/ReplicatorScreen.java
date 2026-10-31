@@ -64,8 +64,11 @@ public class ReplicatorScreen extends MachineScreen<ReplicatorMenu> {
                 .bounds(leftPos + PANEL_X, topPos + 82, 14, 14).build());
         quantity = new EditBox(font, leftPos + PANEL_X + 17, topPos + 83, 40, 12, Component.translatable("gui.atomcraft.quantity"));
         quantity.setMaxLength(4);
-        quantity.setFilter(text -> text.matches("\\d*"));
         quantity.setValue("1");
+        quantity.setResponder(text -> {
+            String digits = text.replaceAll("\\D", "");
+            if (!digits.equals(text)) quantity.setValue(digits);
+        });
         addRenderableWidget(quantity);
         addRenderableWidget(Button.builder(Component.literal("+"), button -> changeQuantity(1))
                 .bounds(leftPos + PANEL_X + 60, topPos + 82, 14, 14).build());
