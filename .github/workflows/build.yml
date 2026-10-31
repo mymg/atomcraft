@@ -68,3 +68,43 @@ jobs:
         with:
           name: server-log
           path: server.log
+
+  # Abre o cliente com tela virtual (Xvfb + Mesa) e verifica se o jogo chega ao menu sem erros do mod.
+  client-smoke-test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 25
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Install virtual display
+        run: sudo apt-get update -q && sudo apt-get install -y -q xvfb mesa-utils libgl1-mesa-dri
+      - name: Run client
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          chmod +x ./gradlew
+          xvfb-run -a -s "-screen 0 1280x720x24" ./gradlew runClient > client.log 2>&1 &
+          for i in $(seq 1 150); do
+            if grep -q "Sound engine started\|Created: .*textures-atlas\|Narrator library" client.log && grep -q "atlas" client.log; then sleep 20; break; fi
+            if grep -q "BUILD FAILED\|Crash report saved\|---- Minecraft Crash Report" client.log; then break; fi
+            sleep 4
+          done
+          pkill -f "net.neoforged" || true
+          pkill -f GradleWorkerMain || true
+          sleep 3
+      - name: Check log
+        run: |
+          grep -i "atomcraft" client.log | grep -i "missing\|unable\|error\|exception\|failed\|couldn't" | head -40 | sed 's/^/::warning title=Cliente::/' || true
+          grep -q "Crash report saved\|---- Minecraft Crash Report" client.log && (grep -A40 "Minecraft Crash Report" client.log | head -60; exit 1) || true
+          grep -q "atlas" client.log || (echo "Cliente não carregou as texturas" && tail -80 client.log && exit 1)
+          if grep -i "atomcraft" client.log | grep -i -q "exception\|missing model\|unable to load\|failed to load"; then echo "Erros do AtomCraft no cliente"; exit 1; fi
+          echo "Cliente iniciou sem erros do AtomCraft"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: client-log
+          path: client.log

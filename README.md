@@ -1,86 +1,118 @@
 # ⚛️ AtomCraft
 
-Mod para **Minecraft 1.21.1 (NeoForge)** em que todo item tem uma **composição química**.
-Você pode **atomizar** itens, guardando seus elementos num estoque, e depois usar uma máquina
-para **reconstruir qualquer item** — desde que tenha os elementos necessários guardados.
-
-> Exemplo: um **balde de água** é formado por H₂O (Hidrogênio + Oxigênio) mais o Ferro do balde.
-> Atomize-o e o estoque recebe `H:2 O:1 Fe:3`. Com esses elementos, o Reconstrutor cria outro balde de água.
+Mod para **Minecraft 26.2 (NeoForge)** em que todo item tem uma **composição química**.
+Você **atomiza** itens e guarda os elementos em **discos**, **pesquisa** os itens que quer
+copiar e usa o **Replicador Atômico** para criá-los de novo a partir dos elementos, gastando energia (FE).
 
 ## Como funciona
 
-| Bloco | Uso |
-|---|---|
-| **Atomizador** | Clique com um item na mão → o item é decomposto e os elementos vão para o estoque. Agachado (Shift) atomiza a pilha toda. |
-| **Reconstrutor Molecular** | Clique com um item na mão (ele serve de **molde** e não é gasto) → cria uma cópia consumindo os elementos. Shift cria até uma pilha. Mão vazia mostra o estoque. |
+1. **Monte a rede.** Coloque um **Drive de Elementos** com pelo menos um **Disco de Elementos** dentro.
+   Máquinas, Drives e **Cabos Atômicos** que se encostam formam uma única rede, como no Applied Energistics.
+2. **Atomize.** O **Atomizador** tem um buffer de 18 slots. Coloque itens à mão ou por hopper, pipe ou esteira.
+   Cada item é decomposto e seus elementos vão para os discos. Itens danificados rendem proporcionalmente à durabilidade.
+3. **Pesquise.** O **Analisador** pesquisa itens para quem colocou a máquina, como no modo Journey do Terraria.
+   Cada unidade analisada é **consumida**. A quantidade exigida depende da raridade do item.
+4. **Replique.** No **Replicador Atômico**, escolha um item da sua biblioteca, defina a quantidade e clique em *Replicar*.
+   A máquina consome os elementos da rede e energia FE, de qualquer cabo de energia compatível com NeoForge.
+   Os itens prontos vão para um buffer de saída de 9 slots, de onde hoppers e pipes podem retirá-los.
 
-Comandos:
+A pesquisa é **por jogador**: cada um tem a própria biblioteca. O armazenamento de elementos é **da rede** (discos no Drive).
 
-- `/atomcraft estoque` — lista os elementos guardados
-- `/atomcraft composicao` — mostra a fórmula do item na mão
+## Valor atômico
 
-Receitas: o **Atomizador** usa ferro, vidro, redstone e um alto-forno; o **Reconstrutor** usa ferro, diamante, redstone e uma bancada de trabalho.
+Cada item tem um valor atômico, que é a composição em átomos mais um nível de raridade.
 
-## Composições químicas (data-driven)
+- **Tamanho e quantidade**: pepita de ferro = Fe×1, barra = Fe×9, bloco = Fe×81.
+- **Raridade**: carvão = C×8, mas diamante = C×512 (o equivalente a 64 carvões).
 
-As composições ficam em arquivos JSON, então qualquer **data pack** ou outro mod pode adicionar ou alterar itens sem mexer no código:
+| Raridade | Unidades a pesquisar | Energia | Tempo |
+|---|---|---|---|
+| Comum | 50 | ×1 | ×1 |
+| Incomum | 20 | ×2 | ×1,5 |
+| Raro | 5 | ×4 | ×2 |
+| Épico | 2 | ×8 | ×3 |
+| Lendário | 1 | ×16 | ×4 |
+
+Itens que não empilham (ferramentas, armaduras) precisam de apenas 1 unidade de pesquisa.
+
+**Energia por unidade** = Σ(átomos × massa atômica) × 2 FE × multiplicador da raridade.
+Exemplos: barra de ferro ≈ 1.000 FE, diamante ≈ 49.000 FE, estrela do Nether ≈ 819.000 FE.
+
+### Base manual + derivação pelas receitas
+
+Só os itens básicos (minérios, madeira, terra, comida, materiais de mobs) têm valor definido em JSON.
+Os demais são **calculados automaticamente pelas receitas** do jogo e de outros mods. O valor de um item
+é a soma dos ingredientes dividida pela quantidade produzida, arredondando para baixo. Assim, atomizar nunca rende mais do
+que os ingredientes usados. Itens devolvidos na receita (como os baldes do bolo) são descontados, e, havendo
+várias receitas, vale a mais barata.
+
+Para adicionar ou ajustar valores, crie arquivos num data pack:
 
 ```
-src/main/resources/data/atomcraft/compositions/sugar.json
+data/<namespace>/atomcraft/compositions/<nome>.json
 ```
 
 ```json
 {
-  "item": "minecraft:sugar",
-  "elements": { "C": 12, "H": 22, "O": 11 }
+  "item": "minecraft:diamond",
+  "elements": { "C": 512 },
+  "rarity": "rare"
 }
 ```
 
-Os elementos são referenciados pelo símbolo químico. Os disponíveis estão em
-[`ChemicalElement.java`](src/main/java/com/atomcraft/chemistry/ChemicalElement.java) — para adicionar um novo, basta incluir uma linha no enum (e a tradução em `lang/`).
+Use `"tag": "minecraft:logs"` no lugar de `"item"` para definir um grupo inteiro. Se `rarity` for omitido,
+vale a raridade vanilla do item. Os elementos disponíveis estão em
+[`ChemicalElement.java`](src/main/java/com/atomcraft/chemistry/ChemicalElement.java), incluindo elementos
+fictícios para materiais mágicos: Redstônio (Rs), Lumínio (Lm), Endério (En), Netherio (Nt), Sculkio (Sk) e Estelário (Sx).
 
-Itens já mapeados: balde, balde de água, gelo, lingotes de ferro/ouro/cobre, carvão, diamante, areia, vidro, açúcar, tronco de carvalho, farinha de osso, pólvora e pedra.
+## Blocos e itens
 
-## Estrutura do projeto
+| | Receita |
+|---|---|
+| **Atomizador** | ferro, ametista, redstone |
+| **Analisador** | ferro, ametista, redstone |
+| **Replicador Atômico** | diamantes, pérolas do Ender, ferro, bloco de redstone |
+| **Drive de Elementos** | ferro, baú, redstone, ametista |
+| **Cabo Atômico** (×8) | pepitas de ferro, redstone, ametista |
+| **Discos** 16K / 64K / 256K / 1M átomos | ametista e redstone + ferro / ouro / diamante / casco de shulker |
 
-```
-src/main/java/com/atomcraft/
-├── AtomCraft.java                 # classe principal do mod
-├── chemistry/
-│   ├── ChemicalElement.java       # tabela de elementos
-│   ├── Composition.java           # composição de um item (elemento → quantidade)
-│   └── CompositionManager.java    # carrega data/*/compositions/*.json
-├── storage/
-│   └── ElementStorage.java        # "sistema" onde os elementos ficam guardados (salvo no mundo)
-├── block/
-│   ├── AtomizerBlock.java         # máquina que atomiza
-│   ├── AssemblerBlock.java        # máquina que reconstrói
-│   └── ElementStorageReport.java
-├── registry/ModBlocks.java        # registro de blocos e itens
-└── command/AtomCraftCommand.java  # /atomcraft
-```
+Os discos guardam os elementos no próprio item, então você pode tirá-los do Drive e levá-los para outra base.
 
-## Rodando em desenvolvimento
+## Comandos
 
-Pré-requisito: **JDK 21**.
+- `/atomcraft valor`: mostra fórmula, raridade, energia, tempo e pesquisa do item na mão
+- `/atomcraft pesquisa desbloquear`: pesquisa o item na mão (operadores)
+- `/atomcraft pesquisa tudo`: pesquisa todos os itens (operadores, útil para testes)
+
+## Configuração
+
+`config/atomcraft-common.toml`: FE por massa atômica, multiplicadores de tempo, capacidade e entrada
+de energia do Replicador, ticks por item no Analisador.
+
+## Desenvolvimento
+
+Pré-requisito: **JDK 25**.
 
 ```bash
 ./gradlew runClient   # abre o Minecraft com o mod
 ./gradlew build       # gera o .jar em build/libs/
 ```
 
-No IntelliJ IDEA basta abrir a pasta como projeto Gradle.
+Cada push compila o mod no GitHub Actions e liga um servidor dedicado que executa um autoteste do ciclo completo
+(atomizar → armazenar → pesquisar → replicar). O `.jar` fica disponível em **Actions → Artifacts**.
 
 ## Roadmap
 
-- [ ] Interface gráfica (GUI) nas máquinas, com inventário e barra de progresso
-- [ ] Consumo de energia (Forge Energy) e tempo de processamento
-- [ ] Estoque por jogador/time em vez de um estoque global do mundo
-- [ ] Tooltip mostrando a fórmula química de cada item
-- [ ] Composição automática a partir das receitas de crafting (soma dos ingredientes)
-- [ ] Integração com JEI/EMI
-- [ ] Item "Tanque de Elemento" para transportar elementos fisicamente
-- [ ] Mais elementos e composições para todos os itens vanilla
+- [x] Interface gráfica nas máquinas
+- [x] Energia FE no Replicador
+- [x] Rede de armazenamento com discos
+- [x] Pesquisa por jogador
+- [x] Valores derivados das receitas
+- [ ] Suporte a fluidos (tanques e fluid pipes)
+- [ ] Texturas e modelos definitivos
+- [ ] Integração com JEI/EMI (mostrar fórmula e custo)
+- [ ] Terminal para acessar a rede à distância
+- [ ] Upgrades de velocidade e eficiência
 
 ## Licença
 
