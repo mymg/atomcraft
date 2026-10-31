@@ -1,0 +1,9 @@
+{
+  "item": "minecraft:blackstone",
+  "elements": {
+    "Si": 1,
+    "O": 2,
+    "Fe": 1,
+    "Mg": 1
+  }
+}

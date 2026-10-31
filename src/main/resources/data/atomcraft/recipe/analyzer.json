@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "IRI",
+    "AAA",
+    "IRI"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "A": "minecraft:amethyst_shard",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "atomcraft:analyzer",
+    "count": 1
+  }
+}

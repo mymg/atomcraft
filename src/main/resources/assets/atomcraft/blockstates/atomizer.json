@@ -1,7 +1,19 @@
 {
   "variants": {
-    "": {
+    "facing=north": {
       "model": "atomcraft:block/atomizer"
+    },
+    "facing=east": {
+      "model": "atomcraft:block/atomizer",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "atomcraft:block/atomizer",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "atomcraft:block/atomizer",
+      "y": 270
     }
   }
 }

@@ -1,37 +1,31 @@
 package com.atomcraft.registry;
 
 import com.atomcraft.AtomCraft;
-import com.atomcraft.block.AssemblerBlock;
+import com.atomcraft.block.AnalyzerBlock;
 import com.atomcraft.block.AtomizerBlock;
-import net.minecraft.world.item.BlockItem;
+import com.atomcraft.block.CableBlock;
+import com.atomcraft.block.DriveBlock;
+import com.atomcraft.block.ReplicatorBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.neoforged.bus.api.IEventBus;
+import net.minecraft.world.level.material.MapColor;
 import net.neoforged.neoforge.registries.DeferredBlock;
-import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class ModBlocks {
 
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(AtomCraft.MOD_ID);
-    public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(AtomCraft.MOD_ID);
 
-    private static BlockBehaviour.Properties machine() {
-        return BlockBehaviour.Properties.of().strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops();
+    private static BlockBehaviour.Properties machine(BlockBehaviour.Properties properties) {
+        return properties.mapColor(MapColor.METAL).strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops();
     }
 
-    public static final DeferredBlock<AtomizerBlock> ATOMIZER =
-            BLOCKS.register("atomizer", () -> new AtomizerBlock(machine()));
-    public static final DeferredBlock<AssemblerBlock> ASSEMBLER =
-            BLOCKS.register("assembler", () -> new AssemblerBlock(machine()));
-
-    public static final DeferredItem<BlockItem> ATOMIZER_ITEM = ITEMS.registerSimpleBlockItem(ATOMIZER);
-    public static final DeferredItem<BlockItem> ASSEMBLER_ITEM = ITEMS.registerSimpleBlockItem(ASSEMBLER);
+    public static final DeferredBlock<AtomizerBlock> ATOMIZER = BLOCKS.registerBlock("atomizer", AtomizerBlock::new, ModBlocks::machine);
+    public static final DeferredBlock<AnalyzerBlock> ANALYZER = BLOCKS.registerBlock("analyzer", AnalyzerBlock::new, ModBlocks::machine);
+    public static final DeferredBlock<ReplicatorBlock> REPLICATOR = BLOCKS.registerBlock("replicator", ReplicatorBlock::new, ModBlocks::machine);
+    public static final DeferredBlock<DriveBlock> DRIVE = BLOCKS.registerBlock("drive", DriveBlock::new, ModBlocks::machine);
+    public static final DeferredBlock<CableBlock> CABLE = BLOCKS.registerBlock("atomic_cable", CableBlock::new,
+            properties -> properties.mapColor(MapColor.METAL).strength(0.5f).sound(SoundType.METAL).noOcclusion());
 
     private ModBlocks() {}
-
-    public static void register(IEventBus modBus) {
-        BLOCKS.register(modBus);
-        ITEMS.register(modBus);
-    }
 }

@@ -1,0 +1,8 @@
+{
+  "item": "minecraft:copper_ore",
+  "elements": {
+    "Cu": 27,
+    "Si": 1,
+    "O": 2
+  }
+}

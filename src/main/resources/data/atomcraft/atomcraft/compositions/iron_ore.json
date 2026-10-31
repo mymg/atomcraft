@@ -1,0 +1,8 @@
+{
+  "item": "minecraft:iron_ore",
+  "elements": {
+    "Fe": 9,
+    "Si": 1,
+    "O": 2
+  }
+}

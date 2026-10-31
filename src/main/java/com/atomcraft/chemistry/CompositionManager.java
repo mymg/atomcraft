@@ -1,70 +1,57 @@
 package com.atomcraft.chemistry;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.mojang.logging.LogUtils;
+import com.atomcraft.AtomCraft;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.FileToIdConverter;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.item.Item;
-import org.slf4j.Logger;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 /**
- * Carrega as composições químicas dos itens a partir de data packs:
- * {@code data/<namespace>/compositions/*.json}
+ * Carrega os valores atômicos "base" de data packs:
+ * {@code data/<namespace>/atomcraft/compositions/*.json}
  *
  * <pre>
  * {
- *   "item": "minecraft:sugar",
- *   "elements": { "C": 12, "H": 22, "O": 11 }
+ *   "item": "minecraft:diamond",          // ou "tag": "minecraft:logs"
+ *   "elements": { "C": 512 },
+ *   "rarity": "rare"                      // opcional; padrão = raridade vanilla do item
  * }
  * </pre>
  *
- * Qualquer mod ou data pack pode adicionar/sobrescrever composições.
+ * Itens sem entrada própria têm o valor derivado das receitas
+ * (ver {@link RecipeDeriver}).
  */
-public class CompositionManager extends SimpleJsonResourceReloadListener {
+public class CompositionManager extends SimpleJsonResourceReloadListener<CompositionManager.Entry> {
 
-    private static final Logger LOGGER = LogUtils.getLogger();
-    private static final Gson GSON = new GsonBuilder().create();
-
-    private record Entry(Item item, Composition composition) {
-        static final Codec<Entry> CODEC = RecordCodecBuilder.create(i -> i.group(
-                BuiltInRegistries.ITEM.byNameCodec().fieldOf("item").forGetter(Entry::item),
-                Composition.CODEC.fieldOf("elements").forGetter(Entry::composition)
+    public record Entry(Optional<Identifier> item, Optional<Identifier> tag, Composition elements, Optional<Rarity> rarity) {
+        public static final Codec<Entry> CODEC = RecordCodecBuilder.create(i -> i.group(
+                Identifier.CODEC.optionalFieldOf("item").forGetter(Entry::item),
+                Identifier.CODEC.optionalFieldOf("tag").forGetter(Entry::tag),
+                Composition.CODEC.fieldOf("elements").forGetter(Entry::elements),
+                Rarity.CODEC.optionalFieldOf("rarity").forGetter(Entry::rarity)
         ).apply(i, Entry::new));
     }
 
-    private static volatile Map<Item, Composition> compositions = Map.of();
+    private static volatile List<Entry> entries = List.of();
 
     public CompositionManager() {
-        super(GSON, "compositions");
+        super(Entry.CODEC, FileToIdConverter.json("atomcraft/compositions"));
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> files, ResourceManager resourceManager, ProfilerFiller profiler) {
-        Map<Item, Composition> loaded = new HashMap<>();
-        files.forEach((id, json) -> Entry.CODEC.parse(JsonOps.INSTANCE, json)
-                .resultOrPartial(error -> LOGGER.error("Composição inválida em {}: {}", id, error))
-                .ifPresent(entry -> loaded.put(entry.item(), entry.composition())));
-        compositions = Map.copyOf(loaded);
-        LOGGER.info("AtomCraft: {} composições químicas carregadas", loaded.size());
+    protected void apply(Map<Identifier, Entry> loaded, ResourceManager resourceManager, ProfilerFiller profiler) {
+        entries = List.copyOf(loaded.values());
+        AtomCraft.LOGGER.info("AtomCraft: {} composições base carregadas", entries.size());
     }
 
-    public static Optional<Composition> get(Item item) {
-        return Optional.ofNullable(compositions.get(item));
-    }
-
-    public static Map<Item, Composition> all() {
-        return compositions;
+    public static List<Entry> entries() {
+        return entries;
     }
 }

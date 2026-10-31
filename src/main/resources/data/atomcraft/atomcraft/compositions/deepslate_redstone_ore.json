@@ -1,0 +1,9 @@
+{
+  "item": "minecraft:deepslate_redstone_ore",
+  "elements": {
+    "Rs": 16,
+    "Si": 1,
+    "O": 2,
+    "Mg": 1
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "item": "minecraft:lava_bucket",
+  "elements": {
+    "Fe": 31,
+    "Si": 8,
+    "O": 16,
+    "Mg": 4
+  },
+  "rarity": "uncommon"
+}

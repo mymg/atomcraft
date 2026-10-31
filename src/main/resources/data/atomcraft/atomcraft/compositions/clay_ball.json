@@ -1,0 +1,9 @@
+{
+  "item": "minecraft:clay_ball",
+  "elements": {
+    "Al": 2,
+    "Si": 2,
+    "O": 9,
+    "H": 4
+  }
+}

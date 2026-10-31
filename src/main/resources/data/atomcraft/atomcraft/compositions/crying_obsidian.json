@@ -1,0 +1,11 @@
+{
+  "item": "minecraft:crying_obsidian",
+  "elements": {
+    "Si": 2,
+    "O": 4,
+    "Mg": 1,
+    "Fe": 1,
+    "Lm": 1
+  },
+  "rarity": "rare"
+}

@@ -1,0 +1,10 @@
+{
+  "item": "minecraft:nether_gold_ore",
+  "elements": {
+    "Au": 9,
+    "Si": 1,
+    "O": 2,
+    "S": 1
+  },
+  "rarity": "uncommon"
+}

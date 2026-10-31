@@ -2,23 +2,14 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    "IGI",
-    "RFR",
-    "III"
+    "IAI",
+    "ARA",
+    "IRI"
   ],
   "key": {
-    "I": {
-      "item": "minecraft:iron_ingot"
-    },
-    "G": {
-      "item": "minecraft:glass"
-    },
-    "R": {
-      "item": "minecraft:redstone"
-    },
-    "F": {
-      "item": "minecraft:blast_furnace"
-    }
+    "I": "minecraft:iron_ingot",
+    "A": "minecraft:amethyst_shard",
+    "R": "minecraft:redstone"
   },
   "result": {
     "id": "atomcraft:atomizer",

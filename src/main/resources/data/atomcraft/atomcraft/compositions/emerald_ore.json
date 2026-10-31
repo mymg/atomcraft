@@ -1,0 +1,10 @@
+{
+  "item": "minecraft:emerald_ore",
+  "elements": {
+    "Be": 24,
+    "Al": 16,
+    "Si": 49,
+    "O": 146
+  },
+  "rarity": "rare"
+}

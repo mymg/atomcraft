@@ -1,0 +1,9 @@
+{
+  "item": "minecraft:dirt",
+  "elements": {
+    "Si": 1,
+    "O": 2,
+    "C": 1,
+    "H": 2
+  }
+}

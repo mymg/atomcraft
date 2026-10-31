@@ -1,0 +1,8 @@
+{
+  "item": "minecraft:redstone_ore",
+  "elements": {
+    "Rs": 16,
+    "Si": 1,
+    "O": 2
+  }
+}
