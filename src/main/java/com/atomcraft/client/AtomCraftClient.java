@@ -4,14 +4,18 @@ import com.atomcraft.AtomCraft;
 import com.atomcraft.chemistry.AtomicValue;
 import com.atomcraft.chemistry.AtomicValues;
 import com.atomcraft.chemistry.Composition;
+import com.atomcraft.chemistry.Fuel;
 import com.atomcraft.client.screen.AnalyzerScreen;
 import com.atomcraft.client.screen.AtomizerScreen;
 import com.atomcraft.client.screen.DriveScreen;
+import com.atomcraft.client.screen.GeneratorScreen;
+import com.atomcraft.client.screen.TerminalScreen;
 import com.atomcraft.client.screen.GuiUtil;
 import com.atomcraft.client.screen.ReplicatorScreen;
 import com.atomcraft.registry.ModMenus;
 import com.atomcraft.storage.ElementDiskItem;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
@@ -41,6 +45,10 @@ public class AtomCraftClient {
         event.register(ModMenus.ANALYZER.get(), AnalyzerScreen::new);
         event.register(ModMenus.REPLICATOR.get(), ReplicatorScreen::new);
         event.register(ModMenus.DRIVE.get(), DriveScreen::new);
+        event.register(ModMenus.COMBUSTION_GENERATOR.get(), GeneratorScreen::new);
+        event.register(ModMenus.CARBON_GENERATOR.get(), GeneratorScreen::new);
+        event.register(ModMenus.FUSION_REACTOR.get(), GeneratorScreen::new);
+        event.register(ModMenus.TERMINAL.get(), TerminalScreen::new);
     }
 
     /** Mostra a fórmula, a raridade e o progresso de pesquisa no tooltip de cada item. */
@@ -70,6 +78,13 @@ public class AtomCraftClient {
             tooltip.add(Component.translatable("tooltip.atomcraft.researched").withStyle(ChatFormatting.GREEN));
         } else {
             tooltip.add(Component.translatable("tooltip.atomcraft.research_progress", progress, required).withStyle(ChatFormatting.GRAY));
+        }
+        // Com o Gerador de Combustão aberto, mostra quanta energia o item rende.
+        if (Minecraft.getInstance().gui.screen() instanceof GeneratorScreen) {
+            long fuel = Fuel.energy(stack.getItem(), true);
+            if (fuel > 0) {
+                tooltip.add(Component.translatable("tooltip.atomcraft.fuel_value", GuiUtil.formatAmount(fuel)).withStyle(ChatFormatting.GOLD));
+            }
         }
     }
 }

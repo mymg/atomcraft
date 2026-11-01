@@ -26,12 +26,19 @@ import java.util.Set;
 public final class ElementNetwork {
 
     public static final int MAX_NODES = 4096;
-    public static final ElementNetwork EMPTY = new ElementNetwork(List.of());
+    public static final ElementNetwork EMPTY = new ElementNetwork(List.of(), List.of());
 
     private final List<DriveBlockEntity> drives;
+    private final List<EnergyReceiver> receivers;
 
-    private ElementNetwork(List<DriveBlockEntity> drives) {
+    private ElementNetwork(List<DriveBlockEntity> drives, List<EnergyReceiver> receivers) {
         this.drives = drives;
+        this.receivers = receivers;
+    }
+
+    /** Máquinas da rede que recebem energia dos geradores pelo Cabo Atômico. */
+    public List<EnergyReceiver> receivers() {
+        return receivers;
     }
 
     /** Busca em largura pelos blocos da rede conectados a {@code origin}. */
@@ -39,13 +46,16 @@ public final class ElementNetwork {
         Set<BlockPos> visited = new HashSet<>();
         ArrayDeque<BlockPos> queue = new ArrayDeque<>();
         List<DriveBlockEntity> drives = new ArrayList<>();
+        List<EnergyReceiver> receivers = new ArrayList<>();
         BlockPos start = origin.immutable();
         visited.add(start);
         queue.add(start);
 
         while (!queue.isEmpty()) {
             BlockPos pos = queue.poll();
-            if (level.getBlockEntity(pos) instanceof DriveBlockEntity drive) drives.add(drive);
+            var blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof DriveBlockEntity drive) drives.add(drive);
+            if (blockEntity instanceof EnergyReceiver receiver) receivers.add(receiver);
             for (Direction direction : Direction.values()) {
                 BlockPos next = pos.relative(direction);
                 if (visited.contains(next) || visited.size() >= MAX_NODES || !level.isLoaded(next)) continue;
@@ -55,7 +65,7 @@ public final class ElementNetwork {
                 }
             }
         }
-        return new ElementNetwork(drives);
+        return new ElementNetwork(drives, receivers);
     }
 
     public boolean hasStorage() {
@@ -69,6 +79,9 @@ public final class ElementNetwork {
     public boolean isStillValid() {
         for (DriveBlockEntity drive : drives) {
             if (drive.isRemoved()) return false;
+        }
+        for (EnergyReceiver receiver : receivers) {
+            if (receiver.isRemoved()) return false;
         }
         return true;
     }

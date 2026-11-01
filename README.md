@@ -83,9 +83,26 @@ fictícios para materiais mágicos: Redstônio (Rs), Lumínio (Lm), Endério (En
 | **Replicador Atômico** | diamantes, pérolas do Ender, ferro, bloco de redstone |
 | **Drive de Elementos** | ferro, baú, redstone, ametista |
 | **Cabo Atômico** (×8) | pepitas de ferro, redstone, ametista |
+| **Terminal de Elementos** | ferro, vidro, ametista, redstone |
+| **Gerador de Combustão** | ferro, fornalha, cobre, redstone |
+| **Gerador de Carbono** | ferro, ametista, Gerador de Combustão, alto-forno |
+| **Reator de Fusão** | blocos de ferro, cristais do End, blocos de diamante, estrela do Nether |
 | **Discos** 16K / 64K / 256K / 1M átomos | ametista e redstone + ferro / ouro / diamante / casco de shulker |
 
 Os discos guardam os elementos no próprio item, então você pode tirá-los do Drive e levá-los para outra base.
+
+## Energia
+
+O mod gera a própria energia (FE), sem depender de outro mod. Os geradores mandam energia para as máquinas
+encostadas, para qualquer cabo FE de outros mods e para todas as máquinas da rede pelo **Cabo Atômico**.
+
+| Gerador | Combustível | Geração (padrão) |
+|---|---|---|
+| **Combustão** (inicial) | qualquer item com carbono. Rende `C + H/4 − O` unidades × 1.600 FE: carvão 38.400 FE, tronco 22.400 FE | 60 FE/t |
+| **Carbono** | carbono (C) guardado na rede, 2.000 FE por átomo | 200 FE/t |
+| **Fusão** | 4 H → 1 He a cada 10 ticks. Começa frio e aquece até 100% em ~50 s; o hélio volta para a rede | até 2.000 FE/t |
+
+O **Terminal de Elementos** mostra todo o estoque da rede organizado como uma tabela periódica.
 
 ## Comandos
 
@@ -96,7 +113,8 @@ Os discos guardam os elementos no próprio item, então você pode tirá-los do 
 ## Configuração
 
 `config/atomcraft-common.toml`: FE por massa atômica (Replicador e Atomizador; 0 desliga o consumo do Atomizador),
-multiplicadores de tempo, capacidade e entrada de energia das máquinas, ticks por item no Analisador.
+multiplicadores de tempo, capacidade e entrada de energia das máquinas, ticks por item no Analisador e
+geração, capacidade e saída de cada gerador.
 
 ## Desenvolvimento
 
@@ -123,6 +141,8 @@ O `.jar` fica disponível em **Actions → Artifacts**.
 - [x] Rede de armazenamento com discos
 - [x] Pesquisa por jogador
 - [x] Valores derivados das receitas
+- [x] Geradores próprios (combustão, carbono e fusão)
+- [x] Terminal de Elementos (tabela periódica)
 - [ ] Suporte a fluidos (tanques e fluid pipes)
 - [ ] Texturas e modelos definitivos
 - [ ] Integração com JEI/EMI (mostrar fórmula e custo)

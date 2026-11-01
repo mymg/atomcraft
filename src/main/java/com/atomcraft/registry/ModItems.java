@@ -16,6 +16,11 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> REPLICATOR = ITEMS.registerSimpleBlockItem(ModBlocks.REPLICATOR);
     public static final DeferredItem<BlockItem> DRIVE = ITEMS.registerSimpleBlockItem(ModBlocks.DRIVE);
     public static final DeferredItem<BlockItem> CABLE = ITEMS.registerSimpleBlockItem(ModBlocks.CABLE);
+    public static final DeferredItem<BlockItem> TERMINAL = ITEMS.registerSimpleBlockItem(ModBlocks.TERMINAL);
+    public static final DeferredItem<BlockItem> COMBUSTION_GENERATOR = ITEMS.registerSimpleBlockItem(ModBlocks.COMBUSTION_GENERATOR);
+    public static final DeferredItem<BlockItem> CARBON_GENERATOR = ITEMS.registerSimpleBlockItem(ModBlocks.CARBON_GENERATOR);
+    public static final DeferredItem<BlockItem> FUSION_REACTOR = ITEMS.registerSimpleBlockItem(ModBlocks.FUSION_REACTOR,
+            properties -> properties.rarity(Rarity.EPIC));
 
     public static final DeferredItem<ElementDiskItem> DISK_16K = ITEMS.registerItem("element_disk_16k",
             properties -> new ElementDiskItem(properties, 16_384L), properties -> properties.stacksTo(1));

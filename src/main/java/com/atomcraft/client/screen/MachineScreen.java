@@ -51,8 +51,14 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
     /** Tooltips das áreas da máquina. */
     protected void extractTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {}
 
+    /** Falso nas interfaces sem inventário do jogador (geradores compactos, terminal). */
+    protected boolean showsInventory() {
+        return true;
+    }
+
     @Override
     protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        if (!showsInventory()) return;
         graphics.text(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, TechGui.TEXT_LIGHT, false);
     }
 
@@ -100,7 +106,7 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
         return switch (status) {
             case WORKING -> TechGui.TEXT_GOOD;
             case IDLE, NOTHING_TO_RESEARCH -> TechGui.TEXT_DIM;
-            case NO_ENERGY, NO_ELEMENTS, OUTPUT_FULL -> 0xFFFFB347;
+            case NO_ENERGY, NO_ELEMENTS, OUTPUT_FULL, NO_FUEL -> 0xFFFFB347;
             default -> TechGui.TEXT_BAD;
         };
     }

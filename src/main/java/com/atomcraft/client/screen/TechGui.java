@@ -178,14 +178,20 @@ public final class TechGui {
 
     /** Círculo pixel art (16×16) colorido com o símbolo do elemento. */
     public static void badge(GuiGraphicsExtractor g, Font font, int x, int y, ChemicalElement element) {
+        badge(g, font, x, y, element, false);
+    }
+
+    /** Badge apagada (elemento sem estoque) quando {@code dim} é verdadeiro. */
+    public static void badge(GuiGraphicsExtractor g, Font font, int x, int y, ChemicalElement element, boolean dim) {
         int color = ElementColors.of(element);
+        if (dim) color = scale(color, 0.32);
         disk(g, x, y, 8, 0xFF151515);
         disk(g, x + 1, y + 1, 7, color);
         int highlight = scale(color, 1.35);
         g.fill(x + 4, y + 3, x + 6, y + 4, highlight);
         g.fill(x + 3, y + 4, x + 4, y + 6, highlight);
         String symbol = element.symbol();
-        int textColor = ElementColors.luminance(color) > 140 ? 0xFF151515 : 0xFFFFFFFF;
+        int textColor = dim ? 0xFF8A8A8A : ElementColors.luminance(color) > 140 ? 0xFF151515 : 0xFFFFFFFF;
         // A largura da fonte inclui 1 px de espaçamento à direita; centraliza pela parte visível.
         int visible = font.width(symbol) - 1;
         g.text(font, symbol, x + (16 - visible + 1) / 2, y + 4, textColor, false);

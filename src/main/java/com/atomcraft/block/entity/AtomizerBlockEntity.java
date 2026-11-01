@@ -7,6 +7,7 @@ import com.atomcraft.chemistry.Composition;
 import com.atomcraft.menu.AtomizerMenu;
 import com.atomcraft.registry.ModBlockEntities;
 import com.atomcraft.storage.ElementNetwork;
+import com.atomcraft.storage.EnergyReceiver;
 import com.atomcraft.storage.FilteredItemHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -26,7 +27,7 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
  * Atomizador: consome os itens do buffer de entrada e guarda os elementos na
  * rede. Aceita itens de hoppers, pipes e esteiras.
  */
-public class AtomizerBlockEntity extends MachineBlockEntity {
+public class AtomizerBlockEntity extends MachineBlockEntity implements EnergyReceiver {
 
     public static final int SLOTS = 21;
     public static final int DATA_PROGRESS = 0, DATA_STATUS = 1, DATA_ENERGY_LO = 2, DATA_ENERGY_HI = 3,
@@ -85,6 +86,7 @@ public class AtomizerBlockEntity extends MachineBlockEntity {
         return automation;
     }
 
+    @Override
     public SimpleEnergyHandler energy() {
         return energy;
     }

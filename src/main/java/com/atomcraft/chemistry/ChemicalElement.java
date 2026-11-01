@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
  */
 public enum ChemicalElement {
     HYDROGEN(1, "H", 1.008, false),
+    HELIUM(2, "He", 4.0026, false),
     BERYLLIUM(4, "Be", 9.012, false),
     CARBON(6, "C", 12.011, false),
     NITROGEN(7, "N", 14.007, false),

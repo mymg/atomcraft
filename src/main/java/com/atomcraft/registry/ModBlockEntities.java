@@ -3,6 +3,10 @@ package com.atomcraft.registry;
 import com.atomcraft.AtomCraft;
 import com.atomcraft.block.entity.AnalyzerBlockEntity;
 import com.atomcraft.block.entity.AtomizerBlockEntity;
+import com.atomcraft.block.entity.CarbonGeneratorBlockEntity;
+import com.atomcraft.block.entity.CombustionGeneratorBlockEntity;
+import com.atomcraft.block.entity.FusionReactorBlockEntity;
+import com.atomcraft.block.entity.TerminalBlockEntity;
 import com.atomcraft.block.entity.DriveBlockEntity;
 import com.atomcraft.block.entity.ReplicatorBlockEntity;
 import net.minecraft.core.registries.Registries;
@@ -23,6 +27,15 @@ public final class ModBlockEntities {
             BLOCK_ENTITIES.register("replicator", () -> new BlockEntityType<>(ReplicatorBlockEntity::new, ModBlocks.REPLICATOR.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<DriveBlockEntity>> DRIVE =
             BLOCK_ENTITIES.register("drive", () -> new BlockEntityType<>(DriveBlockEntity::new, ModBlocks.DRIVE.get()));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CombustionGeneratorBlockEntity>> COMBUSTION_GENERATOR =
+            BLOCK_ENTITIES.register("combustion_generator", () -> new BlockEntityType<>(CombustionGeneratorBlockEntity::new, ModBlocks.COMBUSTION_GENERATOR.get()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CarbonGeneratorBlockEntity>> CARBON_GENERATOR =
+            BLOCK_ENTITIES.register("carbon_generator", () -> new BlockEntityType<>(CarbonGeneratorBlockEntity::new, ModBlocks.CARBON_GENERATOR.get()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<FusionReactorBlockEntity>> FUSION_REACTOR =
+            BLOCK_ENTITIES.register("fusion_reactor", () -> new BlockEntityType<>(FusionReactorBlockEntity::new, ModBlocks.FUSION_REACTOR.get()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<TerminalBlockEntity>> TERMINAL =
+            BLOCK_ENTITIES.register("terminal", () -> new BlockEntityType<>(TerminalBlockEntity::new, ModBlocks.TERMINAL.get()));
 
     private ModBlockEntities() {}
 }

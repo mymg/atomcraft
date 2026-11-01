@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "IAI",
+    "AGA",
+    "IBI"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "A": "minecraft:amethyst_shard",
+    "G": "atomcraft:combustion_generator",
+    "B": "minecraft:blast_furnace"
+  },
+  "result": {
+    "id": "atomcraft:carbon_generator",
+    "count": 1
+  }
+}

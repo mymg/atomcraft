@@ -21,6 +21,10 @@ public final class ModCreativeTab {
                 output.accept(ModItems.REPLICATOR.get());
                 output.accept(ModItems.DRIVE.get());
                 output.accept(ModItems.CABLE.get());
+                output.accept(ModItems.TERMINAL.get());
+                output.accept(ModItems.COMBUSTION_GENERATOR.get());
+                output.accept(ModItems.CARBON_GENERATOR.get());
+                output.accept(ModItems.FUSION_REACTOR.get());
                 output.accept(ModItems.DISK_16K.get());
                 output.accept(ModItems.DISK_64K.get());
                 output.accept(ModItems.DISK_256K.get());
