@@ -161,20 +161,31 @@ jobs:
           ATOMCRAFT_SHOWCASE: "1"
           ATOMCRAFT_QUICKPLAY: showcase
           LIBGL_ALWAYS_SOFTWARE: "1"
+          DISPLAY: ":99"
         run: |
-          xvfb-run -a -s "-screen 0 1280x960x24" ./gradlew runClient > client.log 2>&1 &
-          for i in $(seq 1 150); do
+          pip install -q pillow
+          Xvfb :99 -screen 0 1280x960x24 > /dev/null 2>&1 &
+          sleep 2
+          mkdir -p run/screenshots
+          ./gradlew runClient > client.log 2>&1 &
+          done_names=""
+          for i in $(seq 1 600); do
+            for name in $(grep -o "SHOWCASE capture [a-z]*" client.log | awk '{print $3}'); do
+              case " $done_names " in *" $name "*) ;; *)
+                python3 -c "from PIL import ImageGrab; ImageGrab.grab(xdisplay=':99').save('run/screenshots/$name.png')"
+                done_names="$done_names $name"; echo "capturado: $name";;
+              esac
+            done
             grep -q "SHOWCASE DONE" client.log && break
             grep -q "Crash report saved\|BUILD FAILED" client.log && break
-            sleep 4
+            sleep 1
           done
-          sleep 5
           pkill -f "net.neoforged" || true; pkill -f GradleWorkerMain || true; sleep 3
           grep "SHOWCASE" client.log | sed 's/^.*AtomCraft SHOWCASE /::notice title=Vitrine::/' || true
           ls -la run/screenshots || true
       - name: Publish screenshots
         run: |
-          [ -d run/screenshots ] || { echo "Nenhum print"; tail -60 client.log; exit 1; }
+          ls run/screenshots/*.png > /dev/null 2>&1 || { echo "Nenhum print"; tail -60 client.log; exit 1; }
           mkdir pub && cp run/screenshots/*.png pub/ && cd pub
           git init -q && git checkout -q -b ci-screenshots
           git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" add . 
