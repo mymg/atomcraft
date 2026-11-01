@@ -256,17 +256,17 @@ public class ReplicatorScreen extends MachineScreen<ReplicatorMenu> {
                 }
 
                 graphics.text(font, Component.translatable("gui.atomcraft.energy_cost", GuiUtil.formatAmount(value.energyCost())),
-                        x, y + 48, TechGui.TEXT_TEAL, false);
+                        x, y + 46, TechGui.TEXT_TEAL, false);
                 graphics.text(font, Component.translatable("gui.atomcraft.time", String.format("%.1f", value.replicateTicks() / 20.0)),
-                        x, y + 57, TechGui.TEXT_TEAL, false);
+                        x, y + 55, TechGui.TEXT_TEAL, false);
                 long available = ClientState.maxFromNetwork(value.composition());
                 graphics.text(font, Component.translatable("gui.atomcraft.available", GuiUtil.formatAmount(available)),
-                        x, y + 66, available > 0 ? TechGui.TEXT_GOOD : TechGui.TEXT_BAD, false);
+                        x, y + 64, available > 0 ? TechGui.TEXT_GOOD : TechGui.TEXT_BAD, false);
             }
         }
 
         // Produção atual
-        int jy = topPos + INFO_Y + 81;
+        int jy = topPos + INFO_Y + 82;
         graphics.fill(x, jy - 3, x + 92, jy - 2, TechGui.GLASS_EDGE_DIM);
         TechGui.slot(graphics, x, jy);
         Item target = menu.target();
@@ -275,7 +275,7 @@ public class ReplicatorScreen extends MachineScreen<ReplicatorMenu> {
             graphics.text(font, "×" + menu.remaining(), x + 20, jy, TechGui.TEXT_LIGHT, false);
         }
         TechGui.horizontalBar(graphics, x + 20, jy + 9, 72, 7, menu.progress(), TechGui.STORAGE);
-        graphics.text(font, font.plainSubstrByWidth(menu.status().label().getString(), 92), x, jy + 18,
+        graphics.text(font, font.plainSubstrByWidth(menu.status().label().getString(), 92), x, jy + 17,
                 statusColor(menu.status()), false);
     }
 
@@ -311,7 +311,7 @@ public class ReplicatorScreen extends MachineScreen<ReplicatorMenu> {
                 }
             }
         }
-        if (menu.target() != null && hovering(mouseX, mouseY, INFO_X + 5, INFO_Y + 81, 16, 16)) {
+        if (menu.target() != null && hovering(mouseX, mouseY, INFO_X + 5, INFO_Y + 82, 16, 16)) {
             graphics.setTooltipForNextFrame(font, new ItemStack(menu.target()), mouseX, mouseY);
         }
     }

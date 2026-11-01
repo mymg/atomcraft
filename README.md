@@ -8,15 +8,24 @@ copiar e usa o **Replicador Atômico** para criá-los de novo a partir dos eleme
 
 1. **Monte a rede.** Coloque um **Drive de Elementos** com pelo menos um **Disco de Elementos** dentro.
    Máquinas, Drives e **Cabos Atômicos** que se encostam formam uma única rede, como no Applied Energistics.
-2. **Atomize.** O **Atomizador** tem um buffer de 18 slots. Coloque itens à mão ou por hopper, pipe ou esteira.
-   Cada item é decomposto e seus elementos vão para os discos. Itens danificados rendem proporcionalmente à durabilidade.
+2. **Atomize.** O **Atomizador** tem um buffer de 21 slots. Coloque itens à mão ou por hopper, pipe ou esteira.
+   Cada item é decomposto e seus elementos vão para os discos, gastando um pouco de energia FE.
+   Itens danificados rendem proporcionalmente à durabilidade.
 3. **Pesquise.** O **Analisador** pesquisa itens para quem colocou a máquina, como no modo Journey do Terraria.
-   Cada unidade analisada é **consumida**. A quantidade exigida depende da raridade do item.
-4. **Replique.** No **Replicador Atômico**, escolha um item da sua biblioteca, defina a quantidade e clique em *Replicar*.
+   Cada unidade analisada é **consumida**. A quantidade exigida depende da raridade do item, e o Analisador
+   só aceita a quantidade que ainda falta (se faltam 23 pedras, entram no máximo 23).
+4. **Replique.** No **Replicador Atômico**, escolha um item da sua biblioteca, defina a quantidade
+   (botões ±10/100/1000, ou ±16/32/64 segurando Shift) e clique em *Replicar*.
    A máquina consome os elementos da rede e energia FE, de qualquer cabo de energia compatível com NeoForge.
    Os itens prontos vão para um buffer de saída de 9 slots, de onde hoppers e pipes podem retirá-los.
 
 A pesquisa é **por jogador**: cada um tem a própria biblioteca. O armazenamento de elementos é **da rede** (discos no Drive).
+
+## Interfaces
+
+Todas as máquinas usam um tema tecnológico em pixel art, desenhado no próprio código: moldura metálica,
+painéis de vidro verde-azulado, barras segmentadas de energia (vermelha), progresso (roxa) e armazenamento (verde).
+Os elementos químicos aparecem como badges circulares coloridas com o símbolo; passe o mouse para ver o nome e a quantidade.
 
 ## Valor atômico
 
@@ -86,8 +95,8 @@ Os discos guardam os elementos no próprio item, então você pode tirá-los do 
 
 ## Configuração
 
-`config/atomcraft-common.toml`: FE por massa atômica, multiplicadores de tempo, capacidade e entrada
-de energia do Replicador, ticks por item no Analisador.
+`config/atomcraft-common.toml`: FE por massa atômica (Replicador e Atomizador; 0 desliga o consumo do Atomizador),
+multiplicadores de tempo, capacidade e entrada de energia das máquinas, ticks por item no Analisador.
 
 ## Desenvolvimento
 
@@ -98,12 +107,18 @@ Pré-requisito: **JDK 25**.
 ./gradlew build       # gera o .jar em build/libs/
 ```
 
-Cada push compila o mod no GitHub Actions e liga um servidor dedicado que executa um autoteste do ciclo completo
-(atomizar → armazenar → pesquisar → replicar). O `.jar` fica disponível em **Actions → Artifacts**.
+Cada push compila o mod no GitHub Actions e:
+
+- liga um servidor dedicado que executa um autoteste do ciclo completo (atomizar → armazenar → pesquisar → replicar);
+- abre o cliente numa tela virtual para conferir texturas e modelos;
+- roda o **modo vitrine**, que monta as máquinas com dados de exemplo e publica um print de cada interface
+  no branch [`ci-screenshots`](../../tree/ci-screenshots).
+
+O `.jar` fica disponível em **Actions → Artifacts**.
 
 ## Roadmap
 
-- [x] Interface gráfica nas máquinas
+- [x] Interface gráfica nas máquinas (tema tecnológico)
 - [x] Energia FE no Replicador
 - [x] Rede de armazenamento com discos
 - [x] Pesquisa por jogador
