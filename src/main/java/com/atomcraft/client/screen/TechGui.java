@@ -138,6 +138,7 @@ public final class TechGui {
         g.fill(x + 1, y + 1, x + w - 1, y + h - 1, 0xFF0A0C0E);
         int segments = (h - 3) / 3;
         int lit = Math.round(segments * Math.max(0, Math.min(1, fraction)));
+        if (lit == 0 && fraction > 0) lit = 1;
         int dim = scale(color, 0.22), bright = scale(color, 1.4);
         for (int i = 0; i < segments; i++) {
             int yy = y + h - 4 - i * 3;
@@ -153,6 +154,7 @@ public final class TechGui {
         g.fill(x + 1, y + 1, x + w - 1, y + h - 1, 0xFF0A0C0E);
         int segments = (w - 3) / 3;
         int lit = Math.round(segments * Math.max(0, Math.min(1, fraction)));
+        if (lit == 0 && fraction > 0) lit = 1;
         int dim = scale(color, 0.22), bright = scale(color, 1.4);
         for (int i = 0; i < segments; i++) {
             int xx = x + 2 + i * 3;
@@ -184,7 +186,9 @@ public final class TechGui {
         g.fill(x + 3, y + 4, x + 4, y + 6, highlight);
         String symbol = element.symbol();
         int textColor = ElementColors.luminance(color) > 140 ? 0xFF151515 : 0xFFFFFFFF;
-        g.text(font, symbol, x + 8 - font.width(symbol) / 2 + (font.width(symbol) % 2 == 0 ? 1 : 0), y + 4, textColor, false);
+        // A largura da fonte inclui 1 px de espaçamento à direita; centraliza pela parte visível.
+        int visible = font.width(symbol) - 1;
+        g.text(font, symbol, x + (16 - visible + 1) / 2, y + 4, textColor, false);
     }
 
     private static void disk(GuiGraphicsExtractor g, int x, int y, int radius, int color) {

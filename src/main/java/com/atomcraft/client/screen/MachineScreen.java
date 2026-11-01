@@ -20,6 +20,9 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
     /** Altura da aba de título acima da moldura. */
     protected static final int TAB = 10;
 
+    /** No modo vitrine do CI os tooltips ficam desligados, para não cobrir os prints. */
+    private static final boolean SHOWCASE = System.getenv("ATOMCRAFT_SHOWCASE") != null;
+
     protected MachineScreen(M menu, Inventory inventory, Component title, int width, int height) {
         super(menu, inventory, title, width, height);
         this.inventoryLabelX = 9;
@@ -56,7 +59,7 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
-        extractTooltips(graphics, mouseX, mouseY);
+        if (!SHOWCASE) extractTooltips(graphics, mouseX, mouseY);
     }
 
     protected boolean hovering(int mouseX, int mouseY, int x, int y, int w, int h) {
@@ -65,6 +68,7 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
     }
 
     protected void tooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY, Component... lines) {
+        if (SHOWCASE) return;
         graphics.setComponentTooltipForNextFrame(font, List.of(lines), mouseX, mouseY);
     }
 

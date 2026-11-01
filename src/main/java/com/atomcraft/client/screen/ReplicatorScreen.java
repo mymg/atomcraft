@@ -89,7 +89,12 @@ public class ReplicatorScreen extends MachineScreen<ReplicatorMenu> {
         addRenderableWidget(search);
 
         int x = leftPos + 8, y = topPos + ROW_Y;
-        int[] widths = {font.width("-1000") + 6, font.width("-100") + 6, font.width("-10") + 6};
+        // Largura de cada botão: cabe o rótulo normal (10/100/1000) e o com Shift (16/32/64).
+        int[] widths = new int[3];
+        int[][] steps = {{10, 16}, {100, 32}, {1000, 64}};
+        for (int i = 0; i < 3; i++) {
+            widths[i] = Math.max(font.width("-" + steps[i][0]), font.width("-" + steps[i][1])) + 8;
+        }
         for (int i = 2; i >= 0; i--) {
             int index = i;
             buttons.add(new Button(x, y, widths[i], 14, () -> "-" + step(index), () -> changeQuantity(-step(index)), () -> true));
@@ -247,21 +252,22 @@ public class ReplicatorScreen extends MachineScreen<ReplicatorMenu> {
                     }
                     TechGui.badge(graphics, font, bx, y + 20, entry.getKey());
                     String count = "×" + TechGui.shortAmount(entry.getValue());
-                    graphics.text(font, count, bx + 8 - font.width(count) / 2, y + 38, TechGui.TEXT_TEAL, false);
+                    graphics.text(font, count, bx + 8 - font.width(count) / 2, y + 37, TechGui.TEXT_TEAL, false);
                 }
 
                 graphics.text(font, Component.translatable("gui.atomcraft.energy_cost", GuiUtil.formatAmount(value.energyCost())),
-                        x, y + 50, TechGui.TEXT_TEAL, false);
+                        x, y + 48, TechGui.TEXT_TEAL, false);
                 graphics.text(font, Component.translatable("gui.atomcraft.time", String.format("%.1f", value.replicateTicks() / 20.0)),
-                        x, y + 60, TechGui.TEXT_TEAL, false);
+                        x, y + 57, TechGui.TEXT_TEAL, false);
                 long available = ClientState.maxFromNetwork(value.composition());
                 graphics.text(font, Component.translatable("gui.atomcraft.available", GuiUtil.formatAmount(available)),
-                        x, y + 70, available > 0 ? TechGui.TEXT_GOOD : TechGui.TEXT_BAD, false);
+                        x, y + 66, available > 0 ? TechGui.TEXT_GOOD : TechGui.TEXT_BAD, false);
             }
         }
 
         // Produção atual
-        int jy = topPos + INFO_Y + 84;
+        int jy = topPos + INFO_Y + 81;
+        graphics.fill(x, jy - 3, x + 92, jy - 2, TechGui.GLASS_EDGE_DIM);
         TechGui.slot(graphics, x, jy);
         Item target = menu.target();
         if (target != null) {
@@ -269,7 +275,7 @@ public class ReplicatorScreen extends MachineScreen<ReplicatorMenu> {
             graphics.text(font, "×" + menu.remaining(), x + 20, jy, TechGui.TEXT_LIGHT, false);
         }
         TechGui.horizontalBar(graphics, x + 20, jy + 9, 72, 7, menu.progress(), TechGui.STORAGE);
-        graphics.text(font, font.plainSubstrByWidth(menu.status().label().getString(), 92), x, jy + 19 - 1,
+        graphics.text(font, font.plainSubstrByWidth(menu.status().label().getString(), 92), x, jy + 18,
                 statusColor(menu.status()), false);
     }
 
@@ -305,7 +311,7 @@ public class ReplicatorScreen extends MachineScreen<ReplicatorMenu> {
                 }
             }
         }
-        if (menu.target() != null && hovering(mouseX, mouseY, INFO_X + 5, INFO_Y + 84, 16, 16)) {
+        if (menu.target() != null && hovering(mouseX, mouseY, INFO_X + 5, INFO_Y + 81, 16, 16)) {
             graphics.setTooltipForNextFrame(font, new ItemStack(menu.target()), mouseX, mouseY);
         }
     }
