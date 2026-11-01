@@ -33,6 +33,7 @@ public class AtomCraftClient {
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
         modBus.addListener(AtomCraftClient::registerScreens);
         NeoForge.EVENT_BUS.addListener(AtomCraftClient::onTooltip);
+        ClientShowcase.register();
     }
 
     private static void registerScreens(RegisterMenuScreensEvent event) {

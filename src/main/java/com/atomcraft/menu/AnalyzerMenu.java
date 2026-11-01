@@ -3,6 +3,7 @@ package com.atomcraft.menu;
 import com.atomcraft.block.entity.AnalyzerBlockEntity;
 import com.atomcraft.block.entity.MachineStatus;
 import com.atomcraft.chemistry.AtomicValues;
+import com.atomcraft.client.ClientState;
 import com.atomcraft.registry.ModBlocks;
 import com.atomcraft.registry.ModMenus;
 import com.atomcraft.storage.FilteredItemHandler;
@@ -19,13 +20,22 @@ import org.jspecify.annotations.Nullable;
 
 public class AnalyzerMenu extends BaseMenu {
 
-    public static final int WIDTH = 176, HEIGHT = 176;
+    public static final int WIDTH = 176, HEIGHT = 204;
+    public static final int GRID_X = 26, GRID_Y = 25;
 
     private final ContainerData data;
 
     public static AnalyzerMenu client(int id, Inventory inventory, RegistryFriendlyByteBuf buf) {
+        FilteredItemHandler[] holder = new FilteredItemHandler[1];
         FilteredItemHandler handler = new FilteredItemHandler(AnalyzerBlockEntity.SLOTS, 99,
-                (slot, resource) -> AtomicValues.get(resource.getItem(), true) != null, () -> {});
+                (slot, resource) -> AtomicValues.get(resource.getItem(), true) != null, () -> {})
+                .withCapacityLimit((slot, resource) -> {
+                    var value = AtomicValues.get(resource.getItem(), true);
+                    if (value == null) return 0;
+                    int missing = value.researchRequired(resource.getItem()) - ClientState.researchProgress(resource.getItem());
+                    return missing - holder[0].countOf(resource, slot);
+                });
+        holder[0] = handler;
         return new AnalyzerMenu(id, inventory, buf.readBlockPos(), handler, new SimpleContainerData(AnalyzerBlockEntity.DATA_COUNT));
     }
 
@@ -36,8 +46,10 @@ public class AnalyzerMenu extends BaseMenu {
     private AnalyzerMenu(int id, Inventory inventory, BlockPos pos, FilteredItemHandler handler, ContainerData data) {
         super(ModMenus.ANALYZER.get(), id, inventory, pos);
         this.data = data;
-        for (int col = 0; col < 9; col++) {
-            addSlot(new ResourceHandlerSlot(handler, handler::set, col, 8 + col * 18, 20));
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                addSlot(new ResourceHandlerSlot(handler, handler::set, col + row * 3, GRID_X + col * 18, GRID_Y + row * 18));
+            }
         }
         machineSlots = AnalyzerBlockEntity.SLOTS;
         addPlayerInventory(inventory, 8, HEIGHT - 82);

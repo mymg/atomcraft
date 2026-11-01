@@ -19,8 +19,9 @@ import org.jspecify.annotations.Nullable;
 
 public class ReplicatorMenu extends BaseMenu {
 
-    public static final int WIDTH = 240, HEIGHT = 258;
-    public static final int OUTPUT_X = 40, OUTPUT_Y = 146;
+    public static final int WIDTH = 256, HEIGHT = 274;
+    public static final int OUTPUT_X = 12, OUTPUT_Y = 156;
+    public static final int INVENTORY_X = 48;
 
     private final ContainerData data;
 
@@ -45,7 +46,7 @@ public class ReplicatorMenu extends BaseMenu {
             });
         }
         machineSlots = ReplicatorBlockEntity.SLOTS;
-        addPlayerInventory(inventory, OUTPUT_X, HEIGHT - 82);
+        addPlayerInventory(inventory, INVENTORY_X, HEIGHT - 82);
         addDataSlots(data);
     }
 

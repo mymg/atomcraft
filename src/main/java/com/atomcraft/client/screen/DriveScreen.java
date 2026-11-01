@@ -11,13 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/** Drive: slots de disco e lista dos elementos guardados na rede. */
+/** Drive: discos e ocupação à esquerda, elementos guardados na rede (badges) à direita. */
 public class DriveScreen extends MachineScreen<DriveMenu> {
 
-    private static final int LIST_X = 86, LIST_Y = 18, LIST_W = 82, LIST_H = 66, ROW_H = 9;
-    private static final int VISIBLE_ROWS = (LIST_H - 4) / ROW_H;
+    private static final int LIST_X = 89, LIST_Y = 21, LIST_W = 80, LIST_H = 78;
+    private static final int COLS = 2, ROWS = 4, CELL_W = 37, CELL_H = 18;
 
-    private int scroll;
+    private int scrollRow;
 
     public DriveScreen(DriveMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, DriveMenu.WIDTH, DriveMenu.HEIGHT);
@@ -27,36 +27,67 @@ public class DriveScreen extends MachineScreen<DriveMenu> {
         return new ArrayList<>(ClientState.networkTotals().elements().entrySet());
     }
 
-    @Override
-    protected void extractMachine(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        networkBar(graphics, leftPos + 8, topPos + 62, 72);
-        GuiUtil.inset(graphics, leftPos + LIST_X, topPos + LIST_Y, LIST_W, LIST_H);
+    private int maxScroll() {
+        int rows = (entries().size() + COLS - 1) / COLS;
+        return Math.max(0, rows - ROWS);
     }
 
     @Override
-    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        super.extractLabels(graphics, mouseX, mouseY);
-        graphics.text(font, networkLabel(), 8, 72, GuiUtil.TEXT_LIGHT, false);
+    protected void extractPanels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        TechGui.glass(graphics, leftPos + 8, topPos + 21, 78, 78);
+        TechGui.glass(graphics, leftPos + LIST_X, topPos + LIST_Y, LIST_W, LIST_H);
+    }
+
+    @Override
+    protected void extractMachine(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        long capacity = ClientState.networkCapacity();
+        float fraction = capacity <= 0 ? 0 : (float) ClientState.networkUsed() / capacity;
+        TechGui.horizontalBar(graphics, leftPos + 12, topPos + 68, 70, 8, fraction, TechGui.STORAGE);
+        String amount = storageText();
+        graphics.text(font, amount, leftPos + 47 - font.width(amount) / 2, topPos + 81, TechGui.TEXT_TEAL, false);
 
         List<Map.Entry<ChemicalElement, Long>> entries = entries();
-        scroll = Math.max(0, Math.min(scroll, entries.size() - VISIBLE_ROWS));
+        scrollRow = Math.max(0, Math.min(scrollRow, maxScroll()));
         if (entries.isEmpty()) {
-            graphics.text(font, Component.translatable("gui.atomcraft.empty"), LIST_X + 4, LIST_Y + 4, 0xFFE0E0E0, false);
+            Component empty = Component.translatable("gui.atomcraft.empty");
+            graphics.text(font, empty, leftPos + LIST_X + (LIST_W - font.width(empty)) / 2, topPos + LIST_Y + 35, TechGui.TEXT_DIM, false);
         }
-        for (int i = 0; i < VISIBLE_ROWS && i + scroll < entries.size(); i++) {
-            var entry = entries.get(i + scroll);
-            int y = LIST_Y + 3 + i * ROW_H;
-            int color = entry.getKey().exotic() ? 0xFFE8B8FF : 0xFFFFFFFF;
-            graphics.text(font, entry.getKey().symbol(), LIST_X + 4, y, color, true);
-            String amount = GuiUtil.formatAmount(entry.getValue());
-            graphics.text(font, amount, LIST_X + LIST_W - 4 - font.width(amount), y, 0xFFFFFFFF, true);
+        for (int i = 0; i < COLS * ROWS; i++) {
+            int index = scrollRow * COLS + i;
+            if (index >= entries.size()) break;
+            var entry = entries.get(index);
+            int x = leftPos + LIST_X + 4 + (i % COLS) * CELL_W;
+            int y = topPos + LIST_Y + 4 + (i / COLS) * CELL_H;
+            TechGui.badge(graphics, font, x, y, entry.getKey());
+            graphics.text(font, TechGui.shortAmount(entry.getValue()), x + 18, y + 4, TechGui.TEXT_TEAL, false);
         }
+        if (maxScroll() > 0) {
+            int barY = topPos + LIST_Y + 3 + Math.round((float) scrollRow / maxScroll() * (LIST_H - 16));
+            graphics.fill(leftPos + LIST_X + LIST_W - 4, barY, leftPos + LIST_X + LIST_W - 3, barY + 10, TechGui.GLASS_EDGE);
+        }
+    }
+
+    @Override
+    protected void extractTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        List<Map.Entry<ChemicalElement, Long>> entries = entries();
+        for (int i = 0; i < COLS * ROWS; i++) {
+            int index = scrollRow * COLS + i;
+            if (index >= entries.size()) break;
+            if (hovering(mouseX, mouseY, LIST_X + 4 + (i % COLS) * CELL_W, LIST_Y + 4 + (i / COLS) * CELL_H, CELL_W - 2, 16)) {
+                var entry = entries.get(index);
+                tooltip(graphics, mouseX, mouseY,
+                        Component.translatable(entry.getKey().translationKey()).append(" (" + entry.getKey().symbol() + ")"),
+                        Component.translatable("gui.atomcraft.atoms", String.format("%,d", entry.getValue())));
+                return;
+            }
+        }
+        if (hovering(mouseX, mouseY, 12, 68, 70, 20)) tooltip(graphics, mouseX, mouseY, storageTooltip());
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-        if (GuiUtil.inside(mouseX, mouseY, leftPos + LIST_X, topPos + LIST_Y, LIST_W, LIST_H)) {
-            scroll = Math.max(0, scroll - (int) Math.signum(scrollY));
+        if (hovering((int) mouseX, (int) mouseY, LIST_X, LIST_Y, LIST_W, LIST_H)) {
+            scrollRow = Math.max(0, Math.min(maxScroll(), scrollRow - (int) Math.signum(scrollY)));
             return true;
         }
         return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);

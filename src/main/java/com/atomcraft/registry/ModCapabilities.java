@@ -14,6 +14,7 @@ public final class ModCapabilities {
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.ANALYZER.get(), (be, side) -> be.automation());
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.REPLICATOR.get(), (be, side) -> be.automation());
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.REPLICATOR.get(), (be, side) -> be.energy());
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.ATOMIZER.get(), (be, side) -> be.energy());
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.DRIVE.get(), (be, side) -> be.disks());
     }
 

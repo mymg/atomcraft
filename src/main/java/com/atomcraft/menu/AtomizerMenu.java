@@ -16,7 +16,8 @@ import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class AtomizerMenu extends BaseMenu {
 
-    public static final int WIDTH = 176, HEIGHT = 186;
+    public static final int WIDTH = 176, HEIGHT = 204;
+    public static final int GRID_X = 26, GRID_Y = 25;
 
     private final ContainerData data;
 
@@ -33,9 +34,9 @@ public class AtomizerMenu extends BaseMenu {
     private AtomizerMenu(int id, Inventory inventory, BlockPos pos, FilteredItemHandler handler, ContainerData data) {
         super(ModMenus.ATOMIZER.get(), id, inventory, pos);
         this.data = data;
-        for (int row = 0; row < 2; row++) {
-            for (int col = 0; col < 9; col++) {
-                addSlot(new ResourceHandlerSlot(handler, handler::set, col + row * 9, 8 + col * 18, 20 + row * 18));
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 7; col++) {
+                addSlot(new ResourceHandlerSlot(handler, handler::set, col + row * 7, GRID_X + col * 18, GRID_Y + row * 18));
             }
         }
         machineSlots = AtomizerBlockEntity.SLOTS;
@@ -50,6 +51,14 @@ public class AtomizerMenu extends BaseMenu {
 
     public float progress() {
         return data.get(AtomizerBlockEntity.DATA_PROGRESS) / 1000f;
+    }
+
+    public int energy() {
+        return combine(data.get(AtomizerBlockEntity.DATA_ENERGY_LO), data.get(AtomizerBlockEntity.DATA_ENERGY_HI));
+    }
+
+    public int capacity() {
+        return combine(data.get(AtomizerBlockEntity.DATA_CAPACITY_LO), data.get(AtomizerBlockEntity.DATA_CAPACITY_HI));
     }
 
     public MachineStatus status() {

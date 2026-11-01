@@ -1,5 +1,7 @@
 package com.atomcraft.client.screen;
 
+import com.atomcraft.chemistry.AtomicValue;
+import com.atomcraft.chemistry.AtomicValues;
 import com.atomcraft.client.ClientState;
 import com.atomcraft.menu.AnalyzerMenu;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -8,6 +10,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
+/** Analisador: progresso da análise, buffer 3×3 e painel com o item em pesquisa. */
 public class AnalyzerScreen extends MachineScreen<AnalyzerMenu> {
 
     public AnalyzerScreen(AnalyzerMenu menu, Inventory inventory, Component title) {
@@ -15,30 +18,48 @@ public class AnalyzerScreen extends MachineScreen<AnalyzerMenu> {
     }
 
     @Override
-    protected void extractMachine(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        GuiUtil.horizontalBar(graphics, leftPos + 8, topPos + 42, 160, 5, menu.progress(), 0xFF9C27B0);
-        Item item = menu.currentItem();
-        GuiUtil.slot(graphics, leftPos + 8, topPos + 52);
-        if (item != null) {
-            graphics.item(new ItemStack(item), leftPos + 8, topPos + 52);
-            int required = Math.max(1, menu.required());
-            GuiUtil.horizontalBar(graphics, leftPos + 30, topPos + 63, 138, 5, (float) menu.researched() / required, 0xFF4CAF50);
-        }
+    protected void extractPanels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        TechGui.glass(graphics, leftPos + 22, topPos + 21, 61, 60);
+        TechGui.glass(graphics, leftPos + 87, topPos + 21, 82, 60);
     }
 
     @Override
-    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        super.extractLabels(graphics, mouseX, mouseY);
+    protected void extractMachine(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        TechGui.verticalBar(graphics, leftPos + 9, topPos + 21, 11, 60, menu.progress(), TechGui.PROGRESS);
+
+        int x = leftPos + 91, y = topPos + 25;
+        TechGui.slot(graphics, x + 1, y + 1);
         Item item = menu.currentItem();
         if (item != null) {
-            Component name = new ItemStack(item).getHoverName();
-            graphics.text(font, font.plainSubstrByWidth(name.getString(), 100), 30, 53, GuiUtil.TEXT, false);
+            ItemStack stack = new ItemStack(item);
+            graphics.item(stack, x + 1, y + 1);
+            graphics.text(font, font.plainSubstrByWidth(stack.getHoverName().getString(), 54), x + 21, y + 2, TechGui.TEXT_LIGHT, false);
+            AtomicValue value = AtomicValues.get(item, true);
+            if (value != null) {
+                graphics.text(font, Component.translatable(value.rarity().translationKey()), x + 21, y + 11,
+                        value.rarity().argb(), false);
+            }
+            int required = Math.max(1, menu.required());
             String count = menu.researched() + "/" + menu.required();
-            graphics.text(font, count, 168 - font.width(count), 53, GuiUtil.TEXT, false);
+            TechGui.horizontalBar(graphics, x, y + 22, 74, 8, (float) menu.researched() / required, TechGui.STORAGE);
+            graphics.text(font, count, x + 74 - font.width(count), y + 32, TechGui.TEXT_TEAL, false);
+        } else {
+            graphics.text(font, Component.translatable("gui.atomcraft.insert_items"), x + 21, y + 6, TechGui.TEXT_DIM, false);
         }
-        graphics.text(font, menu.status().label(), 8, 72, menu.status().color(), false);
+        graphics.text(font, font.plainSubstrByWidth(menu.status().label().getString(), 74), x, y + 44,
+                statusColor(menu.status()), false);
+
         long researched = ClientState.research().keySet().stream().filter(ClientState::isResearched).count();
-        Component total = Component.translatable("gui.atomcraft.researched_total", researched);
-        graphics.text(font, total, 168 - font.width(total), 72, GuiUtil.TEXT_LIGHT, false);
+        graphics.text(font, Component.translatable("gui.atomcraft.researched_total", researched),
+                leftPos + 9, topPos + 87, TechGui.TEXT_LIGHT, false);
+    }
+
+    @Override
+    protected void extractTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        if (hovering(mouseX, mouseY, 9, 21, 11, 60)) {
+            tooltip(graphics, mouseX, mouseY, menu.status().label(), Component.literal(Math.round(menu.progress() * 100) + "%"));
+        } else if (menu.currentItem() != null && hovering(mouseX, mouseY, 92, 26, 16, 16)) {
+            graphics.setTooltipForNextFrame(font, new ItemStack(menu.currentItem()), mouseX, mouseY);
+        }
     }
 }

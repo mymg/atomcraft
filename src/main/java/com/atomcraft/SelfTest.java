@@ -96,6 +96,11 @@ final class SelfTest {
 
         // 3. Atomizar 4 barras de ferro
         atomizer.setOwner(TESTER, "tester");
+        atomizer.buffer().set(0, ItemResource.of(Items.IRON_INGOT), 1);
+        for (int i = 0; i < 100; i++) atomizer.serverTick();
+        check(failures, atomizer.buffer().getAmountAsInt(0) == 1 || Config.ATOMIZE_FE_PER_MASS.get() == 0,
+                "sem energia, o atomizador não consome itens");
+        atomizer.energy().set(100_000);
         atomizer.buffer().set(0, ItemResource.of(Items.IRON_INGOT), 4);
         for (int i = 0; i < 400; i++) atomizer.serverTick();
         ElementNetwork network = ElementNetwork.scan(level, drivePos);
@@ -105,6 +110,10 @@ final class SelfTest {
         // 4. Pesquisar barra de ferro pelo Analisador (ligado por cabo)
         analyzer.setOwner(TESTER, "tester");
         int required = ResearchData.required(Items.IRON_INGOT);
+        try (var transaction = net.neoforged.neoforge.transfer.transaction.Transaction.openRoot()) {
+            int accepted = analyzer.automation().insert(ItemResource.of(Items.IRON_INGOT), 99, transaction);
+            check(failures, accepted == required, "analisador aceita só o que falta (" + accepted + "/" + required + ")");
+        }
         analyzer.buffer().set(0, ItemResource.of(Items.IRON_INGOT), Math.min(99, required));
         for (int i = 0; i < required * (Config.ANALYZE_TICKS.get() + 1) + 20; i++) analyzer.serverTick();
         ResearchData research = ResearchData.get(server);
