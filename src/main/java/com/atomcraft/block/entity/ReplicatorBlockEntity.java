@@ -190,12 +190,17 @@ public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyR
                 return;
             }
             reserved = true;
+            maxProgress = 0;
             progress = 0;
-            int speed = upgradeCount(UpgradeType.SPEED);
-            maxProgress = Upgrades.ticks(value.replicateTicks(), speed);
-            energyNeeded = Upgrades.energy(value.energyCost(), speed, upgradeCount(UpgradeType.EFFICIENCY));
             energyUsed = 0;
         }
+
+        // Recalculado a cada tick: chips instalados no meio da produção já valem.
+        int speed = upgradeCount(UpgradeType.SPEED);
+        int newMax = Upgrades.ticks(value.replicateTicks(), speed);
+        progress = rescaleProgress(progress, maxProgress, newMax);
+        maxProgress = newMax;
+        energyNeeded = Upgrades.energy(value.energyCost(), speed, upgradeCount(UpgradeType.EFFICIENCY));
 
         if (progress < maxProgress || energyUsed < energyNeeded) {
             long perTick = (energyNeeded + maxProgress - 1) / Math.max(1, maxProgress);

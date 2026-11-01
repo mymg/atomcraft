@@ -6,6 +6,7 @@ import com.atomcraft.menu.BaseMenu;
 import com.atomcraft.network.MachineTogglePayload;
 import com.atomcraft.upgrade.UpgradeChipItem;
 import com.atomcraft.upgrade.UpgradeType;
+import com.atomcraft.upgrade.Upgrades;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -151,15 +152,7 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
             }
             case UPGRADES -> {
                 graphics.text(font, Component.translatable("gui.atomcraft.upgrades"), x, y, TechGui.TEXT_TEAL, false);
-                int speed = 0, efficiency = 0;
-                for (int i = 0; i < menu.slots.size(); i++) {
-                    if (!menu.isUpgradeSlot(i)) continue;
-                    ItemStack stack = menu.slots.get(i).getItem();
-                    if (stack.getItem() instanceof UpgradeChipItem chip) {
-                        if (chip.type() == UpgradeType.SPEED) speed += stack.getCount();
-                        else efficiency += stack.getCount();
-                    }
-                }
+                int speed = installedUpgrades(UpgradeType.SPEED), efficiency = installedUpgrades(UpgradeType.EFFICIENCY);
                 graphics.text(font, Component.translatable("gui.atomcraft.upgrade_speed", speed), x, y + 40, TechGui.TEXT_LIGHT, false);
                 graphics.text(font, Component.translatable("gui.atomcraft.upgrade_efficiency", efficiency), x, y + 51, TechGui.TEXT_LIGHT, false);
             }
@@ -187,6 +180,17 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
     protected boolean hasClickedOutside(double mouseX, double mouseY, int left, int top) {
         if (tabAt(mouseX, mouseY) >= 0 || insidePanel(mouseX, mouseY)) return false;
         return super.hasClickedOutside(mouseX, mouseY, left, top);
+    }
+
+    /** Chips de um tipo instalados na máquina aberta (até o limite por máquina). */
+    protected int installedUpgrades(UpgradeType type) {
+        int count = 0;
+        for (int i = 0; i < menu.slots.size(); i++) {
+            if (!menu.isUpgradeSlot(i)) continue;
+            ItemStack stack = menu.slots.get(i).getItem();
+            if (stack.getItem() instanceof UpgradeChipItem chip && chip.type() == type) count += stack.getCount();
+        }
+        return Math.min(Upgrades.MAX_PER_TYPE, count);
     }
 
     /** Usado pelo modo vitrine do CI para mostrar um painel nos prints. */

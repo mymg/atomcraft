@@ -139,6 +139,15 @@ public abstract class MachineBlockEntity extends BlockEntity implements MenuProv
         return level != null && level.isClientSide();
     }
 
+    /**
+     * Mantém a fração já concluída quando a duração muda no meio da operação
+     * (ex.: chips de velocidade instalados durante a produção).
+     */
+    protected static int rescaleProgress(int progress, int oldMax, int newMax) {
+        if (oldMax <= 0 || oldMax == newMax) return progress;
+        return (int) Math.min(newMax, (long) progress * newMax / oldMax);
+    }
+
     protected static int permille(int progress, int max) {
         return max <= 0 ? 0 : (int) Math.min(1000, (long) progress * 1000 / max);
     }

@@ -213,6 +213,18 @@ final class SelfTest {
                 "sintetizador fabricou chip de velocidade (" + synthesizer.output().getAmountAsInt(0) + ")");
         check(failures, network.totals().get(ChemicalElement.SILICON) <= 68, "sintetizador consumiu Si da rede ("
                 + network.totals().get(ChemicalElement.SILICON) + ")");
+        // Chips instalados no meio da produção já aceleram o item atual
+        network.insert(new Composition(java.util.Map.of(ChemicalElement.GOLD, 20L)), 1);
+        synthesizer.energy().set(1_000_000);
+        int before = synthesizer.output().getAmountAsInt(0);
+        synthesizer.upgrades().set(0, ItemResource.of(ModItems.SPEED_UPGRADE.get()), 4);
+        synthesizer.upgrades().set(1, ItemResource.of(ModItems.SPEED_UPGRADE.get()), 4);
+        int extra = 0;
+        while (synthesizer.output().getAmountAsInt(0) == before && extra < 300) {
+            synthesizer.tick();
+            extra++;
+        }
+        check(failures, extra <= 40, "chips no meio da produção aceleram o item atual (" + extra + " ticks)");
         synthesizer.library().set(0, ItemResource.EMPTY, 0);
         for (int i = 0; i < 5; i++) synthesizer.tick();
         check(failures, synthesizer.selected() == null, "retirar a schematic cancela a receita");

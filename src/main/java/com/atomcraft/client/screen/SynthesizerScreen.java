@@ -6,6 +6,8 @@ import com.atomcraft.menu.SynthesizerMenu;
 import com.atomcraft.network.SynthesizePayload;
 import com.atomcraft.synthesis.SynthesisRecipe;
 import com.atomcraft.synthesis.SynthesisRecipes;
+import com.atomcraft.upgrade.UpgradeType;
+import com.atomcraft.upgrade.Upgrades;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -127,8 +129,10 @@ public class SynthesizerScreen extends MachineScreen<SynthesizerMenu> {
             lines.add(new ItemStack(hoveredRecipe).getHoverName());
             if (recipe != null) {
                 lines.add(Component.literal(ClientState.formula(recipe.cost())));
-                lines.add(Component.translatable("gui.atomcraft.energy_cost", String.format("%,d", recipe.energy())));
-                lines.add(Component.translatable("gui.atomcraft.time", String.format("%.1f", recipe.ticks() / 20.0)));
+                int speed = installedUpgrades(UpgradeType.SPEED);
+                lines.add(Component.translatable("gui.atomcraft.energy_cost", String.format("%,d",
+                        Upgrades.energy(recipe.energy(), speed, installedUpgrades(UpgradeType.EFFICIENCY)))));
+                lines.add(Component.translatable("gui.atomcraft.time", GuiUtil.formatDuration(Upgrades.ticks(recipe.ticks(), speed))));
             }
             lines.add(Component.translatable(hoveredRecipe == menu.selected() ? "gui.atomcraft.click_to_stop" : "gui.atomcraft.click_to_select"));
             tooltip(graphics, mouseX, mouseY, lines.toArray(Component[]::new));

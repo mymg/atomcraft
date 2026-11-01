@@ -186,13 +186,18 @@ public class SynthesizerBlockEntity extends MachineBlockEntity implements Energy
                 status = MachineStatus.NO_ELEMENTS;
                 return;
             }
-            int speed = upgradeCount(UpgradeType.SPEED);
             reserved = true;
             progress = 0;
-            maxProgress = Upgrades.ticks(recipe.ticks(), speed);
-            energyNeeded = Upgrades.energy(recipe.energy(), speed, upgradeCount(UpgradeType.EFFICIENCY));
+            maxProgress = 0;
             energyUsed = 0;
         }
+
+        // Recalculado a cada tick: chips instalados no meio da produção já valem.
+        int speed = upgradeCount(UpgradeType.SPEED);
+        int newMax = Upgrades.ticks(recipe.ticks(), speed);
+        progress = rescaleProgress(progress, maxProgress, newMax);
+        maxProgress = newMax;
+        energyNeeded = Upgrades.energy(recipe.energy(), speed, upgradeCount(UpgradeType.EFFICIENCY));
 
         if (progress < maxProgress || energyUsed < energyNeeded) {
             long perTick = (energyNeeded + maxProgress - 1) / Math.max(1, maxProgress);
