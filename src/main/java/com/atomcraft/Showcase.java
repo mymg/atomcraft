@@ -5,6 +5,7 @@ import com.atomcraft.block.entity.AtomizerBlockEntity;
 import com.atomcraft.block.entity.CombustionGeneratorBlockEntity;
 import com.atomcraft.block.entity.DriveBlockEntity;
 import com.atomcraft.block.entity.ReplicatorBlockEntity;
+import com.atomcraft.block.entity.SynthesizerBlockEntity;
 import com.atomcraft.chemistry.AtomicValues;
 import com.atomcraft.chemistry.ChemicalElement;
 import com.atomcraft.chemistry.Composition;
@@ -76,10 +77,13 @@ final class Showcase {
         contents.put(ChemicalElement.SILICON, 310L);
         contents.put(ChemicalElement.HYDROGEN, 640L);
         contents.put(ChemicalElement.GOLD, 81L);
-        contents.put(ChemicalElement.REDSTONIUM, 16L);
+        contents.put(ChemicalElement.REDSTONIUM, 160L);
         contents.put(ChemicalElement.CALCIUM, 12L);
         contents.put(ChemicalElement.NITROGEN, 40L);
         contents.put(ChemicalElement.ENDERIUM, 8L);
+        contents.put(ChemicalElement.COPPER, 200L);
+        contents.put(ChemicalElement.LUMINIUM, 64L);
+        contents.put(ChemicalElement.SULFUR, 30L);
         drive.setDiskContents(0, new Composition(contents));
 
         AtomizerBlockEntity atomizer = (AtomizerBlockEntity) level.getBlockEntity(base.east());
@@ -115,6 +119,25 @@ final class Showcase {
         level.setBlock(base.west().above(), ModBlocks.TERMINAL.get().defaultBlockState(), Block.UPDATE_ALL);
         CombustionGeneratorBlockEntity combustion = (CombustionGeneratorBlockEntity) level.getBlockEntity(base.south(2));
         combustion.fuel().set(0, ItemResource.of(Items.COAL), 12);
+        combustion.upgrades().set(0, ItemResource.of(ModItems.EFFICIENCY_UPGRADE.get()), 2);
+
+        // Chips no atomizador, Sintetizador com schematics fabricando um chip
+        atomizer.upgrades().set(0, ItemResource.of(ModItems.SPEED_UPGRADE.get()), 3);
+        atomizer.upgrades().set(1, ItemResource.of(ModItems.EFFICIENCY_UPGRADE.get()), 1);
+        level.setBlock(base.east().above(), ModBlocks.SYNTHESIZER.get().defaultBlockState(), Block.UPDATE_ALL);
+        SynthesizerBlockEntity synthesizer = (SynthesizerBlockEntity) level.getBlockEntity(base.east().above());
+        synthesizer.setOwner(player);
+        synthesizer.energy().set(150_000);
+        synthesizer.library().set(0, ItemResource.of(ModItems.SPEED_UPGRADE_SCHEMATIC.get()), 1);
+        synthesizer.library().set(1, ItemResource.of(ModItems.EFFICIENCY_UPGRADE_SCHEMATIC.get()), 1);
+        synthesizer.output().set(0, ItemResource.of(ModItems.SPEED_UPGRADE.get()), 2);
+        synthesizer.select(ModItems.SPEED_UPGRADE.get());
+
+        // Gerador de Carbono desligado, para mostrar o botão vermelho
+        if (level.getBlockEntity(base.south()) instanceof com.atomcraft.block.entity.MachineBlockEntity carbon) {
+            carbon.setOwner(player);
+            carbon.setEnabled(false);
+        }
         AtomCraft.LOGGER.info("AtomCraft SHOWCASE pronto em {}", base);
     }
 
@@ -131,11 +154,12 @@ final class Showcase {
             case 560 -> base.south();
             case 760 -> base.above();
             case 860 -> base.west().above();
+            case 960 -> base.east().above();
             default -> null;
         };
         if (target != null && level.getBlockEntity(target) instanceof MenuProvider provider) {
             player.openMenu(provider, target);
         }
-        if (ticks == 980) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
+        if (ticks == 1080) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
     }
 }

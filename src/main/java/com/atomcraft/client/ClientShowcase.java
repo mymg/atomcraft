@@ -1,7 +1,10 @@
 package com.atomcraft.client;
 
 import com.atomcraft.AtomCraft;
+import com.atomcraft.client.screen.AnalyzerScreen;
+import com.atomcraft.client.screen.AtomizerScreen;
 import com.atomcraft.client.screen.MachineScreen;
+import com.atomcraft.client.screen.SynthesizerScreen;
 import com.atomcraft.client.screen.ReplicatorScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -34,6 +37,11 @@ final class ClientShowcase {
             current = screen;
             ticks = 0;
             if (screen instanceof ReplicatorScreen replicator) replicator.showcaseSelect(Items.IRON_INGOT);
+            // Mostra os painéis laterais em algumas máquinas.
+            MachineScreen<?> machine = (MachineScreen<?>) screen;
+            machine.showcasePanel(screen instanceof AtomizerScreen || screen instanceof SynthesizerScreen
+                    ? MachineScreen.SidePanel.UPGRADES
+                    : screen instanceof AnalyzerScreen ? MachineScreen.SidePanel.INFO : MachineScreen.SidePanel.NONE);
             return;
         }
         if (++ticks == 40) {

@@ -9,6 +9,7 @@ import com.atomcraft.client.screen.AnalyzerScreen;
 import com.atomcraft.client.screen.AtomizerScreen;
 import com.atomcraft.client.screen.DriveScreen;
 import com.atomcraft.client.screen.GeneratorScreen;
+import com.atomcraft.client.screen.SynthesizerScreen;
 import com.atomcraft.client.screen.TerminalScreen;
 import com.atomcraft.client.screen.GuiUtil;
 import com.atomcraft.client.screen.ReplicatorScreen;
@@ -49,6 +50,7 @@ public class AtomCraftClient {
         event.register(ModMenus.CARBON_GENERATOR.get(), GeneratorScreen::new);
         event.register(ModMenus.FUSION_REACTOR.get(), GeneratorScreen::new);
         event.register(ModMenus.TERMINAL.get(), TerminalScreen::new);
+        event.register(ModMenus.SYNTHESIZER.get(), SynthesizerScreen::new);
     }
 
     /** Mostra a fórmula, a raridade e o progresso de pesquisa no tooltip de cada item. */
@@ -61,14 +63,14 @@ public class AtomCraftClient {
             tooltip.add(Component.translatable("tooltip.atomcraft.disk_usage",
                     GuiUtil.formatAmount(contents.totalAtoms()), GuiUtil.formatAmount(disk.capacity())).withStyle(ChatFormatting.GRAY));
             if (!contents.isEmpty()) {
-                tooltip.add(Component.literal(GuiUtil.ellipsize(contents.formula(), 48)).withStyle(ChatFormatting.DARK_AQUA));
+                tooltip.add(Component.literal(GuiUtil.ellipsize(ClientState.formula(contents), 48)).withStyle(ChatFormatting.DARK_AQUA));
             }
             return;
         }
 
         AtomicValue value = AtomicValues.get(stack.getItem(), true);
         if (value == null) return;
-        tooltip.add(Component.literal("⚛ " + GuiUtil.ellipsize(value.composition().formula(), 40))
+        tooltip.add(Component.literal("⚛ " + GuiUtil.ellipsize(ClientState.formula(value.composition()), 40))
                 .withStyle(ChatFormatting.DARK_AQUA)
                 .append(Component.literal(" · ").withStyle(ChatFormatting.DARK_GRAY))
                 .append(Component.translatable(value.rarity().translationKey()).withStyle(value.rarity().color())));

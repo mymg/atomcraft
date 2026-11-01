@@ -9,6 +9,8 @@ import com.atomcraft.registry.ModBlockEntities;
 import com.atomcraft.storage.ElementNetwork;
 import com.atomcraft.storage.EnergyReceiver;
 import com.atomcraft.storage.FilteredItemHandler;
+import com.atomcraft.upgrade.UpgradeType;
+import com.atomcraft.upgrade.Upgrades;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -49,7 +51,6 @@ public class AtomizerBlockEntity extends MachineBlockEntity implements EnergyRec
     private int currentSlot = -1;
     private long energyNeeded;
     private long energyUsed;
-    private MachineStatus status = MachineStatus.IDLE;
 
     private final ContainerData data = new ContainerData() {
         @Override
@@ -125,9 +126,11 @@ public class AtomizerBlockEntity extends MachineBlockEntity implements EnergyRec
             return;
         }
 
-        maxProgress = value.atomizeTicks();
+        int speed = upgradeCount(UpgradeType.SPEED);
+        maxProgress = Upgrades.ticks(value.atomizeTicks(), speed);
         if (progress == 0) {
-            energyNeeded = (long) Math.ceil(result.weightedMass() * Config.ATOMIZE_FE_PER_MASS.get());
+            energyNeeded = Upgrades.energy((long) Math.ceil(result.weightedMass() * Config.ATOMIZE_FE_PER_MASS.get()),
+                    speed, upgradeCount(UpgradeType.EFFICIENCY));
             energyUsed = 0;
         }
         long perTick = (energyNeeded + maxProgress - 1) / Math.max(1, maxProgress);
@@ -149,6 +152,11 @@ public class AtomizerBlockEntity extends MachineBlockEntity implements EnergyRec
             }
         }
         setChanged();
+    }
+
+    @Override
+    public boolean supportsUpgrade(UpgradeType type) {
+        return true;
     }
 
     private int findWork() {

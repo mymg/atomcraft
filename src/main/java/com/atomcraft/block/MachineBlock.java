@@ -80,7 +80,7 @@ public abstract class MachineBlock extends BaseEntityBlock implements NetworkNod
     public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide()) return null;
         return (tickLevel, tickPos, tickState, blockEntity) -> {
-            if (blockEntity instanceof MachineBlockEntity machine) machine.serverTick();
+            if (blockEntity instanceof MachineBlockEntity machine) machine.tick();
         };
     }
 }

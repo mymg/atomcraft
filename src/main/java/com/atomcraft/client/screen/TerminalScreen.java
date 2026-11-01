@@ -115,12 +115,16 @@ public class TerminalScreen extends MachineScreen<TerminalMenu> {
             long amount = ClientState.networkTotals().get(element);
             long used = ClientState.networkUsed();
             String share = used <= 0 ? "0" : String.format("%.1f", amount * 100.0 / used);
-            graphics.setComponentTooltipForNextFrame(font, List.of(
-                    Component.translatable(element.translationKey()).append(" (" + element.symbol() + ")"),
-                    Component.translatable("gui.atomcraft.atomic_number", element.atomicNumber(),
-                            String.format("%.3f", element.atomicMass())),
-                    Component.translatable("gui.atomcraft.element_amount", String.format("%,d", amount), share)),
-                    mouseX, mouseY);
+            Component amountLine = Component.translatable("gui.atomcraft.element_amount", String.format("%,d", amount), share);
+            List<Component> lines = ClientState.isDiscovered(element)
+                    ? List.of(TechGui.elementName(element),
+                            Component.translatable("gui.atomcraft.atomic_number", element.atomicNumber(),
+                                    String.format("%.3f", element.atomicMass())),
+                            amountLine)
+                    : List.of(TechGui.elementName(element),
+                            Component.translatable("gui.atomcraft.unknown_hint"),
+                            amountLine);
+            tooltip(graphics, mouseX, mouseY, lines.toArray(Component[]::new));
         } else if (hovering(mouseX, mouseY, 9, 196, imageWidth - 18, 20)) {
             tooltip(graphics, mouseX, mouseY, storageTooltip());
         }

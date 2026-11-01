@@ -5,7 +5,10 @@ import com.atomcraft.block.entity.AtomizerBlockEntity;
 import com.atomcraft.block.entity.CarbonGeneratorBlockEntity;
 import com.atomcraft.block.entity.CombustionGeneratorBlockEntity;
 import com.atomcraft.block.entity.FusionReactorBlockEntity;
+import com.atomcraft.block.entity.MachineStatus;
+import com.atomcraft.block.entity.SynthesizerBlockEntity;
 import com.atomcraft.block.entity.TerminalBlockEntity;
+import com.atomcraft.upgrade.UpgradeType;
 import com.atomcraft.block.entity.DriveBlockEntity;
 import com.atomcraft.block.entity.ReplicatorBlockEntity;
 import com.atomcraft.chemistry.AtomicValue;
@@ -80,7 +83,7 @@ final class SelfTest {
         AtomCraft.LOGGER.info("AtomCraft SELFTEST {} itens com valor", AtomicValues.serverValues().size());
         for (String recipe : List.of("atomizer", "analyzer", "replicator", "drive", "atomic_cable",
                 "element_disk_16k", "element_disk_64k", "element_disk_256k", "element_disk_1m",
-                "terminal", "combustion_generator", "carbon_generator", "fusion_reactor")) {
+                "terminal", "combustion_generator", "carbon_generator", "fusion_reactor", "synthesizer")) {
             boolean exists = server.getRecipeManager().byKey(ResourceKey.create(Registries.RECIPE, AtomCraft.id(recipe))).isPresent();
             check(failures, exists, "receita " + recipe + " carregada");
         }
@@ -116,6 +119,7 @@ final class SelfTest {
 
         // 4. Pesquisar barra de ferro pelo Analisador (ligado por cabo)
         analyzer.setOwner(TESTER, "tester");
+        check(failures, !ResearchData.get(server).isDiscovered(TESTER, ChemicalElement.IRON), "ferro começa desconhecido");
         int required = ResearchData.required(Items.IRON_INGOT);
         try (var transaction = net.neoforged.neoforge.transfer.transaction.Transaction.openRoot()) {
             int accepted = analyzer.automation().insert(ItemResource.of(Items.IRON_INGOT), 99, transaction);
@@ -124,6 +128,8 @@ final class SelfTest {
         analyzer.buffer().set(0, ItemResource.of(Items.IRON_INGOT), Math.min(99, required));
         for (int i = 0; i < required * (Config.ANALYZE_TICKS.get() + 1) + 20; i++) analyzer.serverTick();
         ResearchData research = ResearchData.get(server);
+        check(failures, research.isDiscovered(TESTER, ChemicalElement.IRON) && !research.isDiscovered(TESTER, ChemicalElement.CARBON),
+                "analisar a barra descobriu o ferro (e só ele)");
         check(failures, research.isResearched(TESTER, Items.IRON_INGOT),
                 "barra de ferro pesquisada (" + research.getProgress(TESTER, Items.IRON_INGOT) + "/" + required + ")");
 
@@ -153,6 +159,84 @@ final class SelfTest {
         }
 
         generators(level, failures);
+        controlsAndSynthesis(server, level, failures);
+    }
+
+    /** Botão de ligar/desligar, chips de upgrade, Sintetizador e loot das schematics. */
+    private static void controlsAndSynthesis(MinecraftServer server, ServerLevel level, List<String> failures) {
+        BlockPos drivePos = new BlockPos(0, 120, 36);
+        level.getChunk(drivePos);
+        place(level, drivePos, ModBlocks.DRIVE.get());
+        place(level, drivePos.east(), ModBlocks.ATOMIZER.get());
+        place(level, drivePos.west(), ModBlocks.SYNTHESIZER.get());
+        place(level, drivePos.north(), ModBlocks.ANALYZER.get());
+        DriveBlockEntity drive = (DriveBlockEntity) level.getBlockEntity(drivePos);
+        AtomizerBlockEntity atomizer = (AtomizerBlockEntity) level.getBlockEntity(drivePos.east());
+        SynthesizerBlockEntity synthesizer = (SynthesizerBlockEntity) level.getBlockEntity(drivePos.west());
+        AnalyzerBlockEntity analyzer = (AnalyzerBlockEntity) level.getBlockEntity(drivePos.north());
+        drive.disks().set(0, ItemResource.of(ModItems.DISK_64K.get()), 1);
+
+        // Desligado: não trabalha
+        atomizer.energy().set(100_000);
+        atomizer.buffer().set(0, ItemResource.of(Items.IRON_INGOT), 1);
+        atomizer.setEnabled(false);
+        for (int i = 0; i < 200; i++) atomizer.tick();
+        check(failures, atomizer.buffer().getAmountAsInt(0) == 1 && atomizer.status() == MachineStatus.DISABLED,
+                "atomizador desligado não consome itens");
+        atomizer.setEnabled(true);
+
+        // Chips: o atomizador com 4 chips de velocidade termina bem antes
+        int normal = ticksToAtomize(atomizer);
+        try (var transaction = net.neoforged.neoforge.transfer.transaction.Transaction.openRoot()) {
+            check(failures, atomizer.upgrades().insert(ItemResource.of(ModItems.SPEED_UPGRADE.get()), 4, transaction) == 4,
+                    "atomizador aceita chips de velocidade");
+            check(failures, analyzer.upgrades().insert(ItemResource.of(ModItems.EFFICIENCY_UPGRADE.get()), 1, transaction) == 0,
+                    "analisador recusa chip de eficiência");
+            transaction.commit();
+        }
+        int fast = ticksToAtomize(atomizer);
+        check(failures, atomizer.upgradeCount(UpgradeType.SPEED) == 4 && fast < normal,
+                "chips de velocidade aceleram o atomizador (" + normal + " → " + fast + " ticks)");
+
+        // Sintetizador: sem schematic não fabrica; com ela, fabrica um chip com elementos da rede
+        ElementNetwork network = ElementNetwork.scan(level, drivePos);
+        network.insert(new Composition(java.util.Map.of(ChemicalElement.SILICON, 100L, ChemicalElement.GOLD, 20L,
+                ChemicalElement.REDSTONIUM, 50L, ChemicalElement.COPPER, 20L)), 1);
+        synthesizer.energy().set(100_000);
+        synthesizer.select(ModItems.SPEED_UPGRADE.get());
+        check(failures, synthesizer.selected() == null, "sem schematic, o sintetizador não aceita a receita");
+        synthesizer.library().set(0, ItemResource.of(ModItems.SPEED_UPGRADE_SCHEMATIC.get()), 1);
+        synthesizer.select(ModItems.SPEED_UPGRADE.get());
+        for (int i = 0; i < 260; i++) synthesizer.tick();
+        network = ElementNetwork.scan(level, drivePos);
+        check(failures, synthesizer.output().getAmountAsInt(0) >= 1,
+                "sintetizador fabricou chip de velocidade (" + synthesizer.output().getAmountAsInt(0) + ")");
+        check(failures, network.totals().get(ChemicalElement.SILICON) <= 68, "sintetizador consumiu Si da rede ("
+                + network.totals().get(ChemicalElement.SILICON) + ")");
+        synthesizer.library().set(0, ItemResource.EMPTY, 0);
+        for (int i = 0; i < 5; i++) synthesizer.tick();
+        check(failures, synthesizer.selected() == null, "retirar a schematic cancela a receita");
+
+        // Loot: tabelas das schematics carregadas
+        for (String table : List.of("village", "nether", "end")) {
+            var key = ResourceKey.create(Registries.LOOT_TABLE, AtomCraft.id("chests/schematics_" + table));
+            check(failures, server.reloadableRegistries().getLootTable(key) != net.minecraft.world.level.storage.loot.LootTable.EMPTY,
+                    "tabela de loot schematics_" + table);
+        }
+
+        for (BlockPos pos : List.of(drivePos, drivePos.east(), drivePos.west(), drivePos.north())) {
+            level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+        }
+    }
+
+    private static int ticksToAtomize(AtomizerBlockEntity atomizer) {
+        atomizer.energy().set(100_000);
+        atomizer.buffer().set(0, ItemResource.of(Items.IRON_INGOT), 1);
+        for (int i = 1; i <= 400; i++) {
+            atomizer.tick();
+            if (atomizer.buffer().getAmountAsInt(0) == 0) return i;
+        }
+        return 400;
     }
 
     /** Geradores: combustão com carvão, carbono da rede alimentando o Atomizador e fusão H → He. */

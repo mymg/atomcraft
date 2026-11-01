@@ -5,6 +5,7 @@ import com.atomcraft.menu.AnalyzerMenu;
 import com.atomcraft.menu.AtomizerMenu;
 import com.atomcraft.menu.DriveMenu;
 import com.atomcraft.menu.GeneratorMenu;
+import com.atomcraft.menu.SynthesizerMenu;
 import com.atomcraft.menu.TerminalMenu;
 import com.atomcraft.menu.ReplicatorMenu;
 import net.minecraft.core.registries.Registries;
@@ -34,6 +35,9 @@ public final class ModMenus {
             MENUS.register("fusion_reactor", () -> IMenuTypeExtension.create(GeneratorMenu::fusionClient));
     public static final DeferredHolder<MenuType<?>, MenuType<TerminalMenu>> TERMINAL =
             MENUS.register("terminal", () -> IMenuTypeExtension.create(TerminalMenu::client));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<SynthesizerMenu>> SYNTHESIZER =
+            MENUS.register("synthesizer", () -> IMenuTypeExtension.create(SynthesizerMenu::client));
 
     private ModMenus() {}
 }
