@@ -40,6 +40,11 @@ public abstract class BaseMenu extends AbstractContainerMenu {
         return pos;
     }
 
+    /** Quantidade de slots da máquina (os demais são do inventário do jogador). */
+    public int machineSlotCount() {
+        return machineSlots;
+    }
+
     protected abstract Block block();
 
     /** Se a interface mostra o estoque da rede. */

@@ -37,7 +37,8 @@ public class AnalyzerBlockEntity extends MachineBlockEntity {
             DATA_RESEARCHED = 4, DATA_REQUIRED = 5, DATA_COUNT = 6;
 
     private final FilteredItemHandler buffer = new FilteredItemHandler(SLOTS, 99,
-            (slot, resource) -> canAccept(resource.getItem()), this::setChanged);
+            (slot, resource) -> canAccept(resource.getItem()), this::setChanged)
+            .withCapacityLimit(this::researchCapacity);
     private final ResourceHandler<ItemResource> automation = buffer.insertOnly();
 
     private int progress;
@@ -90,6 +91,15 @@ public class AnalyzerBlockEntity extends MachineBlockEntity {
         if (AtomicValues.get(item, isClientSide()) == null) return false;
         if (isClientSide() || owner == null || level == null || level.getServer() == null) return true;
         return !ResearchData.get(level.getServer()).isResearched(owner, item);
+    }
+
+    /** Quanto deste item ainda cabe no slot: o que falta pesquisar menos o que já está no buffer. */
+    private int researchCapacity(int slot, ItemResource resource) {
+        if (isClientSide() || owner == null || level == null || level.getServer() == null) return Integer.MAX_VALUE;
+        Item item = resource.getItem();
+        ResearchData research = ResearchData.get(level.getServer());
+        int missing = ResearchData.required(item) - research.getProgress(owner, item);
+        return missing - buffer.countOf(resource, slot);
     }
 
     @Override

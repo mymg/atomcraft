@@ -31,6 +31,18 @@ public final class Config {
         BUILDER.pop().push("atomizer");
     }
 
+    public static final ModConfigSpec.DoubleValue ATOMIZE_FE_PER_MASS = BUILDER
+            .comment("FE gasto por unidade de massa atômica ao atomizar (0 desliga o consumo de energia)")
+            .defineInRange("fePerAtomicMass", 0.25, 0.0, 1_000_000.0);
+
+    public static final ModConfigSpec.IntValue ATOMIZER_CAPACITY = BUILDER
+            .comment("Capacidade de energia do Atomizador (FE)")
+            .defineInRange("energyCapacity", 200_000, 1_000, Integer.MAX_VALUE);
+
+    public static final ModConfigSpec.IntValue ATOMIZER_MAX_INPUT = BUILDER
+            .comment("Máximo de FE recebido por tick pelo Atomizador")
+            .defineInRange("maxEnergyInput", 10_000, 1, Integer.MAX_VALUE);
+
     public static final ModConfigSpec.DoubleValue ATOMIZE_TIME = BUILDER
             .comment("Multiplicador do tempo de atomização")
             .defineInRange("timeMultiplier", 1.0, 0.01, 100.0);

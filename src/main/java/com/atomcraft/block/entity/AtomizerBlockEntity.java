@@ -1,5 +1,6 @@
 package com.atomcraft.block.entity;
 
+import com.atomcraft.Config;
 import com.atomcraft.chemistry.AtomicValue;
 import com.atomcraft.chemistry.AtomicValues;
 import com.atomcraft.chemistry.Composition;
@@ -18,6 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.energy.SimpleEnergyHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 
 /**
@@ -26,16 +28,26 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
  */
 public class AtomizerBlockEntity extends MachineBlockEntity {
 
-    public static final int SLOTS = 18;
-    public static final int DATA_PROGRESS = 0, DATA_STATUS = 1, DATA_COUNT = 2;
+    public static final int SLOTS = 21;
+    public static final int DATA_PROGRESS = 0, DATA_STATUS = 1, DATA_ENERGY_LO = 2, DATA_ENERGY_HI = 3,
+            DATA_CAPACITY_LO = 4, DATA_CAPACITY_HI = 5, DATA_COUNT = 6;
 
     private final FilteredItemHandler buffer = new FilteredItemHandler(SLOTS, 99,
             (slot, resource) -> AtomicValues.get(resource.getItem(), isClientSide()) != null, this::setChanged);
     private final ResourceHandler<ItemResource> automation = buffer.insertOnly();
+    private final SimpleEnergyHandler energy = new SimpleEnergyHandler(
+            Config.ATOMIZER_CAPACITY.get(), Config.ATOMIZER_MAX_INPUT.get(), 0) {
+        @Override
+        protected void onEnergyChanged(int previousAmount) {
+            setChanged();
+        }
+    };
 
     private int progress;
     private int maxProgress;
     private int currentSlot = -1;
+    private long energyNeeded;
+    private long energyUsed;
     private MachineStatus status = MachineStatus.IDLE;
 
     private final ContainerData data = new ContainerData() {
@@ -44,6 +56,10 @@ public class AtomizerBlockEntity extends MachineBlockEntity {
             return switch (index) {
                 case DATA_PROGRESS -> permille(progress, maxProgress);
                 case DATA_STATUS -> status.ordinal();
+                case DATA_ENERGY_LO -> energy.getAmountAsInt() & 0xFFFF;
+                case DATA_ENERGY_HI -> (energy.getAmountAsInt() >>> 16) & 0xFFFF;
+                case DATA_CAPACITY_LO -> energy.getCapacityAsInt() & 0xFFFF;
+                case DATA_CAPACITY_HI -> (energy.getCapacityAsInt() >>> 16) & 0xFFFF;
                 default -> 0;
             };
         }
@@ -67,6 +83,10 @@ public class AtomizerBlockEntity extends MachineBlockEntity {
 
     public ResourceHandler<ItemResource> automation() {
         return automation;
+    }
+
+    public SimpleEnergyHandler energy() {
+        return energy;
     }
 
     public ContainerData data() {
@@ -103,9 +123,24 @@ public class AtomizerBlockEntity extends MachineBlockEntity {
             return;
         }
 
-        status = MachineStatus.WORKING;
         maxProgress = value.atomizeTicks();
-        if (++progress >= maxProgress) {
+        if (progress == 0) {
+            energyNeeded = (long) Math.ceil(result.weightedMass() * Config.ATOMIZE_FE_PER_MASS.get());
+            energyUsed = 0;
+        }
+        long perTick = (energyNeeded + maxProgress - 1) / Math.max(1, maxProgress);
+        long want = Math.min(perTick, energyNeeded - energyUsed);
+        if (want > 0) {
+            if (energy.getAmountAsLong() < want) {
+                status = MachineStatus.NO_ENERGY;
+                return;
+            }
+            energy.set((int) (energy.getAmountAsLong() - want));
+            energyUsed += want;
+        }
+
+        status = MachineStatus.WORKING;
+        if (++progress >= maxProgress && energyUsed >= energyNeeded) {
             progress = 0;
             if (network.insert(result, 1)) {
                 buffer.shrink(currentSlot, 1);
@@ -141,13 +176,19 @@ public class AtomizerBlockEntity extends MachineBlockEntity {
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         buffer.deserialize(input.childOrEmpty("buffer"));
+        energy.deserialize(input.childOrEmpty("energy"));
         progress = input.getIntOr("progress", 0);
+        energyNeeded = input.getLongOr("energy_needed", 0L);
+        energyUsed = input.getLongOr("energy_used", 0L);
     }
 
     @Override
     public void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         buffer.serialize(output.child("buffer"));
+        energy.serialize(output.child("energy"));
         output.putInt("progress", progress);
+        output.putLong("energy_needed", energyNeeded);
+        output.putLong("energy_used", energyUsed);
     }
 }
