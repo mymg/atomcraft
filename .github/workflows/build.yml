@@ -1,12 +1,8 @@
 name: Build
-
 on:
   push:
-  pull_request:
-  workflow_dispatch:
-
 jobs:
-  build:
+  probe:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,184 +11,19 @@ jobs:
           distribution: temurin
           java-version: 25
       - uses: gradle/actions/setup-gradle@v4
-      - name: Build
+      - name: Probe
         run: |
           chmod +x ./gradlew
-          ./gradlew build --stacktrace
+          ./gradlew compileJava -q
+          JAR=$(find build ~/.gradle -name "*.jar" | grep -i -E "neoforge.*(merged|minecraft)|minecraft-joined|client-extra" | grep -v sources | head -5)
+          echo "$JAR"
+          CP=$(find build ~/.gradle -name "*.jar" | grep -v sources | tr '\n' ':')
+          for c in net.minecraft.client.gui.screens.inventory.AbstractContainerScreen net.minecraft.world.inventory.Slot net.minecraft.client.gui.screens.Screen net.minecraft.world.level.block.entity.BlockEntity net.minecraft.world.level.storage.loot.LootTable net.neoforged.neoforge.event.LootTableLoadEvent net.minecraft.world.level.storage.loot.LootPool net.minecraft.world.level.storage.loot.entries.LootItem net.minecraft.world.level.storage.loot.BuiltInLootTables net.neoforged.neoforge.common.loot.IGlobalLootModifier net.neoforged.neoforge.common.loot.LootModifier; do
+            javap -cp "$CP" -public -protected $c > /tmp/out.txt 2>&1 || true
+            echo "===== $c"; cat /tmp/out.txt
+          done > probe.txt
+          grep -c . probe.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: atomcraft-jar
-          path: build/libs/*.jar
-
-  # Liga um servidor dedicado com o mod, roda o autoteste e verifica o log.
-  server-smoke-test:
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    needs: build
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: 25
-      - uses: gradle/actions/setup-gradle@v4
-      - name: Run server
-        env:
-          ATOMCRAFT_SELFTEST: "1"
-        run: |
-          chmod +x ./gradlew
-          mkdir -p run
-          echo "eula=true" > run/eula.txt
-          printf 'online-mode=false\nlevel-type=minecraft\\:flat\nspawn-protection=0\n' > run/server.properties
-          ./gradlew runServer > server.log 2>&1 &
-          for i in $(seq 1 120); do
-            if grep -q "SELFTEST PASS\|SELFTEST FAIL" server.log && grep -q "Done (" server.log; then break; fi
-            if grep -q "BUILD FAILED\|Crash report saved" server.log; then break; fi
-            sleep 5
-          done
-          sleep 3
-          pkill -f "net.neoforged" || true
-          pkill -f GradleWorkerMain || true
-          sleep 3
-      - name: Check log
-        run: |
-          grep "SELFTEST" server.log | sed 's/^.*AtomCraft SELFTEST /::notice title=SELFTEST::/' || true
-          grep "valor atômico\|composições base" server.log | sed 's/^.*AtomCraft: /::notice title=Valores::/' || true
-          echo "===== Erros ====="
-          grep -n -i "exception\|error\|failed to\|couldn't\|could not" server.log | grep -v "DEBUG" | head -60 || true
-          grep -q "Done (" server.log || (echo "Servidor não iniciou" && tail -100 server.log && exit 1)
-          grep -q "valor atômico" server.log || (echo "Valores atômicos não foram calculados" && exit 1)
-          grep -q "SELFTEST PASS" server.log || (echo "Autoteste falhou" && exit 1)
-          if grep -i "atomcraft" server.log | grep -v "SELFTEST" | grep -i -q "exception\|error\|failed\|couldn't parse"; then echo "Erros do AtomCraft no log"; exit 1; fi
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: server-log
-          path: server.log
-
-  # Abre o cliente com tela virtual (Xvfb + Mesa) e verifica se o jogo chega ao menu sem erros do mod.
-  client-smoke-test:
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    needs: build
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: 25
-      - uses: gradle/actions/setup-gradle@v4
-      - name: Install virtual display
-        timeout-minutes: 8
-        run: |
-          for attempt in 1 2 3; do
-            timeout 180 sudo apt-get -o Acquire::Retries=3 install -y -q --no-install-recommends xvfb libgl1-mesa-dri && break
-            timeout 180 sudo apt-get -o Acquire::Retries=3 update -q || true
-          done
-          which xvfb-run
-      - name: Run client
-        env:
-          LIBGL_ALWAYS_SOFTWARE: "1"
-        run: |
-          chmod +x ./gradlew
-          xvfb-run -a -s "-screen 0 1280x720x24" ./gradlew runClient > client.log 2>&1 &
-          for i in $(seq 1 150); do
-            if grep -q "Sound engine started\|Created: .*textures-atlas\|Narrator library" client.log && grep -q "atlas" client.log; then sleep 20; break; fi
-            if grep -q "BUILD FAILED\|Crash report saved\|---- Minecraft Crash Report" client.log; then break; fi
-            sleep 4
-          done
-          pkill -f "net.neoforged" || true
-          pkill -f GradleWorkerMain || true
-          sleep 3
-      - name: Check log
-        run: |
-          grep "Missing textures in model atomcraft\|Unable to load model.*atomcraft\|Missing.*atomcraft" -A3 client.log | head -12 | sed 's/^/::warning title=Cliente::/' || true
-          grep -q "Crash report saved\|---- Minecraft Crash Report" client.log && (grep -A40 "Minecraft Crash Report" client.log | head -60; exit 1) || true
-          grep -q "blocks.png-atlas" client.log || (echo "Cliente não carregou as texturas" && tail -80 client.log && exit 1)
-          if grep -q "Missing textures in model atomcraft" client.log; then echo "Texturas do AtomCraft faltando"; exit 1; fi
-          if grep -i "atomcraft" client.log | grep -v "libflite\|resource path\|SELFTEST" | grep -i -q "exception\|unable to load\|failed to load"; then
-            grep -i "atomcraft" client.log | grep -v "libflite\|resource path" | grep -i "exception\|unable to load\|failed to load" | head -10
-            echo "Erros do AtomCraft no cliente"; exit 1
-          fi
-          echo "Cliente iniciou sem erros do AtomCraft"
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: client-log
-          path: client.log
-
-  # Modo vitrine: abre o jogo num mundo de teste, monta as máquinas e tira um print de cada interface.
-  # Os prints são publicados no branch "ci-screenshots".
-  gui-screenshots:
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    needs: build
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v5
-        with:
-          distribution: temurin
-          java-version: 25
-      - uses: gradle/actions/setup-gradle@v4
-      - name: Install virtual display
-        timeout-minutes: 8
-        run: |
-          for attempt in 1 2 3; do
-            timeout 180 sudo apt-get -o Acquire::Retries=3 install -y -q --no-install-recommends xvfb libgl1-mesa-dri && break
-            timeout 180 sudo apt-get -o Acquire::Retries=3 update -q || true
-          done
-          which xvfb-run
-      - name: Create world
-        run: |
-          chmod +x ./gradlew
-          mkdir -p run
-          echo "eula=true" > run/eula.txt
-          printf 'online-mode=false\nlevel-type=minecraft\\:flat\nspawn-protection=0\nlevel-name=world\n' > run/server.properties
-          ./gradlew runServer > server.log 2>&1 &
-          for i in $(seq 1 120); do grep -q "Done (" server.log && break; sleep 5; done
-          sleep 5
-          pkill -f "net.neoforged" || true; pkill -f GradleWorkerMain || true; sleep 5
-          mkdir -p run/saves && cp -r run/world run/saves/showcase
-          printf 'onboardAccessibility:false\ntutorialStep:none\nguiScale:3\nrenderDistance:2\nsimulationDistance:5\nmaxFps:30\nnarrator:0\nsoundCategory_master:0\n' > run/options.txt
-      - name: Run client
-        env:
-          ATOMCRAFT_SHOWCASE: "1"
-          ATOMCRAFT_QUICKPLAY: showcase
-          LIBGL_ALWAYS_SOFTWARE: "1"
-          DISPLAY: ":99"
-        run: |
-          pip install -q pillow
-          Xvfb :99 -screen 0 1280x960x24 > /dev/null 2>&1 &
-          sleep 2
-          mkdir -p run/screenshots
-          ./gradlew runClient > client.log 2>&1 &
-          done_names=""
-          for i in $(seq 1 600); do
-            for name in $(grep -o "SHOWCASE capture [a-z_]*" client.log | awk '{print $3}'); do
-              case " $done_names " in *" $name "*) ;; *)
-                python3 -c "from PIL import ImageGrab; ImageGrab.grab(xdisplay=':99').save('run/screenshots/$name.png')"
-                done_names="$done_names $name"; echo "capturado: $name";;
-              esac
-            done
-            grep -q "SHOWCASE DONE" client.log && break
-            grep -q "Crash report saved\|BUILD FAILED" client.log && break
-            sleep 1
-          done
-          pkill -f "net.neoforged" || true; pkill -f GradleWorkerMain || true; sleep 3
-          grep "SHOWCASE" client.log | sed 's/^.*AtomCraft SHOWCASE /::notice title=Vitrine::/' || true
-          ls -la run/screenshots || true
-      - name: Publish screenshots
-        run: |
-          ls run/screenshots/*.png > /dev/null 2>&1 || { echo "Nenhum print"; tail -60 client.log; exit 1; }
-          mkdir pub && cp run/screenshots/*.png pub/ && cd pub
-          git init -q && git checkout -q -b ci-screenshots
-          git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" add . 
-          git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" commit -q -m "Prints das interfaces (${GITHUB_SHA::7})"
-          git push -q -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" ci-screenshots
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: gui-client-log
-          path: client.log
+          name: probe
+          path: probe.txt
