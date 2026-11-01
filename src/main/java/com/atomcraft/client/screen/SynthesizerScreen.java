@@ -93,7 +93,7 @@ public class SynthesizerScreen extends MachineScreen<SynthesizerMenu> {
         return null;
     }
 
-    private @Nullable Map.Entry<ChemicalElement, Long> costAt(double mouseX, double mouseY) {
+    private Map.@Nullable Entry<ChemicalElement, Long> costAt(double mouseX, double mouseY) {
         Item selected = menu.selected();
         SynthesisRecipe recipe = selected == null ? null : SynthesisRecipes.get(selected);
         if (recipe == null) return null;
