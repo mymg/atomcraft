@@ -2,6 +2,9 @@ package com.atomcraft.registry;
 
 import com.atomcraft.AtomCraft;
 import com.atomcraft.storage.ElementDiskItem;
+import com.atomcraft.synthesis.SchematicItem;
+import com.atomcraft.upgrade.UpgradeChipItem;
+import com.atomcraft.upgrade.UpgradeType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Rarity;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -17,6 +20,17 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> DRIVE = ITEMS.registerSimpleBlockItem(ModBlocks.DRIVE);
     public static final DeferredItem<BlockItem> CABLE = ITEMS.registerSimpleBlockItem(ModBlocks.CABLE);
     public static final DeferredItem<BlockItem> TERMINAL = ITEMS.registerSimpleBlockItem(ModBlocks.TERMINAL);
+    public static final DeferredItem<BlockItem> SYNTHESIZER = ITEMS.registerSimpleBlockItem(ModBlocks.SYNTHESIZER,
+            properties -> properties.rarity(Rarity.UNCOMMON));
+
+    public static final DeferredItem<UpgradeChipItem> SPEED_UPGRADE = ITEMS.registerItem("speed_upgrade",
+            properties -> new UpgradeChipItem(properties, UpgradeType.SPEED), properties -> properties.stacksTo(16).rarity(Rarity.UNCOMMON));
+    public static final DeferredItem<UpgradeChipItem> EFFICIENCY_UPGRADE = ITEMS.registerItem("efficiency_upgrade",
+            properties -> new UpgradeChipItem(properties, UpgradeType.EFFICIENCY), properties -> properties.stacksTo(16).rarity(Rarity.UNCOMMON));
+    public static final DeferredItem<SchematicItem> SPEED_UPGRADE_SCHEMATIC = ITEMS.registerItem("speed_upgrade_schematic",
+            properties -> new SchematicItem(properties, SPEED_UPGRADE), properties -> properties.stacksTo(1).rarity(Rarity.RARE));
+    public static final DeferredItem<SchematicItem> EFFICIENCY_UPGRADE_SCHEMATIC = ITEMS.registerItem("efficiency_upgrade_schematic",
+            properties -> new SchematicItem(properties, EFFICIENCY_UPGRADE), properties -> properties.stacksTo(1).rarity(Rarity.RARE));
     public static final DeferredItem<BlockItem> COMBUSTION_GENERATOR = ITEMS.registerSimpleBlockItem(ModBlocks.COMBUSTION_GENERATOR);
     public static final DeferredItem<BlockItem> CARBON_GENERATOR = ITEMS.registerSimpleBlockItem(ModBlocks.CARBON_GENERATOR);
     public static final DeferredItem<BlockItem> FUSION_REACTOR = ITEMS.registerSimpleBlockItem(ModBlocks.FUSION_REACTOR,

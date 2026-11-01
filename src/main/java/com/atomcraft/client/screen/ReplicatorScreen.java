@@ -297,12 +297,12 @@ public class ReplicatorScreen extends MachineScreen<ReplicatorMenu> {
                 for (int i = 0; i < Math.min(elements.size(), MAX_BADGES); i++) {
                     if (hovering(mouseX, mouseY, INFO_X + 5 + i * 19, INFO_Y + 25, 16, 26)) {
                         if (i == MAX_BADGES - 1 && elements.size() > MAX_BADGES) {
-                            tooltip(graphics, mouseX, mouseY, Component.literal(value.composition().formula()));
+                            tooltip(graphics, mouseX, mouseY, Component.literal(ClientState.formula(value.composition())));
                         } else {
                             var entry = elements.get(i);
                             long available = ClientState.networkTotals().get(entry.getKey());
                             tooltip(graphics, mouseX, mouseY,
-                                    Component.translatable(entry.getKey().translationKey()).append(" (" + entry.getKey().symbol() + ")"),
+                                    TechGui.elementName(entry.getKey()),
                                     Component.translatable("gui.atomcraft.atoms", String.format("%,d", entry.getValue())),
                                     Component.translatable("gui.atomcraft.in_network", String.format("%,d", available)));
                         }

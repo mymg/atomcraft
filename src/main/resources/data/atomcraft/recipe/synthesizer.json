@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "GAG",
+    "RCR",
+    "GAG"
+  ],
+  "key": {
+    "G": "minecraft:gold_ingot",
+    "A": "minecraft:amethyst_shard",
+    "R": "minecraft:redstone",
+    "C": "minecraft:crafting_table"
+  },
+  "result": {
+    "id": "atomcraft:synthesizer",
+    "count": 1
+  }
+}

@@ -52,6 +52,7 @@ public class AnalyzerMenu extends BaseMenu {
             }
         }
         machineSlots = AnalyzerBlockEntity.SLOTS;
+        addMachineControls(WIDTH);
         addPlayerInventory(inventory, 8, HEIGHT - 82);
         addDataSlots(data);
     }

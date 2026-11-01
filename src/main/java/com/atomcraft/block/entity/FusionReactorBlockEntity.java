@@ -6,6 +6,12 @@ import com.atomcraft.chemistry.Composition;
 import com.atomcraft.menu.GeneratorMenu;
 import com.atomcraft.registry.ModBlockEntities;
 import com.atomcraft.storage.ElementNetwork;
+import com.atomcraft.upgrade.UpgradeType;
+import com.atomcraft.upgrade.Upgrades;
+import com.atomcraft.research.ResearchData;
+import com.atomcraft.network.ModNetwork;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -73,14 +79,16 @@ public class FusionReactorBlockEntity extends GeneratorBlockEntity {
 
     @Override
     protected int generate() {
-        int perCycle = Config.FUSION_FE_PER_CYCLE.get();
-        if (++cycleTimer >= CYCLE_TICKS) {
+        int perCycle = (int) boostedYield(Config.FUSION_FE_PER_CYCLE.get());
+        // Chips de velocidade encurtam o ciclo (mais fusões por segundo).
+        int cycleTicks = Math.max(2, (int) Math.round(CYCLE_TICKS / Upgrades.generatorRate(upgradeCount(UpgradeType.SPEED))));
+        if (++cycleTimer >= cycleTicks) {
             cycleTimer = 0;
             runCycle(perCycle);
         }
         if (pending <= 0) return 0;
-        // Distribui a energia do ciclo ao longo dos 10 ticks, para a geração ficar estável.
-        int rate = (int) Math.max(1, Math.ceil(perCycle * (heat / 1000.0) / CYCLE_TICKS));
+        // Distribui a energia do ciclo ao longo do ciclo, para a geração ficar estável.
+        int rate = (int) Math.max(1, Math.ceil(perCycle * (heat / 1000.0) / cycleTicks));
         int generated = (int) Math.min(Math.min(pending, rate), room());
         pending -= generated;
         addEnergy(generated);
@@ -109,8 +117,24 @@ public class FusionReactorBlockEntity extends GeneratorBlockEntity {
         pending += (long) perCycle * heat / 1000;
         heliumProduced++;
         network.insert(PRODUCT, 1);
+        discoverHelium();
         status = MachineStatus.WORKING;
         setChanged();
+    }
+
+    /** O hélio não existe em nenhum item: o dono do reator o descobre ao produzi-lo. */
+    private void discoverHelium() {
+        if (owner == null || level == null || level.getServer() == null) return;
+        ResearchData research = ResearchData.get(level.getServer());
+        if (research.isDiscovered(owner, ChemicalElement.HELIUM)) return;
+        research.discover(owner, PRODUCT);
+        ServerPlayer player = onlineOwner();
+        if (player != null) {
+            player.sendSystemMessage(Component.translatable("message.atomcraft.element_discovered",
+                    Component.translatable(ChemicalElement.HELIUM.translationKey()), ChemicalElement.HELIUM.symbol())
+                    .withStyle(ChatFormatting.AQUA));
+            ModNetwork.syncResearch(player);
+        }
     }
 
     @Override

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "atomcraft:speed_upgrade_schematic",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "atomcraft:efficiency_upgrade_schematic",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:empty",
+          "weight": 4
+        }
+      ]
+    }
+  ]
+}

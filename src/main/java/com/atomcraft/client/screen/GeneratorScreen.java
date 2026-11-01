@@ -23,15 +23,9 @@ public class GeneratorScreen extends MachineScreen<GeneratorMenu> {
     private final Kind kind;
 
     public GeneratorScreen(GeneratorMenu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title, GeneratorMenu.WIDTH,
-                menu.fuel() != null ? GeneratorMenu.HEIGHT_WITH_INVENTORY : GeneratorMenu.HEIGHT_COMPACT);
+        super(menu, inventory, title, GeneratorMenu.WIDTH, GeneratorMenu.HEIGHT);
         this.kind = menu.fuel() != null ? Kind.COMBUSTION
                 : menu.getType() == ModMenus.FUSION_REACTOR.get() ? Kind.FUSION : Kind.CARBON;
-    }
-
-    @Override
-    protected boolean showsInventory() {
-        return kind == Kind.COMBUSTION;
     }
 
     private boolean hasRightBar() {

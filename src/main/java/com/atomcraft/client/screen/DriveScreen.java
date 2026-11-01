@@ -76,7 +76,7 @@ public class DriveScreen extends MachineScreen<DriveMenu> {
             if (hovering(mouseX, mouseY, LIST_X + 4 + (i % COLS) * CELL_W, LIST_Y + 4 + (i / COLS) * CELL_H, CELL_W - 2, 16)) {
                 var entry = entries.get(index);
                 tooltip(graphics, mouseX, mouseY,
-                        Component.translatable(entry.getKey().translationKey()).append(" (" + entry.getKey().symbol() + ")"),
+                        TechGui.elementName(entry.getKey()),
                         Component.translatable("gui.atomcraft.atoms", String.format("%,d", entry.getValue())));
                 return;
             }

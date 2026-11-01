@@ -1,7 +1,14 @@
 package com.atomcraft.menu;
 
 import com.atomcraft.chemistry.Composition;
+import com.atomcraft.block.entity.MachineBlockEntity;
+import com.atomcraft.network.MachineInfoPayload;
 import com.atomcraft.network.NetworkContentsPayload;
+import com.atomcraft.storage.FilteredItemHandler;
+import com.atomcraft.upgrade.UpgradeChipItem;
+import com.atomcraft.upgrade.Upgrades;
+import net.minecraft.world.inventory.DataSlot;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 import com.atomcraft.storage.ElementNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,9 +28,23 @@ import org.jspecify.annotations.Nullable;
  */
 public abstract class BaseMenu extends AbstractContainerMenu {
 
+    /** Largura da coluna de abas laterais e do painel que elas abrem. */
+    public static final int TABS_W = 22, PANEL_W = 88;
+    /** Posição dos slots de upgrade dentro do painel (relativa ao painel). */
+    public static final int UPGRADE_SLOT_X = 18, UPGRADE_SLOT_Y = 24, UPGRADE_SLOT_GAP = 34;
+
     protected final BlockPos pos;
     protected final Player player;
     protected int machineSlots;
+
+    /** Máquina no servidor (null no cliente). */
+    protected final @Nullable MachineBlockEntity machine;
+    private int enabledClient = 1;
+    private boolean controls;
+    private boolean upgradesVisible;
+    private int upgradeSlotStart = -1;
+    private String ownerName = "";
+    private boolean infoSent;
 
     private int syncTimer = 10;
     private @Nullable Composition lastTotals;
@@ -34,6 +55,66 @@ public abstract class BaseMenu extends AbstractContainerMenu {
         super(type, id);
         this.pos = pos;
         this.player = inventory.player;
+        this.machine = !player.level().isClientSide() && player.level().getBlockEntity(pos) instanceof MachineBlockEntity found
+                ? found : null;
+        addDataSlot(new DataSlot() {
+            @Override
+            public int get() {
+                return machine != null ? (machine.isEnabled() ? 1 : 0) : enabledClient;
+            }
+
+            @Override
+            public void set(int value) {
+                enabledClient = value;
+            }
+        });
+    }
+
+    /**
+     * Ativa as abas laterais (ligar/desligar, dono e upgrades) e cria os slots de
+     * upgrade, que ficam no painel à direita da interface ({@code guiWidth}).
+     * Deve ser chamado logo depois dos slots da máquina.
+     */
+    protected void addMachineControls(int guiWidth) {
+        controls = true;
+        FilteredItemHandler handler = machine != null ? machine.upgrades()
+                : new FilteredItemHandler(Upgrades.SLOTS, Upgrades.MAX_PER_SLOT,
+                        (slot, resource) -> resource.getItem() instanceof UpgradeChipItem, () -> {});
+        upgradeSlotStart = slots.size();
+        int panelX = guiWidth + TABS_W - 1;
+        for (int i = 0; i < Upgrades.SLOTS; i++) {
+            addSlot(new ResourceHandlerSlot(handler, handler::set, i, panelX + UPGRADE_SLOT_X + i * UPGRADE_SLOT_GAP, 10 + UPGRADE_SLOT_Y) {
+                @Override
+                public boolean isActive() {
+                    return upgradesVisible || !player.level().isClientSide();
+                }
+            });
+        }
+        machineSlots += Upgrades.SLOTS;
+    }
+
+    public boolean hasMachineControls() {
+        return controls;
+    }
+
+    public boolean isUpgradeSlot(int index) {
+        return upgradeSlotStart >= 0 && index >= upgradeSlotStart && index < upgradeSlotStart + Upgrades.SLOTS;
+    }
+
+    public void setUpgradesVisible(boolean visible) {
+        this.upgradesVisible = visible;
+    }
+
+    public boolean isEnabled() {
+        return enabledClient != 0;
+    }
+
+    public String ownerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
     }
 
     public BlockPos pos() {
@@ -97,6 +178,10 @@ public abstract class BaseMenu extends AbstractContainerMenu {
     @Override
     public void broadcastChanges() {
         super.broadcastChanges();
+        if (!infoSent && machine != null && player instanceof ServerPlayer target) {
+            infoSent = true;
+            PacketDistributor.sendToPlayer(target, new MachineInfoPayload(containerId, machine.ownerName()));
+        }
         if (!syncsNetwork() || !(player instanceof ServerPlayer serverPlayer)) return;
         if (++syncTimer < 10) return;
         syncTimer = 0;

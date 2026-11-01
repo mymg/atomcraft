@@ -2,6 +2,9 @@ package com.atomcraft.block.entity;
 
 import com.atomcraft.storage.ElementNetwork;
 import com.atomcraft.storage.FilteredItemHandler;
+import com.atomcraft.upgrade.UpgradeChipItem;
+import com.atomcraft.upgrade.UpgradeType;
+import com.atomcraft.upgrade.Upgrades;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.level.ServerPlayer;
@@ -27,6 +30,12 @@ public abstract class MachineBlockEntity extends BlockEntity implements MenuProv
 
     protected @Nullable UUID owner;
     protected String ownerName = "";
+    protected MachineStatus status = MachineStatus.IDLE;
+    /** Botão de ligar/desligar da interface. */
+    private boolean enabled = true;
+    private final FilteredItemHandler upgrades = new FilteredItemHandler(Upgrades.SLOTS, Upgrades.MAX_PER_SLOT,
+            (slot, resource) -> resource.getItem() instanceof UpgradeChipItem chip && supportsUpgrade(chip.type()),
+            this::setChanged);
 
     private @Nullable ElementNetwork network;
     private long networkScanTime = Long.MIN_VALUE;
@@ -36,6 +45,58 @@ public abstract class MachineBlockEntity extends BlockEntity implements MenuProv
     }
 
     public abstract void serverTick();
+
+    /** Chamado pelo ticker do bloco: respeita o botão de ligar/desligar. */
+    public final void tick() {
+        if (enabled) {
+            serverTick();
+        } else {
+            status = MachineStatus.DISABLED;
+            disabledTick();
+        }
+    }
+
+    /** Tick com a máquina desligada (geradores continuam entregando a energia guardada). */
+    protected void disabledTick() {}
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+        setChanged();
+    }
+
+    /** Se a máquina tem botão de ligar/desligar. */
+    public boolean hasPowerControl() {
+        return true;
+    }
+
+    /** Quais chips de upgrade a máquina aceita. */
+    public boolean supportsUpgrade(UpgradeType type) {
+        return false;
+    }
+
+    public FilteredItemHandler upgrades() {
+        return upgrades;
+    }
+
+    /** Quantidade de chips instalados de um tipo (até {@link Upgrades#MAX_PER_TYPE}). */
+    public int upgradeCount(UpgradeType type) {
+        if (!supportsUpgrade(type)) return 0;
+        int count = 0;
+        for (int i = 0; i < upgrades.size(); i++) {
+            if (upgrades.getResource(i).getItem() instanceof UpgradeChipItem chip && chip.type() == type) {
+                count += upgrades.getAmountAsInt(i);
+            }
+        }
+        return Math.min(Upgrades.MAX_PER_TYPE, count);
+    }
+
+    public MachineStatus status() {
+        return status;
+    }
 
     public void setOwner(Player player) {
         this.owner = player.getUUID();
@@ -90,10 +151,18 @@ public abstract class MachineBlockEntity extends BlockEntity implements MenuProv
     }
 
     @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        if (level != null && !level.isClientSide()) dropContents(level, pos, upgrades);
+    }
+
+    @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         owner = input.read("owner", UUIDUtil.CODEC).orElse(null);
         ownerName = input.getStringOr("owner_name", "");
+        enabled = input.getBooleanOr("enabled", true);
+        upgrades.deserialize(input.childOrEmpty("upgrades"));
     }
 
     @Override
@@ -101,5 +170,7 @@ public abstract class MachineBlockEntity extends BlockEntity implements MenuProv
         super.saveAdditional(output);
         if (owner != null) output.store("owner", UUIDUtil.CODEC, owner);
         output.putString("owner_name", ownerName);
+        output.putBoolean("enabled", enabled);
+        upgrades.serialize(output.child("upgrades"));
     }
 }

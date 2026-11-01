@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 /** Menu dos três geradores. Só o Gerador de Combustão tem slot (combustível) e inventário. */
 public class GeneratorMenu extends BaseMenu {
 
-    public static final int WIDTH = 176, HEIGHT_WITH_INVENTORY = 204, HEIGHT_COMPACT = 114;
+    public static final int WIDTH = 176, HEIGHT = 204;
     public static final int FUEL_X = 34, FUEL_Y = 43;
 
     private final ContainerData data;
@@ -40,8 +40,9 @@ public class GeneratorMenu extends BaseMenu {
         if (fuel != null) {
             addSlot(new ResourceHandlerSlot(fuel, fuel::set, 0, FUEL_X, FUEL_Y));
             machineSlots = 1;
-            addPlayerInventory(inventory, 8, HEIGHT_WITH_INVENTORY - 82);
         }
+        addMachineControls(WIDTH);
+        addPlayerInventory(inventory, 8, HEIGHT - 82);
         addDataSlots(data);
     }
 

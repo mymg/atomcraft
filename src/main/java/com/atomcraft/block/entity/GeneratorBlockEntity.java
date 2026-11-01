@@ -2,6 +2,8 @@ package com.atomcraft.block.entity;
 
 import com.atomcraft.Config;
 import com.atomcraft.storage.EnergyReceiver;
+import com.atomcraft.upgrade.UpgradeType;
+import com.atomcraft.upgrade.Upgrades;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -33,7 +35,6 @@ public abstract class GeneratorBlockEntity extends MachineBlockEntity {
 
     /** FE gerado no último tick (para a interface). */
     protected int lastGenerated;
-    protected MachineStatus status = MachineStatus.IDLE;
 
     protected GeneratorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -58,6 +59,27 @@ public abstract class GeneratorBlockEntity extends MachineBlockEntity {
     public void serverTick() {
         lastGenerated = generate();
         distribute();
+    }
+
+    @Override
+    protected void disabledTick() {
+        lastGenerated = 0;
+        distribute();
+    }
+
+    @Override
+    public boolean supportsUpgrade(UpgradeType type) {
+        return true;
+    }
+
+    /** Geração por tick com os chips de velocidade. */
+    protected int boostedRate(int baseRate) {
+        return (int) Math.round(baseRate * Upgrades.generatorRate(upgradeCount(UpgradeType.SPEED)));
+    }
+
+    /** FE por unidade de combustível com os chips de eficiência. */
+    protected long boostedYield(long baseEnergy) {
+        return Math.round(baseEnergy * Upgrades.generatorYield(upgradeCount(UpgradeType.EFFICIENCY)));
     }
 
     private void distribute() {

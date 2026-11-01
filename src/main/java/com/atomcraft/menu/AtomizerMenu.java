@@ -40,6 +40,7 @@ public class AtomizerMenu extends BaseMenu {
             }
         }
         machineSlots = AtomizerBlockEntity.SLOTS;
+        addMachineControls(WIDTH);
         addPlayerInventory(inventory, 8, HEIGHT - 82);
         addDataSlots(data);
     }

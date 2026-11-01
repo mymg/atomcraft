@@ -14,7 +14,8 @@ public enum MachineStatus {
     OUTPUT_FULL(0xFFB06000),
     NOT_RESEARCHED(0xFFB03030),
     NOTHING_TO_RESEARCH(0xFF707070),
-    NO_FUEL(0xFFB06000);
+    NO_FUEL(0xFFB06000),
+    DISABLED(0xFFB03030);
 
     private static final MachineStatus[] VALUES = values();
 

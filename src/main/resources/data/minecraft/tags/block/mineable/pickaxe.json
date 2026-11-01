@@ -8,6 +8,7 @@
     "atomcraft:combustion_generator",
     "atomcraft:carbon_generator",
     "atomcraft:fusion_reactor",
+    "atomcraft:synthesizer",
     "atomcraft:atomic_cable"
   ]
 }

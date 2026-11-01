@@ -7,6 +7,7 @@ import com.atomcraft.block.CableBlock;
 import com.atomcraft.block.CarbonGeneratorBlock;
 import com.atomcraft.block.CombustionGeneratorBlock;
 import com.atomcraft.block.FusionReactorBlock;
+import com.atomcraft.block.SynthesizerBlock;
 import com.atomcraft.block.TerminalBlock;
 import com.atomcraft.block.DriveBlock;
 import com.atomcraft.block.ReplicatorBlock;
@@ -34,6 +35,7 @@ public final class ModBlocks {
             BLOCKS.registerBlock("carbon_generator", CarbonGeneratorBlock::new, ModBlocks::machine);
     public static final DeferredBlock<FusionReactorBlock> FUSION_REACTOR =
             BLOCKS.registerBlock("fusion_reactor", FusionReactorBlock::new, properties -> machine(properties).lightLevel(state -> 10));
+    public static final DeferredBlock<SynthesizerBlock> SYNTHESIZER = BLOCKS.registerBlock("synthesizer", SynthesizerBlock::new, ModBlocks::machine);
     public static final DeferredBlock<TerminalBlock> TERMINAL = BLOCKS.registerBlock("terminal", TerminalBlock::new, ModBlocks::machine);
     public static final DeferredBlock<CableBlock> CABLE = BLOCKS.registerBlock("atomic_cable", CableBlock::new,
             properties -> properties.mapColor(MapColor.METAL).strength(0.5f).sound(SoundType.METAL).noOcclusion());

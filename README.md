@@ -21,6 +21,41 @@ copiar e usa o **Replicador Atômico** para criá-los de novo a partir dos eleme
 
 A pesquisa é **por jogador**: cada um tem a própria biblioteca. O armazenamento de elementos é **da rede** (discos no Drive).
 
+### Descoberta dos elementos
+
+No começo todos os elementos são **desconhecidos**: o carvão aparece como `??₂₄` e o Terminal mostra `?` no lugar
+dos símbolos. Analisar **uma unidade** de um item no Analisador já revela os elementos que ele contém
+(analisar um carvão descobre o Carbono). O hélio, que não existe em nenhum item, é descoberto pelo dono do
+Reator de Fusão quando ele começa a produzi-lo. A descoberta é por jogador.
+
+## Abas laterais e upgrades
+
+As máquinas têm abas do lado direito da interface, como no Mekanism:
+
+- **Ligar/desligar**: verde ligada, vermelho desligada. Útil principalmente nos geradores que consomem elementos da rede.
+  Desligado, o gerador para de queimar mas continua entregando a energia guardada.
+- **Informações**: mostra o dono da máquina (no futuro, permissões).
+- **Upgrades**: 2 slots para **chips**, até 8 de cada tipo por máquina.
+  - **Velocidade**: o tempo de cada operação cai para 1/(1+n), e o custo de energia sobe 25% por chip.
+    Nos geradores, a geração por tick sobe 50% por chip.
+  - **Eficiência**: o custo de energia cai 20% por chip (acumulativo).
+    Nos geradores, cada chip rende +25% de energia por combustível.
+
+## Sintetizador e schematics
+
+Os chips são uma **tecnologia perdida**: só o **Sintetizador** sabe fabricá-los, e só enquanto a **schematic**
+correspondente estiver na biblioteca dele (6 slots). Qualquer jogador pode usar o Sintetizador, e as schematics
+podem ser retiradas e emprestadas. Escolha o item clicando nele; a máquina fabrica sem parar enquanto houver
+elementos, energia e espaço na saída (use o botão de desligar para parar). O custo é pago em elementos da rede e FE:
+
+| Chip | Elementos | Energia |
+|---|---|---|
+| Velocidade | Si₃₂ Au₈ Rs₂₄ Cu₈ | 30.000 FE |
+| Eficiência | Si₃₂ Au₈ Lm₁₆ Cu₈ | 30.000 FE |
+
+As schematics aparecem em baús de **vilas** (ferreiro, armeiro, cartógrafo, pedreiro, templo), de **fortalezas do Nether**
+e **bastiões**, e das **cidades do End**.
+
 ## Interfaces
 
 Todas as máquinas usam um tema tecnológico em pixel art, desenhado no próprio código: moldura metálica,
@@ -87,6 +122,7 @@ fictícios para materiais mágicos: Redstônio (Rs), Lumínio (Lm), Endério (En
 | **Gerador de Combustão** | ferro, fornalha, cobre, redstone |
 | **Gerador de Carbono** | ferro, ametista, Gerador de Combustão, alto-forno |
 | **Reator de Fusão** | blocos de ferro, cristais do End, blocos de diamante, estrela do Nether |
+| **Sintetizador** | ouro, ametista, redstone, mesa de trabalho |
 | **Discos** 16K / 64K / 256K / 1M átomos | ametista e redstone + ferro / ouro / diamante / casco de shulker |
 
 Os discos guardam os elementos no próprio item, então você pode tirá-los do Drive e levá-los para outra base.
@@ -143,11 +179,14 @@ O `.jar` fica disponível em **Actions → Artifacts**.
 - [x] Valores derivados das receitas
 - [x] Geradores próprios (combustão, carbono e fusão)
 - [x] Terminal de Elementos (tabela periódica)
+- [x] Descoberta dos elementos
+- [x] Botão de ligar/desligar, aba de dono e upgrades (velocidade e eficiência)
+- [x] Sintetizador e schematics no loot do mundo
 - [ ] Suporte a fluidos (tanques e fluid pipes)
 - [ ] Texturas e modelos definitivos
 - [ ] Integração com JEI/EMI (mostrar fórmula e custo)
 - [ ] Terminal para acessar a rede à distância
-- [ ] Upgrades de velocidade e eficiência
+- [ ] Permissões por máquina
 
 ## Licença
 

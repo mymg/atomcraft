@@ -10,6 +10,8 @@ import com.atomcraft.storage.ElementNetwork;
 import com.atomcraft.storage.EnergyReceiver;
 import com.atomcraft.storage.FilteredItemHandler;
 import net.minecraft.ChatFormatting;
+import com.atomcraft.upgrade.UpgradeType;
+import com.atomcraft.upgrade.Upgrades;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -65,7 +67,6 @@ public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyR
     private int maxProgress;
     private long energyNeeded;
     private long energyUsed;
-    private MachineStatus status = MachineStatus.IDLE;
 
     private final ContainerData data = new ContainerData() {
         @Override
@@ -190,8 +191,9 @@ public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyR
             }
             reserved = true;
             progress = 0;
-            maxProgress = value.replicateTicks();
-            energyNeeded = value.energyCost();
+            int speed = upgradeCount(UpgradeType.SPEED);
+            maxProgress = Upgrades.ticks(value.replicateTicks(), speed);
+            energyNeeded = Upgrades.energy(value.energyCost(), speed, upgradeCount(UpgradeType.EFFICIENCY));
             energyUsed = 0;
         }
 
@@ -227,6 +229,11 @@ public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyR
             status = MachineStatus.IDLE;
         }
         setChanged();
+    }
+
+    @Override
+    public boolean supportsUpgrade(UpgradeType type) {
+        return true;
     }
 
     private boolean fitsInOutput(Item item) {
