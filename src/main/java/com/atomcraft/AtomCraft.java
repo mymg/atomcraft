@@ -49,6 +49,7 @@ public class AtomCraft {
         NeoForge.EVENT_BUS.addListener(AtomCraft::onServerStarted);
         NeoForge.EVENT_BUS.addListener(AtomCraft::onDatapackSync);
         NeoForge.EVENT_BUS.addListener(AtomCraft::registerCommands);
+        Showcase.register();
     }
 
     private static void addReloadListeners(AddServerReloadListenersEvent event) {

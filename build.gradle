@@ -26,6 +26,9 @@ neoForge {
         client {
             client()
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            // Usado pelo CI para abrir um mundo direto (modo vitrine)
+            def quickPlay = providers.environmentVariable('ATOMCRAFT_QUICKPLAY').getOrNull()
+            if (quickPlay) programArguments.addAll('--quickPlaySingleplayer', quickPlay)
         }
         server {
             server()

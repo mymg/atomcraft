@@ -65,6 +65,11 @@ public class ReplicatorScreen extends MachineScreen<ReplicatorMenu> {
         this.inventoryLabelX = ReplicatorMenu.INVENTORY_X;
     }
 
+    /** Usado pelo modo vitrine do CI para mostrar um item selecionado. */
+    public void showcaseSelect(Item item) {
+        selected = item;
+    }
+
     private static boolean shift() {
         return Minecraft.getInstance().hasShiftDown();
     }

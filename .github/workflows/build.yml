@@ -27,6 +27,7 @@ jobs:
   # Liga um servidor dedicado com o mod, roda o autoteste e verifica o log.
   server-smoke-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     needs: build
     steps:
       - uses: actions/checkout@v4
@@ -72,6 +73,7 @@ jobs:
   # Abre o cliente com tela virtual (Xvfb + Mesa) e verifica se o jogo chega ao menu sem erros do mod.
   client-smoke-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     needs: build
     steps:
       - uses: actions/checkout@v4
@@ -81,7 +83,13 @@ jobs:
           java-version: 25
       - uses: gradle/actions/setup-gradle@v4
       - name: Install virtual display
-        run: sudo apt-get update -q && sudo apt-get install -y -q xvfb mesa-utils libgl1-mesa-dri
+        timeout-minutes: 8
+        run: |
+          for attempt in 1 2 3; do
+            timeout 180 sudo apt-get -o Acquire::Retries=3 install -y -q --no-install-recommends xvfb libgl1-mesa-dri && break
+            timeout 180 sudo apt-get -o Acquire::Retries=3 update -q || true
+          done
+          which xvfb-run
       - name: Run client
         env:
           LIBGL_ALWAYS_SOFTWARE: "1"
@@ -111,4 +119,69 @@ jobs:
         if: always()
         with:
           name: client-log
+          path: client.log
+
+  # Modo vitrine: abre o jogo num mundo de teste, monta as máquinas e tira um print de cada interface.
+  # Os prints são publicados no branch "ci-screenshots".
+  gui-screenshots:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: build
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 25
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Install virtual display
+        timeout-minutes: 8
+        run: |
+          for attempt in 1 2 3; do
+            timeout 180 sudo apt-get -o Acquire::Retries=3 install -y -q --no-install-recommends xvfb libgl1-mesa-dri && break
+            timeout 180 sudo apt-get -o Acquire::Retries=3 update -q || true
+          done
+          which xvfb-run
+      - name: Create world
+        run: |
+          chmod +x ./gradlew
+          mkdir -p run
+          echo "eula=true" > run/eula.txt
+          printf 'online-mode=false\nlevel-type=minecraft\\:flat\nspawn-protection=0\nlevel-name=world\n' > run/server.properties
+          ./gradlew runServer > server.log 2>&1 &
+          for i in $(seq 1 120); do grep -q "Done (" server.log && break; sleep 5; done
+          sleep 5
+          pkill -f "net.neoforged" || true; pkill -f GradleWorkerMain || true; sleep 5
+          mkdir -p run/saves && cp -r run/world run/saves/showcase
+          printf 'onboardAccessibility:false\ntutorialStep:none\nguiScale:3\nrenderDistance:2\nsimulationDistance:5\nmaxFps:30\nnarrator:0\nsoundCategory_master:0\n' > run/options.txt
+      - name: Run client
+        env:
+          ATOMCRAFT_SHOWCASE: "1"
+          ATOMCRAFT_QUICKPLAY: showcase
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          xvfb-run -a -s "-screen 0 1280x960x24" ./gradlew runClient > client.log 2>&1 &
+          for i in $(seq 1 150); do
+            grep -q "SHOWCASE DONE" client.log && break
+            grep -q "Crash report saved\|BUILD FAILED" client.log && break
+            sleep 4
+          done
+          sleep 5
+          pkill -f "net.neoforged" || true; pkill -f GradleWorkerMain || true; sleep 3
+          grep "SHOWCASE" client.log | sed 's/^.*AtomCraft SHOWCASE /::notice title=Vitrine::/' || true
+          ls -la run/screenshots || true
+      - name: Publish screenshots
+        run: |
+          [ -d run/screenshots ] || { echo "Nenhum print"; tail -60 client.log; exit 1; }
+          mkdir pub && cp run/screenshots/*.png pub/ && cd pub
+          git init -q && git checkout -q -b ci-screenshots
+          git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" add . 
+          git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" commit -q -m "Prints das interfaces (${GITHUB_SHA::7})"
+          git push -q -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}" ci-screenshots
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gui-client-log
           path: client.log
