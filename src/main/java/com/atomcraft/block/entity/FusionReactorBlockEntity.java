@@ -79,7 +79,9 @@ public class FusionReactorBlockEntity extends GeneratorBlockEntity {
             runCycle(perCycle);
         }
         if (pending <= 0) return 0;
-        int generated = (int) Math.min(Math.min(pending, Math.max(1, perCycle / CYCLE_TICKS)), room());
+        // Distribui a energia do ciclo ao longo dos 10 ticks, para a geração ficar estável.
+        int rate = (int) Math.max(1, Math.ceil(perCycle * (heat / 1000.0) / CYCLE_TICKS));
+        int generated = (int) Math.min(Math.min(pending, rate), room());
         pending -= generated;
         addEnergy(generated);
         return generated;
