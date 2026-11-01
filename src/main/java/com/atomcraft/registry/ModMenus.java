@@ -4,6 +4,8 @@ import com.atomcraft.AtomCraft;
 import com.atomcraft.menu.AnalyzerMenu;
 import com.atomcraft.menu.AtomizerMenu;
 import com.atomcraft.menu.DriveMenu;
+import com.atomcraft.menu.GeneratorMenu;
+import com.atomcraft.menu.TerminalMenu;
 import com.atomcraft.menu.ReplicatorMenu;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.inventory.MenuType;
@@ -23,6 +25,15 @@ public final class ModMenus {
             MENUS.register("replicator", () -> IMenuTypeExtension.create(ReplicatorMenu::client));
     public static final DeferredHolder<MenuType<?>, MenuType<DriveMenu>> DRIVE =
             MENUS.register("drive", () -> IMenuTypeExtension.create(DriveMenu::client));
+
+    public static final DeferredHolder<MenuType<?>, MenuType<GeneratorMenu>> COMBUSTION_GENERATOR =
+            MENUS.register("combustion_generator", () -> IMenuTypeExtension.create(GeneratorMenu::combustionClient));
+    public static final DeferredHolder<MenuType<?>, MenuType<GeneratorMenu>> CARBON_GENERATOR =
+            MENUS.register("carbon_generator", () -> IMenuTypeExtension.create(GeneratorMenu::carbonClient));
+    public static final DeferredHolder<MenuType<?>, MenuType<GeneratorMenu>> FUSION_REACTOR =
+            MENUS.register("fusion_reactor", () -> IMenuTypeExtension.create(GeneratorMenu::fusionClient));
+    public static final DeferredHolder<MenuType<?>, MenuType<TerminalMenu>> TERMINAL =
+            MENUS.register("terminal", () -> IMenuTypeExtension.create(TerminalMenu::client));
 
     private ModMenus() {}
 }

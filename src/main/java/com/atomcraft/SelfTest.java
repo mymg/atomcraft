@@ -2,11 +2,17 @@ package com.atomcraft;
 
 import com.atomcraft.block.entity.AnalyzerBlockEntity;
 import com.atomcraft.block.entity.AtomizerBlockEntity;
+import com.atomcraft.block.entity.CarbonGeneratorBlockEntity;
+import com.atomcraft.block.entity.CombustionGeneratorBlockEntity;
+import com.atomcraft.block.entity.FusionReactorBlockEntity;
+import com.atomcraft.block.entity.TerminalBlockEntity;
 import com.atomcraft.block.entity.DriveBlockEntity;
 import com.atomcraft.block.entity.ReplicatorBlockEntity;
 import com.atomcraft.chemistry.AtomicValue;
 import com.atomcraft.chemistry.AtomicValues;
 import com.atomcraft.chemistry.ChemicalElement;
+import com.atomcraft.chemistry.Composition;
+import com.atomcraft.chemistry.Fuel;
 import com.atomcraft.registry.ModBlocks;
 import com.atomcraft.registry.ModItems;
 import com.atomcraft.research.ResearchData;
@@ -73,7 +79,8 @@ final class SelfTest {
         check(failures, cake == null || cake.composition().get(ChemicalElement.IRON) == 0, "bolo não inclui o ferro dos baldes devolvidos");
         AtomCraft.LOGGER.info("AtomCraft SELFTEST {} itens com valor", AtomicValues.serverValues().size());
         for (String recipe : List.of("atomizer", "analyzer", "replicator", "drive", "atomic_cable",
-                "element_disk_16k", "element_disk_64k", "element_disk_256k", "element_disk_1m")) {
+                "element_disk_16k", "element_disk_64k", "element_disk_256k", "element_disk_1m",
+                "terminal", "combustion_generator", "carbon_generator", "fusion_reactor")) {
             boolean exists = server.getRecipeManager().byKey(ResourceKey.create(Registries.RECIPE, AtomCraft.id(recipe))).isPresent();
             check(failures, exists, "receita " + recipe + " carregada");
         }
@@ -142,6 +149,72 @@ final class SelfTest {
 
         // Limpeza
         for (BlockPos pos : List.of(drivePos, drivePos.east(), drivePos.west(), drivePos.north(), drivePos.north(2))) {
+            level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+        }
+
+        generators(level, failures);
+    }
+
+    /** Geradores: combustão com carvão, carbono da rede alimentando o Atomizador e fusão H → He. */
+    private static void generators(ServerLevel level, List<String> failures) {
+        long coal = Fuel.energy(Items.COAL, false), log = Fuel.energy(Items.OAK_LOG, false);
+        check(failures, coal > log && log > 0, "carvão rende mais que tronco (" + coal + " > " + log + ")");
+        check(failures, Fuel.energy(Items.IRON_INGOT, false) == 0, "ferro não é combustível");
+
+        // Gerador de Combustão sozinho
+        BlockPos combustionPos = new BlockPos(0, 120, 12);
+        level.getChunk(combustionPos);
+        place(level, combustionPos, ModBlocks.COMBUSTION_GENERATOR.get());
+        CombustionGeneratorBlockEntity combustion = (CombustionGeneratorBlockEntity) level.getBlockEntity(combustionPos);
+        for (int i = 0; i < 20; i++) combustion.serverTick();
+        check(failures, combustion.energy().getAmountAsInt() == 0, "sem combustível, nada é gerado");
+        combustion.fuel().set(0, ItemResource.of(Items.COAL), 2);
+        for (int i = 0; i < 100; i++) combustion.serverTick();
+        check(failures, combustion.fuel().getAmountAsInt(0) == 1, "gerador queimou 1 carvão (" + combustion.fuel().getAmountAsInt(0) + ")");
+        check(failures, combustion.energy().getAmountAsInt() == 100 * Config.COMBUSTION_RATE.get(),
+                "combustão gerou " + combustion.energy().getAmountAsInt() + " FE");
+        try (var transaction = net.neoforged.neoforge.transfer.transaction.Transaction.openRoot()) {
+            check(failures, combustion.automation().insert(ItemResource.of(Items.IRON_INGOT), 1, transaction) == 0,
+                    "gerador recusa itens sem carbono");
+        }
+
+        // Rede: Drive + Gerador de Carbono + Atomizador + Reator de Fusão
+        BlockPos drivePos = new BlockPos(0, 120, 24);
+        level.getChunk(drivePos);
+        place(level, drivePos, ModBlocks.DRIVE.get());
+        place(level, drivePos.east(), ModBlocks.CARBON_GENERATOR.get());
+        place(level, drivePos.west(), ModBlocks.ATOMIZER.get());
+        place(level, drivePos.north(), ModBlocks.CABLE.get());
+        place(level, drivePos.north(2), ModBlocks.FUSION_REACTOR.get());
+        place(level, drivePos.south(), ModBlocks.TERMINAL.get());
+        DriveBlockEntity drive = (DriveBlockEntity) level.getBlockEntity(drivePos);
+        CarbonGeneratorBlockEntity carbon = (CarbonGeneratorBlockEntity) level.getBlockEntity(drivePos.east());
+        AtomizerBlockEntity atomizer = (AtomizerBlockEntity) level.getBlockEntity(drivePos.west());
+        FusionReactorBlockEntity fusion = (FusionReactorBlockEntity) level.getBlockEntity(drivePos.north(2));
+        check(failures, level.getBlockEntity(drivePos.south()) instanceof TerminalBlockEntity, "terminal tem block entity");
+
+        for (int i = 0; i < 20; i++) carbon.serverTick();
+        check(failures, carbon.energy().getAmountAsInt() == 0, "sem disco, o gerador de carbono fica parado");
+
+        drive.disks().set(0, ItemResource.of(ModItems.DISK_16K.get()), 1);
+        ElementNetwork network = ElementNetwork.scan(level, drivePos);
+        network.insert(new Composition(java.util.Map.of(ChemicalElement.CARBON, 100L, ChemicalElement.HYDROGEN, 400L)), 1);
+        check(failures, network.receivers().contains(atomizer), "atomizador é receptor de energia da rede");
+
+        for (int i = 0; i < 100; i++) carbon.serverTick();
+        network = ElementNetwork.scan(level, drivePos);
+        long carbonLeft = network.totals().get(ChemicalElement.CARBON);
+        check(failures, carbonLeft < 100 && carbonLeft > 0, "gerador de carbono consumiu C da rede (C" + carbonLeft + ")");
+        check(failures, atomizer.energy().getAmountAsInt() > 0, "atomizador recebeu energia pela rede (" + atomizer.energy().getAmountAsInt() + " FE)");
+
+        for (int i = 0; i < 400; i++) fusion.serverTick();
+        network = ElementNetwork.scan(level, drivePos);
+        long hydrogen = network.totals().get(ChemicalElement.HYDROGEN), helium = network.totals().get(ChemicalElement.HELIUM);
+        check(failures, hydrogen < 400 && helium > 0 && (400 - hydrogen) == helium * 4,
+                "fusão consumiu H e produziu He (H" + hydrogen + " He" + helium + ")");
+        check(failures, fusion.heat() > 0, "plasma aqueceu (" + fusion.heat() + ")");
+
+        for (BlockPos pos : List.of(combustionPos, drivePos, drivePos.east(), drivePos.west(), drivePos.north(), drivePos.north(2), drivePos.south())) {
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
         }
     }

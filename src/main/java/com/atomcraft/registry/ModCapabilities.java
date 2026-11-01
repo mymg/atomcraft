@@ -16,6 +16,10 @@ public final class ModCapabilities {
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.REPLICATOR.get(), (be, side) -> be.energy());
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.ATOMIZER.get(), (be, side) -> be.energy());
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.DRIVE.get(), (be, side) -> be.disks());
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.COMBUSTION_GENERATOR.get(), (be, side) -> be.automation());
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.COMBUSTION_GENERATOR.get(), (be, side) -> be.energy());
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.CARBON_GENERATOR.get(), (be, side) -> be.energy());
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.FUSION_REACTOR.get(), (be, side) -> be.energy());
     }
 
     private ModCapabilities() {}

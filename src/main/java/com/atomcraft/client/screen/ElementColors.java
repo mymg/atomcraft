@@ -10,6 +10,7 @@ public final class ElementColors {
     public static int of(ChemicalElement element) {
         return switch (element) {
             case HYDROGEN -> 0xFFF2F2F2;
+            case HELIUM -> 0xFFC8F7FF;
             case BERYLLIUM -> 0xFFB8E85A;
             case CARBON -> 0xFFE02626;
             case NITROGEN -> 0xFF3A5BF0;

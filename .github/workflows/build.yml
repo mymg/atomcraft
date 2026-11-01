@@ -170,7 +170,7 @@ jobs:
           ./gradlew runClient > client.log 2>&1 &
           done_names=""
           for i in $(seq 1 600); do
-            for name in $(grep -o "SHOWCASE capture [a-z]*" client.log | awk '{print $3}'); do
+            for name in $(grep -o "SHOWCASE capture [a-z_]*" client.log | awk '{print $3}'); do
               case " $done_names " in *" $name "*) ;; *)
                 python3 -c "from PIL import ImageGrab; ImageGrab.grab(xdisplay=':99').save('run/screenshots/$name.png')"
                 done_names="$done_names $name"; echo "capturado: $name";;

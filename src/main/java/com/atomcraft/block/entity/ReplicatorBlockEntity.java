@@ -7,6 +7,7 @@ import com.atomcraft.menu.ReplicatorMenu;
 import com.atomcraft.registry.ModBlockEntities;
 import com.atomcraft.research.ResearchData;
 import com.atomcraft.storage.ElementNetwork;
+import com.atomcraft.storage.EnergyReceiver;
 import com.atomcraft.storage.FilteredItemHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -38,7 +39,7 @@ import java.util.UUID;
  * e a raridade do item. Os itens prontos vão para o buffer de saída, de onde
  * hoppers e pipes podem retirá-los.
  */
-public class ReplicatorBlockEntity extends MachineBlockEntity {
+public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyReceiver {
 
     public static final int SLOTS = 9;
     public static final int MAX_REQUEST = 9999;
@@ -107,6 +108,7 @@ public class ReplicatorBlockEntity extends MachineBlockEntity {
         return automation;
     }
 
+    @Override
     public SimpleEnergyHandler energy() {
         return energy;
     }

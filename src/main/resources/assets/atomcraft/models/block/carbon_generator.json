@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "atomcraft:block/carbon_generator_top",
+    "front": "atomcraft:block/carbon_generator_front",
+    "side": "atomcraft:block/machine_side",
+    "particle": "atomcraft:block/machine_side"
+  }
+}

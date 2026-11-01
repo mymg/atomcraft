@@ -56,6 +56,42 @@ public final class Config {
             .defineInRange("ticksPerItem", 10, 1, 1200);
 
     static {
+        BUILDER.pop().push("generators");
+    }
+
+    public static final ModConfigSpec.IntValue COMBUSTION_FE_PER_UNIT = BUILDER
+            .comment("Gerador de Combustão: FE por unidade de combustível (C + H/4 − O). Carvão (C24) = 24 unidades")
+            .defineInRange("combustionFePerUnit", 1600, 1, 1_000_000);
+
+    public static final ModConfigSpec.IntValue COMBUSTION_RATE = BUILDER
+            .comment("Gerador de Combustão: FE gerado por tick")
+            .defineInRange("combustionRate", 60, 1, 1_000_000);
+
+    public static final ModConfigSpec.IntValue CARBON_FE_PER_ATOM = BUILDER
+            .comment("Gerador de Carbono: FE por átomo de carbono queimado da rede")
+            .defineInRange("carbonFePerAtom", 2000, 1, 1_000_000);
+
+    public static final ModConfigSpec.IntValue CARBON_RATE = BUILDER
+            .comment("Gerador de Carbono: FE gerado por tick")
+            .defineInRange("carbonRate", 200, 1, 1_000_000);
+
+    public static final ModConfigSpec.IntValue FUSION_FE_PER_CYCLE = BUILDER
+            .comment("Reator de Fusão: FE por ciclo (4 H → 1 He) na temperatura máxima. Um ciclo dura 10 ticks")
+            .defineInRange("fusionFePerCycle", 20_000, 1, 100_000_000);
+
+    public static final ModConfigSpec.IntValue FUSION_WARMUP_CYCLES = BUILDER
+            .comment("Reator de Fusão: ciclos para ir de frio à temperatura máxima")
+            .defineInRange("fusionWarmupCycles", 100, 1, 10_000);
+
+    public static final ModConfigSpec.IntValue GENERATOR_CAPACITY = BUILDER
+            .comment("Capacidade de energia dos geradores (FE)")
+            .defineInRange("generatorCapacity", 500_000, 1_000, Integer.MAX_VALUE);
+
+    public static final ModConfigSpec.IntValue GENERATOR_MAX_OUTPUT = BUILDER
+            .comment("Máximo de FE que cada gerador envia por tick")
+            .defineInRange("generatorMaxOutput", 20_000, 1, Integer.MAX_VALUE);
+
+    static {
         BUILDER.pop();
     }
 

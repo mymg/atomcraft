@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "atomcraft:block/fusion_reactor_top",
+    "front": "atomcraft:block/fusion_reactor_front",
+    "side": "atomcraft:block/machine_side",
+    "particle": "atomcraft:block/machine_side"
+  }
+}

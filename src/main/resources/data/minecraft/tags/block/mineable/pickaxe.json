@@ -4,6 +4,10 @@
     "atomcraft:analyzer",
     "atomcraft:replicator",
     "atomcraft:drive",
+    "atomcraft:terminal",
+    "atomcraft:combustion_generator",
+    "atomcraft:carbon_generator",
+    "atomcraft:fusion_reactor",
     "atomcraft:atomic_cable"
   ]
 }

@@ -4,6 +4,7 @@ import com.atomcraft.AtomCraft;
 import com.atomcraft.client.screen.MachineScreen;
 import com.atomcraft.client.screen.ReplicatorScreen;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
@@ -36,7 +37,8 @@ final class ClientShowcase {
             return;
         }
         if (++ticks == 40) {
-            String name = screen.getClass().getSimpleName().replace("Screen", "").toLowerCase();
+            var key = BuiltInRegistries.MENU.getKey(((MachineScreen<?>) screen).getMenu().getType());
+            String name = key == null ? "unknown" : key.getPath();
             AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture {}", name);
         }
     }

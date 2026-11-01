@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "atomcraft:block/terminal"
+    },
+    "facing=east": {
+      "model": "atomcraft:block/terminal",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "atomcraft:block/terminal",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "atomcraft:block/terminal",
+      "y": 270
+    }
+  }
+}

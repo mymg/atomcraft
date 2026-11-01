@@ -2,6 +2,7 @@ package com.atomcraft;
 
 import com.atomcraft.block.entity.AnalyzerBlockEntity;
 import com.atomcraft.block.entity.AtomizerBlockEntity;
+import com.atomcraft.block.entity.CombustionGeneratorBlockEntity;
 import com.atomcraft.block.entity.DriveBlockEntity;
 import com.atomcraft.block.entity.ReplicatorBlockEntity;
 import com.atomcraft.chemistry.AtomicValues;
@@ -107,6 +108,13 @@ final class Showcase {
         ReplicatorBlockEntity replicator = (ReplicatorBlockEntity) level.getBlockEntity(base.west());
         replicator.energy().set(1_600_000);
         replicator.startJob(player.getUUID(), Items.IRON_INGOT, 14);
+        // Geradores e terminal, todos ligados à rede.
+        level.setBlock(base.south(), ModBlocks.CARBON_GENERATOR.get().defaultBlockState(), Block.UPDATE_ALL);
+        level.setBlock(base.south(2), ModBlocks.COMBUSTION_GENERATOR.get().defaultBlockState(), Block.UPDATE_ALL);
+        level.setBlock(base.above(), ModBlocks.FUSION_REACTOR.get().defaultBlockState(), Block.UPDATE_ALL);
+        level.setBlock(base.west().above(), ModBlocks.TERMINAL.get().defaultBlockState(), Block.UPDATE_ALL);
+        CombustionGeneratorBlockEntity combustion = (CombustionGeneratorBlockEntity) level.getBlockEntity(base.south(2));
+        combustion.fuel().set(0, ItemResource.of(Items.COAL), 12);
         AtomCraft.LOGGER.info("AtomCraft SHOWCASE pronto em {}", base);
     }
 
@@ -119,11 +127,15 @@ final class Showcase {
             case 160 -> base.north(2);
             case 260 -> base;
             case 360 -> base.west();
+            case 460 -> base.south(2);
+            case 560 -> base.south();
+            case 760 -> base.above();
+            case 860 -> base.west().above();
             default -> null;
         };
         if (target != null && level.getBlockEntity(target) instanceof MenuProvider provider) {
             player.openMenu(provider, target);
         }
-        if (ticks == 480) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
+        if (ticks == 980) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
     }
 }
