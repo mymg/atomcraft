@@ -8,6 +8,10 @@ import com.atomcraft.registry.ModBlockEntities;
 import com.atomcraft.storage.ElementNetwork;
 import com.atomcraft.upgrade.UpgradeType;
 import com.atomcraft.upgrade.Upgrades;
+import com.atomcraft.research.ResearchData;
+import com.atomcraft.network.ModNetwork;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -113,8 +117,24 @@ public class FusionReactorBlockEntity extends GeneratorBlockEntity {
         pending += (long) perCycle * heat / 1000;
         heliumProduced++;
         network.insert(PRODUCT, 1);
+        discoverHelium();
         status = MachineStatus.WORKING;
         setChanged();
+    }
+
+    /** O hélio não existe em nenhum item: o dono do reator o descobre ao produzi-lo. */
+    private void discoverHelium() {
+        if (owner == null || level == null || level.getServer() == null) return;
+        ResearchData research = ResearchData.get(level.getServer());
+        if (research.isDiscovered(owner, ChemicalElement.HELIUM)) return;
+        research.discover(owner, PRODUCT);
+        ServerPlayer player = onlineOwner();
+        if (player != null) {
+            player.sendSystemMessage(Component.translatable("message.atomcraft.element_discovered",
+                    Component.translatable(ChemicalElement.HELIUM.translationKey()), ChemicalElement.HELIUM.symbol())
+                    .withStyle(ChatFormatting.AQUA));
+            ModNetwork.syncResearch(player);
+        }
     }
 
     @Override

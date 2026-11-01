@@ -275,6 +275,7 @@ final class SelfTest {
         CarbonGeneratorBlockEntity carbon = (CarbonGeneratorBlockEntity) level.getBlockEntity(drivePos.east());
         AtomizerBlockEntity atomizer = (AtomizerBlockEntity) level.getBlockEntity(drivePos.west());
         FusionReactorBlockEntity fusion = (FusionReactorBlockEntity) level.getBlockEntity(drivePos.north(2));
+        fusion.setOwner(TESTER, "tester");
         check(failures, level.getBlockEntity(drivePos.south()) instanceof TerminalBlockEntity, "terminal tem block entity");
 
         for (int i = 0; i < 20; i++) carbon.serverTick();
@@ -297,6 +298,8 @@ final class SelfTest {
         check(failures, hydrogen < 400 && helium > 0 && (400 - hydrogen) == helium * 4,
                 "fusão consumiu H e produziu He (H" + hydrogen + " He" + helium + ")");
         check(failures, fusion.heat() > 0, "plasma aqueceu (" + fusion.heat() + ")");
+        check(failures, ResearchData.get(level.getServer()).isDiscovered(TESTER, ChemicalElement.HELIUM),
+                "o dono do reator descobriu o hélio");
 
         for (BlockPos pos : List.of(combustionPos, drivePos, drivePos.east(), drivePos.west(), drivePos.north(), drivePos.north(2), drivePos.south())) {
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
