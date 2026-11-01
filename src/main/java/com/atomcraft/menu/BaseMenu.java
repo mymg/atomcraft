@@ -163,8 +163,8 @@ public abstract class BaseMenu extends AbstractContainerMenu {
         ItemStack original = stack.copy();
 
         if (index < machineSlots) {
-            if (!moveItemStackTo(stack, machineSlots, slots.size(), true)) return ItemStack.EMPTY;
-        } else if (!acceptsQuickMove() || !moveItemStackTo(stack, 0, machineSlots, false)) {
+            if (!moveToSlots(stack, machineSlots, slots.size(), true)) return ItemStack.EMPTY;
+        } else if (!acceptsQuickMove() || !moveToSlots(stack, 0, machineSlots, false)) {
             return ItemStack.EMPTY;
         }
 
@@ -173,6 +173,30 @@ public abstract class BaseMenu extends AbstractContainerMenu {
         if (stack.getCount() == original.getCount()) return ItemStack.EMPTY;
         slot.onTake(player, stack);
         return original;
+    }
+
+    /**
+     * Como o moveItemStackTo do vanilla, mas respeita {@link Slot#mayPlace} também
+     * ao completar pilhas: itens nunca entram em slots de saída.
+     */
+    protected boolean moveToSlots(ItemStack stack, int start, int end, boolean reverse) {
+        boolean moved = false;
+        for (int pass = 0; pass < 2 && !stack.isEmpty(); pass++) {
+            for (int k = 0; k < end - start && !stack.isEmpty(); k++) {
+                Slot slot = slots.get(reverse ? end - 1 - k : start + k);
+                if (!slot.mayPlace(stack)) continue;
+                ItemStack current = slot.getItem();
+                // 1ª passada: só completa pilhas iguais; 2ª: usa slots vazios.
+                boolean candidate = pass == 0
+                        ? !current.isEmpty() && ItemStack.isSameItemSameComponents(current, stack)
+                        : current.isEmpty();
+                if (!candidate) continue;
+                int before = stack.getCount();
+                slot.safeInsert(stack);
+                if (stack.getCount() != before) moved = true;
+            }
+        }
+        return moved;
     }
 
     @Override

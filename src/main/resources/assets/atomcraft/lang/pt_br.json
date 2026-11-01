@@ -83,7 +83,7 @@
   "gui.atomcraft.replicate": "Replicar",
   "gui.atomcraft.cancel": "Cancelar",
   "gui.atomcraft.energy_cost": "Energia: %s FE",
-  "gui.atomcraft.time": "Tempo: %ss",
+  "gui.atomcraft.time": "Tempo: %s",
   "gui.atomcraft.available": "Disponível: %s",
   "gui.atomcraft.select_item": "Escolha um item",
   "gui.atomcraft.library_empty": "Nada pesquisado",
