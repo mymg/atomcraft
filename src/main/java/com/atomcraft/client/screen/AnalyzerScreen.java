@@ -37,7 +37,7 @@ public class AnalyzerScreen extends MachineScreen<AnalyzerMenu> {
             AtomicValue value = AtomicValues.get(item, true);
             if (value != null) {
                 graphics.text(font, Component.translatable(value.rarity().translationKey()), x + 21, y + 11,
-                        TechGui.scale(0xFF000000 | value.rarity().color().getColor(), 1.0), false);
+                        value.rarity().argb(), false);
             }
             int required = Math.max(1, menu.required());
             String count = menu.researched() + "/" + menu.required();

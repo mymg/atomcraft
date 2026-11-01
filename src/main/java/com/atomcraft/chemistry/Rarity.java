@@ -17,11 +17,11 @@ import java.util.Locale;
  * </ul>
  */
 public enum Rarity implements StringRepresentable {
-    COMMON(50, 1, 1.0, ChatFormatting.WHITE),
-    UNCOMMON(20, 2, 1.5, ChatFormatting.YELLOW),
-    RARE(5, 4, 2.0, ChatFormatting.AQUA),
-    EPIC(2, 8, 3.0, ChatFormatting.LIGHT_PURPLE),
-    LEGENDARY(1, 16, 4.0, ChatFormatting.GOLD);
+    COMMON(50, 1, 1.0, ChatFormatting.WHITE, 0xFFE0E0E0),
+    UNCOMMON(20, 2, 1.5, ChatFormatting.YELLOW, 0xFFFFE066),
+    RARE(5, 4, 2.0, ChatFormatting.AQUA, 0xFF66E0FF),
+    EPIC(2, 8, 3.0, ChatFormatting.LIGHT_PURPLE, 0xFFE080FF),
+    LEGENDARY(1, 16, 4.0, ChatFormatting.GOLD, 0xFFFFB833);
 
     private static final Rarity[] VALUES = values();
 
@@ -33,8 +33,10 @@ public enum Rarity implements StringRepresentable {
     private final double energyMultiplier;
     private final double timeMultiplier;
     private final ChatFormatting color;
+    private final int argb;
 
-    Rarity(int researchCount, double energyMultiplier, double timeMultiplier, ChatFormatting color) {
+    Rarity(int researchCount, double energyMultiplier, double timeMultiplier, ChatFormatting color, int argb) {
+        this.argb = argb;
         this.researchCount = researchCount;
         this.energyMultiplier = energyMultiplier;
         this.timeMultiplier = timeMultiplier;
@@ -55,6 +57,11 @@ public enum Rarity implements StringRepresentable {
 
     public ChatFormatting color() {
         return color;
+    }
+
+    /** Cor ARGB para textos nas interfaces. */
+    public int argb() {
+        return argb;
     }
 
     public String translationKey() {

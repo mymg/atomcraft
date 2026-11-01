@@ -226,9 +226,8 @@ public class ReplicatorScreen extends MachineScreen<ReplicatorMenu> {
             graphics.text(font, font.plainSubstrByWidth(stack.getHoverName().getString(), 74), x + 20, y + 1, TechGui.TEXT_LIGHT, false);
             AtomicValue value = AtomicValues.get(selected, true);
             if (value != null) {
-                Integer color = value.rarity().color().getColor();
                 graphics.text(font, Component.translatable(value.rarity().translationKey()), x + 20, y + 10,
-                        color == null ? TechGui.TEXT_LIGHT : 0xFF000000 | color, false);
+                        value.rarity().argb(), false);
 
                 // Composição em badges, com a quantidade de cada elemento embaixo
                 List<Map.Entry<ChemicalElement, Long>> elements = new ArrayList<>(value.composition().elements().entrySet());
