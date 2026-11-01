@@ -18,11 +18,11 @@ jobs:
           JAR=$(find build ~/.gradle -name "*.jar" | grep -i -E "neoforge.*(merged|minecraft)|minecraft-joined|client-extra" | grep -v sources | head -5)
           echo "$JAR"
           CP=$(find build ~/.gradle -name "*.jar" | grep -v sources | tr '\n' ':')
-          for c in net.minecraft.client.gui.screens.inventory.AbstractContainerScreen net.minecraft.world.inventory.Slot net.minecraft.client.gui.screens.Screen net.minecraft.world.level.block.entity.BlockEntity net.minecraft.world.level.storage.loot.LootTable net.neoforged.neoforge.event.LootTableLoadEvent net.minecraft.world.level.storage.loot.LootPool net.minecraft.world.level.storage.loot.entries.LootItem net.minecraft.world.level.storage.loot.BuiltInLootTables net.neoforged.neoforge.common.loot.IGlobalLootModifier net.neoforged.neoforge.common.loot.LootModifier; do
+          for c in net.minecraft.client.gui.screens.inventory.AbstractContainerScreen net.minecraft.world.inventory.Slot net.minecraft.client.gui.screens.Screen net.minecraft.world.level.block.entity.BlockEntity net.minecraft.world.level.storage.loot.LootTable net.neoforged.neoforge.event.LootTableLoadEvent net.minecraft.world.level.storage.loot.LootPool net.minecraft.world.level.storage.loot.entries.LootItem net.minecraft.world.level.storage.loot.BuiltInLootTables net.neoforged.neoforge.common.loot.IGlobalLootModifier net.neoforged.neoforge.common.loot.LootModifier net.neoforged.neoforge.common.loot.AddTableLootModifier net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen; do
             javap -cp "$CP" -public -protected $c > /tmp/out.txt 2>&1 || true
             echo "===== $c"; cat /tmp/out.txt
           done > probe.txt
-          grep -c . probe.txt
+          cat probe.txt | grep -v "^  private"
       - uses: actions/upload-artifact@v4
         with:
           name: probe
