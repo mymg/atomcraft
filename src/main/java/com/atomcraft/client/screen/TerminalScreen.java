@@ -21,7 +21,9 @@ public class TerminalScreen extends MachineScreen<TerminalMenu> {
     private static final int[] GROUPS = {1, 2, 3, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18};
     /** Períodos que o mod usa, na ordem das linhas. */
     private static final int[] PERIODS = {1, 2, 3, 4, 5, 6, 7};
-    private static final int CELL_W = 20, CELL_H = 24, TABLE_X = 12, TABLE_Y = 22, EXOTIC_Y = 198, STORAGE_Y = 230;
+    private static final int CELL_W = 20, CELL_H = 24, TABLE_X = 12, TABLE_Y = 22, STORAGE_Y = 196;
+    /** Os exóticos ocupam o espaço vazio do 1º período, entre H e He, como uma legenda. */
+    private static final int EXOTIC_COLUMN = 4;
 
     public TerminalScreen(TerminalMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, TerminalMenu.WIDTH, TerminalMenu.HEIGHT);
@@ -36,7 +38,7 @@ public class TerminalScreen extends MachineScreen<TerminalMenu> {
     private static int[] cell(ChemicalElement element) {
         if (element.exotic()) {
             int index = element.ordinal() - ChemicalElement.REDSTONIUM.ordinal();
-            return new int[]{TABLE_X + (2 + index) * CELL_W, EXOTIC_Y};
+            return new int[]{TABLE_X + (EXOTIC_COLUMN + index) * CELL_W, TABLE_Y};
         }
         int column = indexOf(GROUPS, group(element));
         int row = indexOf(PERIODS, period(element));
@@ -76,13 +78,21 @@ public class TerminalScreen extends MachineScreen<TerminalMenu> {
     @Override
     protected void extractPanels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         TechGui.glass(graphics, leftPos + 8, topPos + 18, imageWidth - 16, TABLE_Y + PERIODS.length * CELL_H - 16);
-        TechGui.glass(graphics, leftPos + 8, topPos + EXOTIC_Y - 4, imageWidth - 16, 31);
+        // Moldura discreta em volta da linha de exóticos.
+        int count = (int) java.util.Arrays.stream(ChemicalElement.values()).filter(ChemicalElement::exotic).count();
+        int x0 = leftPos + TABLE_X + EXOTIC_COLUMN * CELL_W - 2, x1 = x0 + count * CELL_W + 2;
+        int y0 = topPos + TABLE_Y - 3, y1 = y0 + CELL_H + 1;
+        graphics.fill(x0, y0, x1, y0 + 1, TechGui.GLASS_EDGE_DIM);
+        graphics.fill(x0, y1, x1, y1 + 1, TechGui.GLASS_EDGE_DIM);
+        graphics.fill(x0, y0, x0 + 1, y1, TechGui.GLASS_EDGE_DIM);
+        graphics.fill(x1 - 1, y0, x1, y1, TechGui.GLASS_EDGE_DIM);
     }
 
     @Override
     protected void extractMachine(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         Composition totals = ClientState.networkTotals();
-        graphics.text(font, Component.translatable("gui.atomcraft.exotic"), leftPos + 13, topPos + EXOTIC_Y + 4,
+        Component exotic = Component.translatable("gui.atomcraft.exotic");
+        graphics.text(font, exotic, leftPos + TABLE_X + EXOTIC_COLUMN * CELL_W - 5 - font.width(exotic), topPos + TABLE_Y + 4,
                 TechGui.TEXT_DIM, false);
         for (ChemicalElement element : ChemicalElement.values()) {
             int[] pos = cell(element);
