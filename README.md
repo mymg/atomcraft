@@ -109,6 +109,31 @@ vale a raridade vanilla do item. Os elementos disponíveis estão em
 [`ChemicalElement.java`](src/main/java/com/atomcraft/chemistry/ChemicalElement.java), incluindo elementos
 fictícios para materiais mágicos: Redstônio (Rs), Lumínio (Lm), Endério (En), Netherio (Nt), Sculkio (Sk) e Estelário (Sx).
 
+## Compatibilidade com outros mods
+
+Itens de outros mods ganham composição pelas **tags comuns `c:`** do NeoForge, que mods como All The Ores,
+Mekanism, Thermal, Create e Applied Energistics usam. Cada material tem a composição de uma barra (9 átomos),
+e as outras formas derivam dela:
+
+| Forma (tag) | Composição |
+|---|---|
+| `c:ingots/*`, `c:raw_materials/*`, `c:dusts/*`, `c:plates/*` | 1 barra |
+| `c:nuggets/*` | 1/9 da barra |
+| `c:rods/*`, `c:wires/*` | 1/2 barra |
+| `c:gears/*` | 4 barras |
+| `c:storage_blocks/*`, `c:storage_blocks/raw_*` | 9 barras |
+| `c:ores/*` | 1 barra + SiO₂ |
+
+- **Metais:** estanho (Sn), chumbo (Pb), níquel (Ni), zinco (Zn), alumínio (Al), prata (Ag), ósmio (Os),
+  platina (Pt), irídio (Ir) e urânio (U).
+- **Ligas:** bronze, latão, aço, invar, constantan e electrum.
+- **All the Mods:** Allthemodium, Vibranium e Unobtainium viram os elementos exóticos Ad, Vb e Ub.
+- **Gemas e pós:** rubi, safira, peridoto, certus quartz, fluix, enxofre, salitre e pós de carvão, diamante e afins.
+
+Itens de outros mods que não estão em nenhuma dessas tags recebem valor pelas próprias receitas (derivação
+normal), desde que os ingredientes tenham valor. Um modpack pode adicionar ou corrigir valores com um datapack
+em `data/<namespace>/atomcraft/compositions/`, usando `"item"` ou `"tag"`.
+
 ## Blocos e itens
 
 | | Receita |
@@ -151,6 +176,17 @@ O **Terminal de Elementos** mostra todo o estoque da rede organizado como uma ta
 `config/atomcraft-common.toml`: FE por massa atômica (Replicador e Atomizador; 0 desliga o consumo do Atomizador),
 multiplicadores de tempo, capacidade e entrada de energia das máquinas, ticks por item no Analisador e
 geração, capacidade e saída de cada gerador.
+
+## Editando modelos e texturas
+
+A aparência fica em `src/main/resources/assets/atomcraft/`: `textures/` (PNGs 16×16), `models/` (JSON),
+`blockstates/` e `items/`. Use o **Blockbench** para modelos (projeto "Java Block/Item") e qualquer editor de
+pixel art para texturas. No jogo, **F3 + T** recarrega os recursos.
+
+Os dados do mod (composições, receitas, loot, traduções) são gerados por `tools/gen_resources.py`
+(`python3 tools/gen_resources.py .`, precisa do Pillow). O script **nunca sobrescreve** modelos, blockstates,
+definições de itens e texturas que já existem: ele só cria os arquivos iniciais de blocos e itens novos.
+`--force` recria tudo do zero.
 
 ## Desenvolvimento
 

@@ -1,0 +1,7 @@
+{
+  "tag": "c:gears/constantan",
+  "elements": {
+    "Cu": 20,
+    "Ni": 16
+  }
+}

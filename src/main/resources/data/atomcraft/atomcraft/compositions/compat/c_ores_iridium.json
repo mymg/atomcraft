@@ -1,0 +1,9 @@
+{
+  "tag": "c:ores/iridium",
+  "elements": {
+    "Ir": 9,
+    "Si": 1,
+    "O": 2
+  },
+  "rarity": "rare"
+}

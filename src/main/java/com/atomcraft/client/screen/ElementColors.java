@@ -25,7 +25,16 @@ public final class ElementColors {
             case POTASSIUM -> 0xFF8F40D4;
             case CALCIUM -> 0xFF9CD69C;
             case IRON -> 0xFFC9CED4;
+            case NICKEL -> 0xFF9FB08A;
             case COPPER -> 0xFFC97B3A;
+            case ZINC -> 0xFF8E96B8;
+            case SILVER -> 0xFFE3E7EC;
+            case TIN -> 0xFFA9B7C2;
+            case OSMIUM -> 0xFF5C7FA3;
+            case IRIDIUM -> 0xFFD8E8F0;
+            case PLATINUM -> 0xFFC9D3DD;
+            case LEAD -> 0xFF5B5F73;
+            case URANIUM -> 0xFF5EE84A;
             case GOLD -> 0xFFFFCC33;
             case REDSTONIUM -> 0xFFB31414;
             case LUMINIUM -> 0xFFFFF09A;
@@ -33,6 +42,9 @@ public final class ElementColors {
             case NETHERIUM -> 0xFF5A4646;
             case SCULKIUM -> 0xFF0E5566;
             case STELLARIUM -> 0xFFE6E6FF;
+            case ALLTHEMODIUM -> 0xFFF2B33D;
+            case VIBRANIUM -> 0xFF4FD6A6;
+            case UNOBTAINIUM -> 0xFFC45CE6;
         };
     }
 

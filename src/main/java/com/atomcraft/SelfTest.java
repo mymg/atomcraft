@@ -81,6 +81,14 @@ final class SelfTest {
         AtomicValue cake = AtomicValues.get(Items.CAKE, false);
         check(failures, cake == null || cake.composition().get(ChemicalElement.IRON) == 0, "bolo não inclui o ferro dos baldes devolvidos");
         AtomCraft.LOGGER.info("AtomCraft SELFTEST {} itens com valor", AtomicValues.serverValues().size());
+        // Compatibilidade: composições por tags comuns "c:" (All The Ores, Mekanism, Thermal...)
+        var compat = com.atomcraft.chemistry.CompositionManager.entries().stream()
+                .filter(e -> e.tag().isPresent() && e.tag().get().toString().equals("c:ingots/tin")).findFirst();
+        check(failures, compat.isPresent() && compat.get().elements().get(ChemicalElement.TIN) == 9, "tag c:ingots/tin = Sn9");
+        var uranium = com.atomcraft.chemistry.CompositionManager.entries().stream()
+                .filter(e -> e.tag().isPresent() && e.tag().get().toString().equals("c:storage_blocks/uranium")).findFirst();
+        check(failures, uranium.isPresent() && uranium.get().elements().get(ChemicalElement.URANIUM) == 81, "tag c:storage_blocks/uranium = U81");
+        check(failures, amount(Items.IRON_INGOT, ChemicalElement.IRON) == 9, "tags comuns não mudam a barra de ferro");
         for (String recipe : List.of("atomizer", "analyzer", "replicator", "drive", "atomic_cable",
                 "element_disk_16k", "element_disk_64k", "element_disk_256k", "element_disk_1m",
                 "terminal", "combustion_generator", "carbon_generator", "fusion_reactor", "synthesizer")) {

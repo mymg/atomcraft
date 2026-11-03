@@ -84,6 +84,10 @@ final class Showcase {
         contents.put(ChemicalElement.COPPER, 200L);
         contents.put(ChemicalElement.LUMINIUM, 64L);
         contents.put(ChemicalElement.SULFUR, 30L);
+        contents.put(ChemicalElement.TIN, 450L);
+        contents.put(ChemicalElement.SILVER, 90L);
+        contents.put(ChemicalElement.URANIUM, 27L);
+        contents.put(ChemicalElement.ALLTHEMODIUM, 9L);
         drive.setDiskContents(0, new Composition(contents));
 
         AtomizerBlockEntity atomizer = (AtomizerBlockEntity) level.getBlockEntity(base.east());
