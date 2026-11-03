@@ -1,0 +1,9 @@
+{
+  "tag": "c:ores/peridot",
+  "elements": {
+    "Mg": 4,
+    "Si": 3,
+    "O": 10
+  },
+  "rarity": "uncommon"
+}

@@ -36,15 +36,28 @@ public enum ChemicalElement {
     POTASSIUM(19, "K", 39.098, false),
     CALCIUM(20, "Ca", 40.078, false),
     IRON(26, "Fe", 55.845, false),
+    NICKEL(28, "Ni", 58.693, false),
     COPPER(29, "Cu", 63.546, false),
+    ZINC(30, "Zn", 65.38, false),
+    SILVER(47, "Ag", 107.868, false),
+    TIN(50, "Sn", 118.71, false),
+    OSMIUM(76, "Os", 190.23, false),
+    IRIDIUM(77, "Ir", 192.217, false),
+    PLATINUM(78, "Pt", 195.084, false),
     GOLD(79, "Au", 196.967, false),
+    LEAD(82, "Pb", 207.2, false),
+    URANIUM(92, "U", 238.029, false),
     // Exóticos (fictícios)
     REDSTONIUM(119, "Rs", 280, true),
     LUMINIUM(120, "Lm", 260, true),
     ENDERIUM(121, "En", 310, true),
     NETHERIUM(122, "Nt", 350, true),
     SCULKIUM(123, "Sk", 330, true),
-    STELLARIUM(124, "Sx", 400, true);
+    STELLARIUM(124, "Sx", 400, true),
+    // Metais do All the Mods (Allthemodium)
+    ALLTHEMODIUM(125, "Ad", 420, true),
+    VIBRANIUM(126, "Vb", 450, true),
+    UNOBTAINIUM(127, "Ub", 500, true);
 
     private static final ChemicalElement[] VALUES = values();
     private static final Map<String, ChemicalElement> BY_SYMBOL = Arrays.stream(VALUES)

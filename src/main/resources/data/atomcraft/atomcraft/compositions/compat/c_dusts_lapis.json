@@ -1,0 +1,12 @@
+{
+  "tag": "c:dusts/lapis",
+  "elements": {
+    "Na": 3,
+    "Ca": 1,
+    "Al": 3,
+    "Si": 3,
+    "O": 12,
+    "S": 1
+  },
+  "rarity": "uncommon"
+}
