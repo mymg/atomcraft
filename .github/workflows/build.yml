@@ -185,7 +185,7 @@ jobs:
           ls -la run/screenshots || true
       - name: Publish screenshots
         run: |
-          ls run/screenshots/*.png > /dev/null 2>&1 || { echo "Nenhum print"; grep -n "Exception\|Caused by\|/ERROR\|FATAL\|SHOWCASE" client.log | grep -v "SoundEngine\|OpenAL\|No key layers" | head -60; cat run/crash-reports/*.txt 2>/dev/null | head -80; exit 1; }
+          ls run/screenshots/*.png > /dev/null 2>&1 || { echo "Nenhum print"; grep -n "Exception\|Caused by\|/ERROR\|FATAL\|SHOWCASE" client.log | grep -v "SoundEngine\|OpenAL\|No key layers" | head -60; cat run/crash-reports/*.txt 2>/dev/null | head -80; echo "----- fim do client.log -----"; tail -150 client.log | cut -c1-300; exit 1; }
           mkdir pub && cp run/screenshots/*.png pub/ && cd pub
           git init -q && git checkout -q -b ci-screenshots
           git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" add . 
