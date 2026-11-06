@@ -155,6 +155,8 @@ jobs:
           sleep 5
           pkill -f "net.neoforged" || true; pkill -f GradleWorkerMain || true; sleep 5
           mkdir -p run/saves && cp -r run/world run/saves/showcase
+          # O GeckoLib gera um aviso de carregamento; a tela de avisos bloquearia o quickplay.
+          mkdir -p run/config && echo "showLoadWarnings = false" > run/config/neoforge-client.toml
           printf 'onboardAccessibility:false\ntutorialStep:none\nguiScale:3\nrenderDistance:2\nsimulationDistance:5\nmaxFps:30\nnarrator:0\nsoundCategory_master:0\n' > run/options.txt
       - name: Run client
         env:
