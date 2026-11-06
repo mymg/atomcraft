@@ -79,9 +79,17 @@ public final class Config {
             .comment("Reator de Fusão: FE por ciclo (4 H → 1 He) na temperatura máxima. Um ciclo dura 10 ticks")
             .defineInRange("fusionFePerCycle", 20_000, 1, 100_000_000);
 
-    public static final ModConfigSpec.IntValue FUSION_WARMUP_CYCLES = BUILDER
-            .comment("Reator de Fusão: ciclos para ir de frio à temperatura máxima")
-            .defineInRange("fusionWarmupCycles", 100, 1, 10_000);
+    public static final ModConfigSpec.IntValue FUSION_WARMUP_TICKS = BUILDER
+            .comment("Reator de Fusão: ticks para o plasma ir de frio à temperatura máxima (padrão: 5 minutos)")
+            .defineInRange("fusionWarmupTicks", 6000, 20, 1_000_000);
+
+    public static final ModConfigSpec.IntValue FUSION_CAPACITY = BUILDER
+            .comment("Reator de Fusão: capacidade de energia (FE)")
+            .defineInRange("fusionCapacity", 10_000_000, 1_000, Integer.MAX_VALUE);
+
+    public static final ModConfigSpec.IntValue FUSION_MAX_OUTPUT = BUILDER
+            .comment("Reator de Fusão: máximo de FE enviado por tick")
+            .defineInRange("fusionMaxOutput", 200_000, 1, Integer.MAX_VALUE);
 
     public static final ModConfigSpec.IntValue GENERATOR_CAPACITY = BUILDER
             .comment("Capacidade de energia dos geradores (FE)")

@@ -14,6 +14,19 @@ base {
 // Minecraft 26.2 roda em Java 25
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
+repositories {
+    // GeckoLib: modelos grandes e animados (Reator de Fusão)
+    maven {
+        name = 'GeckoLib'
+        url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+        content { includeGroup('com.geckolib') }
+    }
+}
+
+dependencies {
+    implementation "com.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
+}
+
 sourceSets.main.resources {
     srcDir('src/generated/resources')
     exclude("**/*.bbmodel")

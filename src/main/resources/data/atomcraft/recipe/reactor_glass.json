@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "XGX",
+    "G G",
+    "XGX"
+  ],
+  "key": {
+    "X": "atomcraft:reactor_casing",
+    "G": "minecraft:glass"
+  },
+  "result": {
+    "id": "atomcraft:reactor_glass",
+    "count": 4
+  }
+}

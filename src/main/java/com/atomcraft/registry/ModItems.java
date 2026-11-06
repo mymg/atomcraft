@@ -3,6 +3,12 @@ package com.atomcraft.registry;
 import com.atomcraft.AtomCraft;
 import com.atomcraft.storage.ElementDiskItem;
 import com.atomcraft.synthesis.SchematicItem;
+import com.atomcraft.fusion.ModuleType;
+import com.atomcraft.fusion.ReactorModuleItem;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 import com.atomcraft.upgrade.UpgradeChipItem;
 import com.atomcraft.upgrade.UpgradeType;
 import net.minecraft.world.item.BlockItem;
@@ -33,6 +39,35 @@ public final class ModItems {
             properties -> new SchematicItem(properties, EFFICIENCY_UPGRADE), properties -> properties.stacksTo(1).rarity(Rarity.RARE));
     public static final DeferredItem<BlockItem> COMBUSTION_GENERATOR = ITEMS.registerSimpleBlockItem(ModBlocks.COMBUSTION_GENERATOR);
     public static final DeferredItem<BlockItem> CARBON_GENERATOR = ITEMS.registerSimpleBlockItem(ModBlocks.CARBON_GENERATOR);
+    public static final DeferredItem<BlockItem> REACTOR_CASING = ITEMS.registerSimpleBlockItem(ModBlocks.REACTOR_CASING);
+    public static final DeferredItem<BlockItem> REACTOR_GLASS = ITEMS.registerSimpleBlockItem(ModBlocks.REACTOR_GLASS);
+    public static final DeferredItem<BlockItem> MAGNETIC_COIL = ITEMS.registerSimpleBlockItem(ModBlocks.MAGNETIC_COIL);
+    public static final DeferredItem<BlockItem> CENTRAL_SOLENOID = ITEMS.registerSimpleBlockItem(ModBlocks.CENTRAL_SOLENOID,
+            properties -> properties.rarity(Rarity.RARE));
+    public static final DeferredItem<BlockItem> REACTOR_PORT = ITEMS.registerSimpleBlockItem(ModBlocks.REACTOR_PORT);
+
+    /** Módulos do Reator de Fusão, por tipo e nível (I..III), e as schematics de cada um. */
+    public static final Map<ModuleType, List<DeferredItem<ReactorModuleItem>>> MODULES = new EnumMap<>(ModuleType.class);
+    public static final Map<ModuleType, List<DeferredItem<SchematicItem>>> MODULE_SCHEMATICS = new EnumMap<>(ModuleType.class);
+
+    static {
+        for (ModuleType type : ModuleType.values()) {
+            List<DeferredItem<ReactorModuleItem>> modules = new ArrayList<>();
+            List<DeferredItem<SchematicItem>> schematics = new ArrayList<>();
+            for (int tier = 1; tier <= ModuleType.MAX_TIER; tier++) {
+                final int t = tier;
+                Rarity rarity = tier == 1 ? Rarity.UNCOMMON : tier == 2 ? Rarity.RARE : Rarity.EPIC;
+                DeferredItem<ReactorModuleItem> module = ITEMS.registerItem(type.id() + "_module_" + tier,
+                        properties -> new ReactorModuleItem(properties, type, t), properties -> properties.stacksTo(1).rarity(rarity));
+                modules.add(module);
+                schematics.add(ITEMS.registerItem(type.id() + "_module_" + tier + "_schematic",
+                        properties -> new SchematicItem(properties, module), properties -> properties.stacksTo(1).rarity(rarity)));
+            }
+            MODULES.put(type, List.copyOf(modules));
+            MODULE_SCHEMATICS.put(type, List.copyOf(schematics));
+        }
+    }
+
     public static final DeferredItem<BlockItem> FUSION_REACTOR = ITEMS.registerSimpleBlockItem(ModBlocks.FUSION_REACTOR,
             properties -> properties.rarity(Rarity.EPIC));
 

@@ -25,11 +25,18 @@ public final class ModCreativeTab {
                 output.accept(ModItems.COMBUSTION_GENERATOR.get());
                 output.accept(ModItems.CARBON_GENERATOR.get());
                 output.accept(ModItems.FUSION_REACTOR.get());
+                output.accept(ModItems.REACTOR_CASING.get());
+                output.accept(ModItems.REACTOR_GLASS.get());
+                output.accept(ModItems.MAGNETIC_COIL.get());
+                output.accept(ModItems.CENTRAL_SOLENOID.get());
+                output.accept(ModItems.REACTOR_PORT.get());
                 output.accept(ModItems.SYNTHESIZER.get());
                 output.accept(ModItems.SPEED_UPGRADE.get());
                 output.accept(ModItems.EFFICIENCY_UPGRADE.get());
                 output.accept(ModItems.SPEED_UPGRADE_SCHEMATIC.get());
                 output.accept(ModItems.EFFICIENCY_UPGRADE_SCHEMATIC.get());
+                ModItems.MODULES.values().forEach(list -> list.forEach(item -> output.accept(item.get())));
+                ModItems.MODULE_SCHEMATICS.values().forEach(list -> list.forEach(item -> output.accept(item.get())));
                 output.accept(ModItems.DISK_16K.get());
                 output.accept(ModItems.DISK_64K.get());
                 output.accept(ModItems.DISK_256K.get());

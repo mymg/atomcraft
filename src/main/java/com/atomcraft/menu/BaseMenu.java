@@ -1,7 +1,9 @@
 package com.atomcraft.menu;
 
 import com.atomcraft.chemistry.Composition;
+import com.atomcraft.block.entity.FusionReactorBlockEntity;
 import com.atomcraft.block.entity.MachineBlockEntity;
+import com.atomcraft.fusion.ReactorModuleItem;
 import com.atomcraft.network.MachineInfoPayload;
 import com.atomcraft.network.NetworkContentsPayload;
 import com.atomcraft.storage.FilteredItemHandler;
@@ -43,6 +45,8 @@ public abstract class BaseMenu extends AbstractContainerMenu {
     private boolean controls;
     private boolean upgradesVisible;
     private int upgradeSlotStart = -1;
+    private int upgradeSlotCount;
+    private boolean modules;
     private String ownerName = "";
     private boolean infoSent;
 
@@ -76,21 +80,34 @@ public abstract class BaseMenu extends AbstractContainerMenu {
      * Deve ser chamado logo depois dos slots da máquina.
      */
     protected void addMachineControls(int guiWidth) {
+        addMachineControls(guiWidth, false);
+    }
+
+    /**
+     * Como {@link #addMachineControls(int)}; com {@code modules} a aba mostra os 4 slots de
+     * módulos do Reator de Fusão em vez dos 2 slots de chips.
+     */
+    protected void addMachineControls(int guiWidth, boolean modules) {
         controls = true;
+        this.modules = modules;
         FilteredItemHandler handler = machine != null ? machine.upgrades()
+                : modules ? new FilteredItemHandler(FusionReactorBlockEntity.MODULE_SLOTS, 1,
+                        (slot, resource) -> resource.getItem() instanceof ReactorModuleItem, () -> {})
                 : new FilteredItemHandler(Upgrades.SLOTS, Upgrades.MAX_PER_SLOT,
                         (slot, resource) -> resource.getItem() instanceof UpgradeChipItem, () -> {});
         upgradeSlotStart = slots.size();
+        upgradeSlotCount = handler.size();
         int panelX = guiWidth + TABS_W - 1;
-        for (int i = 0; i < Upgrades.SLOTS; i++) {
-            addSlot(new ResourceHandlerSlot(handler, handler::set, i, panelX + UPGRADE_SLOT_X + i * UPGRADE_SLOT_GAP, 10 + UPGRADE_SLOT_Y) {
+        for (int i = 0; i < upgradeSlotCount; i++) {
+            int x = panelX + UPGRADE_SLOT_X + (i % 2) * UPGRADE_SLOT_GAP, y = 10 + UPGRADE_SLOT_Y + (i / 2) * 20;
+            addSlot(new ResourceHandlerSlot(handler, handler::set, i, x, y) {
                 @Override
                 public boolean isActive() {
                     return upgradesVisible || !player.level().isClientSide();
                 }
             });
         }
-        machineSlots += Upgrades.SLOTS;
+        machineSlots += upgradeSlotCount;
     }
 
     public boolean hasMachineControls() {
@@ -98,7 +115,16 @@ public abstract class BaseMenu extends AbstractContainerMenu {
     }
 
     public boolean isUpgradeSlot(int index) {
-        return upgradeSlotStart >= 0 && index >= upgradeSlotStart && index < upgradeSlotStart + Upgrades.SLOTS;
+        return upgradeSlotStart >= 0 && index >= upgradeSlotStart && index < upgradeSlotStart + upgradeSlotCount;
+    }
+
+    /** Se a aba de upgrades é a de módulos do Reator de Fusão. */
+    public boolean usesModules() {
+        return modules;
+    }
+
+    public int upgradeSlotCount() {
+        return upgradeSlotCount;
     }
 
     public void setUpgradesVisible(boolean visible) {
@@ -209,7 +235,7 @@ public abstract class BaseMenu extends AbstractContainerMenu {
         if (!syncsNetwork() || !(player instanceof ServerPlayer serverPlayer)) return;
         if (++syncTimer < 10) return;
         syncTimer = 0;
-        ElementNetwork network = ElementNetwork.scan(serverPlayer.level(), pos);
+        ElementNetwork network = machine != null ? machine.network() : ElementNetwork.scan(serverPlayer.level(), pos);
         Composition totals = network.totals();
         long capacity = network.capacity();
         long used = network.used();

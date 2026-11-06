@@ -8,6 +8,11 @@
     "atomcraft:combustion_generator",
     "atomcraft:carbon_generator",
     "atomcraft:fusion_reactor",
-    "atomcraft:synthesizer"
+    "atomcraft:synthesizer",
+    "atomcraft:reactor_casing",
+    "atomcraft:reactor_glass",
+    "atomcraft:magnetic_coil",
+    "atomcraft:central_solenoid",
+    "atomcraft:reactor_port"
   ]
 }

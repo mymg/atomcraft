@@ -155,6 +155,8 @@ jobs:
           sleep 5
           pkill -f "net.neoforged" || true; pkill -f GradleWorkerMain || true; sleep 5
           mkdir -p run/saves && cp -r run/world run/saves/showcase
+          # O GeckoLib gera um aviso de carregamento; a tela de avisos bloquearia o quickplay.
+          mkdir -p run/config && echo "showLoadWarnings = false" > run/config/neoforge-client.toml
           printf 'onboardAccessibility:false\ntutorialStep:none\nguiScale:3\nrenderDistance:2\nsimulationDistance:5\nmaxFps:30\nnarrator:0\nsoundCategory_master:0\n' > run/options.txt
       - name: Run client
         env:
@@ -181,11 +183,12 @@ jobs:
             sleep 1
           done
           pkill -f "net.neoforged" || true; pkill -f GradleWorkerMain || true; sleep 3
+          grep -n "Exception\|Caused by\|/ERROR" client.log | grep -v "SoundEngine\|flite\|OpenAL\|Narrator\|No key layers\|UnsatisfiedLink" | head -40 | cut -c1-400 || true
           grep "SHOWCASE" client.log | sed 's/^.*AtomCraft SHOWCASE /::notice title=Vitrine::/' || true
           ls -la run/screenshots || true
       - name: Publish screenshots
         run: |
-          ls run/screenshots/*.png > /dev/null 2>&1 || { echo "Nenhum print"; tail -60 client.log; exit 1; }
+          ls run/screenshots/*.png > /dev/null 2>&1 || { echo "Nenhum print"; grep -n "Exception\|Caused by\|/ERROR\|FATAL\|SHOWCASE" client.log | grep -v "SoundEngine\|OpenAL\|No key layers" | head -60; cat run/crash-reports/*.txt 2>/dev/null | head -80; echo "----- fim do client.log -----"; tail -150 client.log | cut -c1-300; exit 1; }
           mkdir pub && cp run/screenshots/*.png pub/ && cd pub
           git init -q && git checkout -q -b ci-screenshots
           git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" add . 

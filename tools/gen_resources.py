@@ -20,7 +20,8 @@ if FORCE:
     shutil.rmtree(os.path.join(R, "assets"), ignore_errors=True)
 
 # Arquivos de aparência: nunca sobrescritos (a não ser com --force).
-ART = ("assets/atomcraft/models/", "assets/atomcraft/blockstates/", "assets/atomcraft/items/", "assets/atomcraft/textures/")
+ART = ("assets/atomcraft/models/", "assets/atomcraft/blockstates/", "assets/atomcraft/items/", "assets/atomcraft/textures/",
+       "assets/atomcraft/geckolib/")
 kept = []
 
 def preserved(path):
@@ -226,6 +227,63 @@ for b in MACHINES:
         "side": f"atomcraft:block/machine_side", "particle": "atomcraft:block/machine_side"}})
     w(f"assets/atomcraft/items/{b}.json", {"model": {"type": "minecraft:model", "model": f"atomcraft:block/{b}"}})
 
+# Peças do Reator de Fusão (cubos simples; somem quando o reator forma)
+REACTOR_PARTS = ["reactor_casing", "reactor_glass", "magnetic_coil", "central_solenoid", "reactor_port"]
+for b in REACTOR_PARTS:
+    w(f"assets/atomcraft/blockstates/{b}.json", {"variants": {"": {"model": f"atomcraft:block/{b}"}}})
+    model = {"parent": "minecraft:block/cube_all", "textures": {"all": f"atomcraft:block/{b}"}}
+    if b == "reactor_glass":
+        model["render_type"] = "minecraft:cutout"
+    w(f"assets/atomcraft/models/block/{b}.json", model)
+    w(f"assets/atomcraft/items/{b}.json", {"model": {"type": "minecraft:model", "model": f"atomcraft:block/{b}"}})
+
+# Módulos do reator e suas schematics
+MODULE_TYPES = {"containment": (255, 90, 190), "injector": (255, 160, 60), "recycler": (90, 220, 120), "ignition": (255, 80, 60)}
+MODULE_ITEMS = []
+for mtype in MODULE_TYPES:
+    for tier in (1, 2, 3):
+        MODULE_ITEMS += [f"{mtype}_module_{tier}", f"{mtype}_module_{tier}_schematic"]
+for d in MODULE_ITEMS:
+    w(f"assets/atomcraft/models/item/{d}.json", {"parent": "minecraft:item/generated", "textures": {"layer0": f"atomcraft:item/{d}"}})
+    w(f"assets/atomcraft/items/{d}.json", {"model": {"type": "minecraft:model", "model": f"atomcraft:item/{d}"}})
+
+# Modelo grande do reator formado (GeckoLib). Origem = centro da base; frente (controlador) em -Z.
+CAP = ["-CCCCC-", "CCCCCCC", "CCCCCCC", "CCCSCCC", "CCCCCCC", "CCCCCCC", "-CCCCC-"]
+RING = ["-CCCCC-", "C.....C", "C.BBB.C", "C.BSB.C", "C.BBB.C", "C.....C", "-CCCCC-"]
+MID = ["-CVKVC-", "C.....C", "V.BBB.V", "C.BSB.C", "V.BBB.V", "C.....C", "-CVCVC-"]
+TILES = {"C": (0, 0), "B": (16, 0), "S": (32, 0), "K": (48, 0), "V": (16, 16)}
+def tile_uv(t, faces=("north", "east", "south", "west", "up", "down"), front=None):
+    uv = {}
+    for f in faces:
+        u, v = TILES[front if (front and f == "north") else t]
+        uv[f] = {"uv": [u, v], "uv_size": [16, 16]}
+    return uv
+shell = []
+for y, layer in enumerate([CAP, RING, MID, RING, CAP]):
+    for z, row in enumerate(layer):
+        for x, c in enumerate(row):
+            if c not in TILES:
+                continue
+            origin = [(x - 3) * 16 - 8, y * 16, (z - 3) * 16 - 8]
+            if c == "K":
+                cube = {"origin": origin, "size": [16, 16, 16], "inflate": -0.05, "uv": tile_uv("C", front="K")}
+            else:
+                cube = {"origin": origin, "size": [16, 16, 16], "inflate": -0.05, "uv": tile_uv(c)}
+            shell.append(cube)
+def plasma_cube(origin, size):
+    return {"origin": origin, "size": size, "uv": {f: {"uv": [32, 16], "uv_size": [16, 16]} for f in ("north", "east", "south", "west", "up", "down")}}
+plasma = [plasma_cube([-38, 35, -38], [76, 10, 10]), plasma_cube([-38, 35, 28], [76, 10, 10]),
+          plasma_cube([-38, 35, -28], [10, 10, 56]), plasma_cube([28, 35, -28], [10, 10, 56])]
+w("assets/atomcraft/geckolib/models/block/fusion_reactor_formed.geo.json", {"format_version": "1.12.0", "minecraft:geometry": [{
+    "description": {"identifier": "geometry.fusion_reactor_formed", "texture_width": 64, "texture_height": 64,
+                    "visible_bounds_width": 8, "visible_bounds_height": 6, "visible_bounds_offset": [0, 2.5, 0]},
+    "bones": [{"name": "reactor", "pivot": [0, 0, 0]},
+              {"name": "shell", "parent": "reactor", "pivot": [0, 0, 0], "cubes": shell},
+              {"name": "plasma", "parent": "reactor", "pivot": [0, 40, 0], "cubes": plasma}]}]})
+w("assets/atomcraft/geckolib/animations/block/fusion_reactor_formed.animation.json", {"format_version": "1.8.0", "animations": {
+    "plasma": {"loop": True, "animation_length": 2.0, "bones": {"plasma": {"scale": {
+        "0.0": [1, 1, 1], "1.0": [1.03, 1.3, 1.03], "2.0": [1, 1, 1]}}}}}})
+
 # Cabo
 def face(uv):
     return {"uv": uv, "texture": "#cable"}
@@ -259,17 +317,22 @@ for d in CHIPS:
     w(f"assets/atomcraft/items/{d}.json", {"model": {"type": "minecraft:model", "model": f"atomcraft:item/{d}"}})
 
 # Schematics nos baús do mundo (NeoForge global loot modifiers)
+def modules(tier, weight):
+    return [(f"{t}_module_{tier}_schematic", weight) for t in MODULE_TYPES]
+SPEED, EFF = "speed_upgrade_schematic", "efficiency_upgrade_schematic"
+# (tabelas do vanilla, [(schematic, peso)], peso de "nada")
 LOOT = {
     "village": (["village/village_toolsmith", "village/village_weaponsmith", "village/village_armorer",
-                 "village/village_cartographer", "village/village_temple", "village/village_mason"], 3, 1, 16),
-    "nether": (["nether_bridge", "bastion_treasure"], 2, 2, 6),
-    "end": (["end_city_treasure"], 1, 3, 4),
+                 "village/village_cartographer", "village/village_temple", "village/village_mason"], [(SPEED, 3), (EFF, 1)], 16),
+    "fortress": (["nether_bridge"], [(SPEED, 2), (EFF, 2)] + modules(1, 1), 8),
+    "bastion": (["bastion_treasure"], [(SPEED, 1), (EFF, 1)] + modules(1, 1) + modules(2, 1), 8),
+    "end": (["end_city_treasure"], [(SPEED, 1), (EFF, 3)] + modules(2, 2) + modules(3, 1), 8),
+    "ancient_city": (["ancient_city"], modules(2, 1) + modules(3, 1), 12),
 }
-for name, (tables, speed, eff, empty) in LOOT.items():
-    w(f"data/atomcraft/loot_table/chests/schematics_{name}.json", {"type": "minecraft:chest", "pools": [{"rolls": 1, "entries": [
-        {"type": "minecraft:item", "name": "atomcraft:speed_upgrade_schematic", "weight": speed},
-        {"type": "minecraft:item", "name": "atomcraft:efficiency_upgrade_schematic", "weight": eff},
-        {"type": "minecraft:empty", "weight": empty}]}]})
+for name, (tables, entries, empty) in LOOT.items():
+    w(f"data/atomcraft/loot_table/chests/schematics_{name}.json", {"type": "minecraft:chest", "pools": [{"rolls": 1, "entries":
+        [{"type": "minecraft:item", "name": f"atomcraft:{item}", "weight": weight} for item, weight in entries]
+        + [{"type": "minecraft:empty", "weight": empty}]}]})
     w(f"data/atomcraft/loot_modifiers/schematics_{name}.json", {"type": "neoforge:add_table",
         "conditions": [{"condition": "minecraft:any_of", "terms": [
             {"condition": "neoforge:loot_table_id", "loot_table_id": f"minecraft:chests/{t}"} for t in tables]}],
@@ -277,11 +340,11 @@ for name, (tables, speed, eff, empty) in LOOT.items():
 # Nesta versão do NeoForge cada arquivo em loot_modifiers/ é carregado sozinho (sem lista global).
 
 # Loot tables e tags
-for b in MACHINES + ["atomic_cable"]:
+for b in MACHINES + ["atomic_cable"] + REACTOR_PARTS:
     w(f"data/atomcraft/loot_table/blocks/{b}.json", {"type": "minecraft:block", "pools": [{"rolls": 1,
         "entries": [{"type": "minecraft:item", "name": f"atomcraft:{b}"}], "conditions": [{"condition": "minecraft:survives_explosion"}]}]})
-w("data/minecraft/tags/block/mineable/pickaxe.json", {"values": [f"atomcraft:{b}" for b in MACHINES + ["atomic_cable"]]})
-w("data/minecraft/tags/block/needs_iron_tool.json", {"values": [f"atomcraft:{b}" for b in MACHINES]})
+w("data/minecraft/tags/block/mineable/pickaxe.json", {"values": [f"atomcraft:{b}" for b in MACHINES + ["atomic_cable"] + REACTOR_PARTS]})
+w("data/minecraft/tags/block/needs_iron_tool.json", {"values": [f"atomcraft:{b}" for b in MACHINES + REACTOR_PARTS]})
 
 # Receitas
 def shaped(name, pattern, key, result, count=1):
@@ -297,6 +360,11 @@ shaped("combustion_generator", ["III", "IFI", "CRC"], {"I": IRON, "F": "minecraf
 shaped("carbon_generator", ["IAI", "AGA", "IBI"], {"I": IRON, "A": AME, "G": "atomcraft:combustion_generator", "B": "minecraft:blast_furnace"}, "atomcraft:carbon_generator")
 shaped("fusion_reactor", ["IEI", "DSD", "IEI"], {"I": "minecraft:iron_block", "E": "minecraft:end_crystal", "D": "minecraft:diamond_block", "S": "minecraft:nether_star"}, "atomcraft:fusion_reactor")
 shaped("synthesizer", ["GAG", "RCR", "GAG"], {"G": "minecraft:gold_ingot", "A": AME, "R": RED, "C": "minecraft:crafting_table"}, "atomcraft:synthesizer")
+shaped("reactor_casing", ["ICI", "CRC", "ICI"], {"I": IRON, "C": "minecraft:copper_ingot", "R": RED}, "atomcraft:reactor_casing", 8)
+shaped("reactor_glass", ["XGX", "G G", "XGX"], {"X": "atomcraft:reactor_casing", "G": "minecraft:glass"}, "atomcraft:reactor_glass", 4)
+shaped("magnetic_coil", ["CRC", "RIR", "CRC"], {"C": "minecraft:copper_ingot", "R": RED, "I": "minecraft:iron_block"}, "atomcraft:magnetic_coil", 2)
+shaped("central_solenoid", ["GMG", "MEM", "GMG"], {"G": "minecraft:gold_ingot", "M": "atomcraft:magnetic_coil", "E": "minecraft:ender_eye"}, "atomcraft:central_solenoid")
+shaped("reactor_port", ["XAX", "AHA", "XAX"], {"X": "atomcraft:reactor_casing", "A": "atomcraft:atomic_cable", "H": "minecraft:hopper"}, "atomcraft:reactor_port", 2)
 shaped("atomic_cable", ["NNN", "RAR", "NNN"], {"N": "minecraft:iron_nugget", "R": RED, "A": AME}, "atomcraft:atomic_cable", 8)
 shaped("element_disk_16k", ["ARA", "RIR", "III"], {"A": AME, "R": RED, "I": IRON}, "atomcraft:element_disk_16k")
 shaped("element_disk_64k", ["GRG", "RAR", "GGG"], {"G": "minecraft:gold_ingot", "R": RED, "A": AME}, "atomcraft:element_disk_64k")
@@ -304,6 +372,8 @@ shaped("element_disk_256k", ["DRD", "RAR", "DDD"], {"D": "minecraft:diamond", "R
 shaped("element_disk_1m", ["SRS", "RER", "SSS"], {"S": "minecraft:shulker_shell", "R": RED, "E": "minecraft:ender_eye"}, "atomcraft:element_disk_1m")
 
 # ---------- Traduções ----------
+MODULE_NAMES = {"containment": ("Magnetic Containment", "Confinamento Magnético"), "injector": ("Fuel Injector", "Injetor de Combustível"),
+                "recycler": ("Hydrogen Recycler", "Reciclador de Hidrogênio"), "ignition": ("Plasma Ignition", "Ignição a Plasma")}
 ELEMENTS = [("hydrogen", "Hydrogen", "Hidrogênio"), ("helium", "Helium", "Hélio"),
     ("nickel", "Nickel", "Níquel"), ("zinc", "Zinc", "Zinco"), ("silver", "Silver", "Prata"), ("tin", "Tin", "Estanho"),
     ("osmium", "Osmium", "Ósmio"), ("iridium", "Iridium", "Irídio"), ("platinum", "Platinum", "Platina"),
@@ -329,6 +399,28 @@ common = {
     "block.atomcraft.fusion_reactor": ("Fusion Reactor", "Reator de Fusão"),
     "status.atomcraft.no_fuel": ("No fuel", "Sem combustível"),
     "status.atomcraft.disabled": ("Off", "Desligado"),
+    "status.atomcraft.incomplete": ("Incomplete structure", "Estrutura incompleta"),
+    "block.atomcraft.reactor_casing": ("Reactor Casing", "Carcaça do Reator"),
+    "block.atomcraft.reactor_glass": ("Containment Glass", "Vidro de Contenção"),
+    "block.atomcraft.magnetic_coil": ("Magnetic Coil", "Bobina Magnética"),
+    "block.atomcraft.central_solenoid": ("Central Solenoid", "Solenoide Central"),
+    "block.atomcraft.reactor_port": ("Reactor Port", "Porta do Reator"),
+    "gui.atomcraft.part_air": ("Empty space (plasma channel)", "Espaço vazio (canal de plasma)"),
+    "gui.atomcraft.structure_missing": ("Missing %s blocks", "Faltam %s blocos"),
+    "gui.atomcraft.structure_more": ("+%s other types", "+%s outros tipos"),
+    "gui.atomcraft.show_structure": ("Show structure", "Mostrar estrutura"),
+    "gui.atomcraft.hide_structure": ("Hide preview", "Ocultar prévia"),
+    "gui.atomcraft.modules": ("Modules", "Módulos"),
+    "gui.atomcraft.modules_hint": ("Only the highest tier of each type counts", "Só o maior nível de cada tipo vale"),
+    "tooltip.atomcraft.module_hint": ("Install in the Fusion Reactor (Modules tab)", "Instale no Reator de Fusão (aba Módulos)"),
+    "module.atomcraft.containment.short": ("Containment", "Confinamento"),
+    "module.atomcraft.injector.short": ("Injector", "Injetor"),
+    "module.atomcraft.recycler.short": ("Recycler", "Reciclador"),
+    "module.atomcraft.ignition.short": ("Ignition", "Ignição"),
+    "module.atomcraft.containment.desc": ("Energy per fusion: %s", "Energia por fusão: %s"),
+    "module.atomcraft.injector.desc": ("Fusion cycle: %s (base 10t)", "Ciclo de fusão: %s (padrão 10t)"),
+    "module.atomcraft.recycler.desc": ("Returns 1 H per fusion: %s chance", "Devolve 1 H por fusão: %s de chance"),
+    "module.atomcraft.ignition.desc": ("Plasma warm-up: %s (base 5min)", "Aquecimento do plasma: %s (padrão 5min)"),
     "block.atomcraft.synthesizer": ("Synthesizer", "Sintetizador"),
     "item.atomcraft.speed_upgrade": ("Speed Upgrade Chip", "Chip de Velocidade"),
     "item.atomcraft.efficiency_upgrade": ("Efficiency Upgrade Chip", "Chip de Eficiência"),
@@ -432,6 +524,12 @@ pt = {k: v[1] for k, v in common.items()}
 for key, e, p in ELEMENTS:
     en[f"element.atomcraft.{key}"] = e
     pt[f"element.atomcraft.{key}"] = p
+for mtype, (e, p) in MODULE_NAMES.items():
+    for tier, roman in ((1, "I"), (2, "II"), (3, "III")):
+        en[f"item.atomcraft.{mtype}_module_{tier}"] = f"{e} Module {roman}"
+        pt[f"item.atomcraft.{mtype}_module_{tier}"] = f"Módulo de {p} {roman}"
+        en[f"item.atomcraft.{mtype}_module_{tier}_schematic"] = f"Schematic: {e} {roman}"
+        pt[f"item.atomcraft.{mtype}_module_{tier}_schematic"] = f"Schematic: {p} {roman}"
 w("assets/atomcraft/lang/en_us.json", en)
 w("assets/atomcraft/lang/pt_br.json", pt)
 
@@ -512,5 +610,64 @@ def schematic(c, path):
     save(img, path)
 schematic((255, 200, 60, 255), "item/speed_upgrade_schematic.png")
 schematic((120, 230, 255, 255), "item/efficiency_upgrade_schematic.png")
+# Peças do Reator de Fusão
+def casing_tile():
+    img = Image.new("RGBA", (16, 16), (64, 74, 88, 255)); d = ImageDraw.Draw(img)
+    d.rectangle([0, 0, 15, 15], outline=(30, 34, 42, 255)); d.rectangle([1, 1, 14, 14], outline=(104, 118, 136, 255))
+    d.line([2, 8, 13, 8], fill=(50, 58, 70, 255)); d.line([8, 2, 8, 13], fill=(50, 58, 70, 255))
+    for (px, py) in ((3, 3), (12, 3), (3, 12), (12, 12)):
+        d.point((px, py), fill=(150, 165, 185, 255))
+    return img, d
+img, d = casing_tile(); save(img, "block/reactor_casing.png")
+casing_img = img.copy()
+img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+d.rectangle([0, 0, 15, 15], outline=(30, 34, 42, 255)); d.rectangle([1, 1, 14, 14], outline=(104, 118, 136, 255))
+d.line([3, 12, 6, 9], fill=(170, 235, 255, 200)); d.line([10, 5, 12, 3], fill=(170, 235, 255, 200))
+save(img, "block/reactor_glass.png"); glass_img = img.copy()
+img, d = casing_tile()
+for y in range(3, 13, 2):
+    d.line([2, y, 13, y], fill=(200, 110, 50, 255)); d.line([2, y + 1, 13, y + 1], fill=(150, 75, 35, 255))
+save(img, "block/magnetic_coil.png"); coil_img = img.copy()
+img, d = casing_tile(); d.rectangle([4, 1, 11, 14], fill=(60, 30, 90, 255))
+for y in (3, 6, 9, 12):
+    d.line([4, y, 11, y], fill=(190, 120, 255, 255))
+save(img, "block/central_solenoid.png"); solenoid_img = img.copy()
+img, d = casing_tile(); d.rectangle([4, 4, 11, 11], fill=(20, 24, 30, 255), outline=(92, 224, 122, 255))
+d.rectangle([6, 6, 9, 9], fill=(80, 220, 255, 255)); save(img, "block/reactor_port.png")
+
+# Textura do modelo grande (64×64): ladrilhos de 16×16 + máscara de brilho do plasma
+big = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
+big.paste(casing_img, (0, 0)); big.paste(coil_img, (16, 0)); big.paste(solenoid_img, (32, 0)); big.paste(glass_img, (16, 16))
+ctrl, d = casing_tile(); d.ellipse([2, 2, 13, 13], fill=(24, 20, 34, 255), outline=(255, 90, 190, 255))
+d.ellipse([5, 5, 10, 10], fill=(255, 200, 240, 255)); big.paste(ctrl, (48, 0))
+pl = Image.new("RGBA", (16, 16), (255, 120, 220, 255)); d = ImageDraw.Draw(pl)
+d.rectangle([3, 3, 12, 12], fill=(255, 190, 245, 255)); d.rectangle([6, 6, 9, 9], fill=(255, 255, 255, 255))
+big.paste(pl, (32, 16))
+if not preserved("assets/atomcraft/textures/block/fusion_reactor_formed.png"):
+    p = os.path.join(R, "assets/atomcraft/textures/block/fusion_reactor_formed.png"); os.makedirs(os.path.dirname(p), exist_ok=True); big.save(p)
+glow = Image.new("RGBA", (64, 64), (0, 0, 0, 0)); glow.paste(pl, (32, 16))
+gd = ImageDraw.Draw(glow); gd.ellipse([53, 5, 58, 10], fill=(255, 200, 240, 255))
+if not preserved("assets/atomcraft/textures/block/fusion_reactor_formed_glowmask.png"):
+    glow.save(os.path.join(R, "assets/atomcraft/textures/block/fusion_reactor_formed_glowmask.png"))
+
+# Módulos: placa escura com núcleo colorido e pontos do nível; schematics com a mesma cor
+TIER_EDGE = {1: (170, 178, 190, 255), 2: (230, 190, 70, 255), 3: (190, 120, 255, 255)}
+for mtype, c in MODULE_TYPES.items():
+    for tier in (1, 2, 3):
+        img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+        d.polygon([(4, 1), (11, 1), (14, 4), (14, 11), (11, 14), (4, 14), (1, 11), (1, 4)], fill=(36, 40, 50, 255), outline=TIER_EDGE[tier])
+        d.ellipse([4, 3, 11, 10], fill=c + (255,), outline=(20, 22, 28, 255)); d.point((6, 5), fill=(255, 255, 255, 255))
+        for i in range(tier):
+            d.rectangle([5 + i * 2, 12, 5 + i * 2, 12], fill=TIER_EDGE[tier])
+        save(img, f"item/{mtype}_module_{tier}.png")
+        img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+        d.rectangle([2, 2, 13, 13], fill=(34, 78, 150, 255), outline=(18, 40, 86, 255))
+        for y in (5, 8):
+            d.line([4, y, 9, y], fill=(150, 190, 240, 255))
+        d.ellipse([9, 3, 12, 6], fill=c + (255,))
+        for i in range(tier):
+            d.rectangle([4 + i * 3, 11, 5 + i * 3, 12], fill=TIER_EDGE[tier])
+        save(img, f"item/{mtype}_module_{tier}_schematic.png")
+
 print("ok", len(BASE), "itens base,", len(TAGS), "tags vanilla,", len(COMPAT), "tags de compatibilidade,",
       len(kept), "arquivos de aparência preservados")

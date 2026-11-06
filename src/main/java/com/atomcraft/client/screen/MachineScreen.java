@@ -2,6 +2,8 @@ package com.atomcraft.client.screen;
 
 import com.atomcraft.block.entity.MachineStatus;
 import com.atomcraft.client.ClientState;
+import com.atomcraft.fusion.ModuleType;
+import com.atomcraft.fusion.ReactorModuleItem;
 import com.atomcraft.menu.BaseMenu;
 import com.atomcraft.network.MachineTogglePayload;
 import com.atomcraft.upgrade.UpgradeChipItem;
@@ -97,7 +99,8 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
     }
 
     private int panelHeight() {
-        return openPanel() == SidePanel.UPGRADES ? 74 : 56;
+        if (openPanel() != SidePanel.UPGRADES) return 56;
+        return menu.usesModules() ? 118 : 74;
     }
 
     private int tabAt(double mouseX, double mouseY) {
@@ -151,6 +154,21 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
                 graphics.text(font, Component.translatable("gui.atomcraft.access_public"), x, y + 26, TechGui.TEXT_DIM, false);
             }
             case UPGRADES -> {
+                if (menu.usesModules()) {
+                    // Módulos do Reator de Fusão: nível ativo de cada tipo
+                    graphics.text(font, Component.translatable("gui.atomcraft.modules"), x, y, TechGui.TEXT_TEAL, false);
+                    int line = y + 60;
+                    for (ModuleType type : ModuleType.values()) {
+                        int tier = installedModule(type);
+                        graphics.text(font, Component.translatable(type.translationKey() + ".short"), x, line,
+                                tier > 0 ? TechGui.TEXT_LIGHT : TechGui.TEXT_DIM, false);
+                        String roman = ModuleType.roman(tier);
+                        graphics.text(font, roman, x + BaseMenu.PANEL_W - 16 - font.width(roman), line,
+                                tier > 0 ? TechGui.TEXT_GOOD : TechGui.TEXT_DIM, false);
+                        line += 11;
+                    }
+                    return;
+                }
                 graphics.text(font, Component.translatable("gui.atomcraft.upgrades"), x, y, TechGui.TEXT_TEAL, false);
                 int speed = installedUpgrades(UpgradeType.SPEED), efficiency = installedUpgrades(UpgradeType.EFFICIENCY);
                 graphics.text(font, Component.translatable("gui.atomcraft.upgrade_speed", speed), x, y + 40, TechGui.TEXT_LIGHT, false);
@@ -182,6 +200,17 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
         return super.hasClickedOutside(mouseX, mouseY, left, top);
     }
 
+    /** Maior nível instalado de um tipo de módulo do Reator de Fusão. */
+    protected int installedModule(ModuleType type) {
+        int tier = 0;
+        for (int i = 0; i < menu.slots.size(); i++) {
+            if (menu.isUpgradeSlot(i) && menu.slots.get(i).getItem().getItem() instanceof ReactorModuleItem module && module.type() == type) {
+                tier = Math.max(tier, module.tier());
+            }
+        }
+        return tier;
+    }
+
     /** Chips de um tipo instalados na máquina aberta (até o limite por máquina). */
     protected int installedUpgrades(UpgradeType type) {
         int count = 0;
@@ -204,8 +233,9 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
             case TAB_POWER -> tooltip(graphics, mouseX, mouseY, Component.translatable(menu.isEnabled()
                     ? "gui.atomcraft.power_on" : "gui.atomcraft.power_off"), Component.translatable("gui.atomcraft.power_hint"));
             case TAB_INFO -> tooltip(graphics, mouseX, mouseY, Component.translatable("gui.atomcraft.info"));
-            case TAB_UPGRADES -> tooltip(graphics, mouseX, mouseY, Component.translatable("gui.atomcraft.upgrades"),
-                    Component.translatable("gui.atomcraft.upgrades_hint"));
+            case TAB_UPGRADES -> tooltip(graphics, mouseX, mouseY,
+                    Component.translatable(menu.usesModules() ? "gui.atomcraft.modules" : "gui.atomcraft.upgrades"),
+                    Component.translatable(menu.usesModules() ? "gui.atomcraft.modules_hint" : "gui.atomcraft.upgrades_hint"));
             default -> {}
         }
     }
