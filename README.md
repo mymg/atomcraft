@@ -146,7 +146,12 @@ em `data/<namespace>/atomcraft/compositions/`, usando `"item"` ou `"tag"`.
 | **Terminal de Elementos** | ferro, vidro, ametista, redstone |
 | **Gerador de Combustão** | ferro, fornalha, cobre, redstone |
 | **Gerador de Carbono** | ferro, ametista, Gerador de Combustão, alto-forno |
-| **Reator de Fusão** | blocos de ferro, cristais do End, blocos de diamante, estrela do Nether |
+| **Reator de Fusão** (controlador) | blocos de ferro, cristais do End, blocos de diamante, estrela do Nether |
+| **Carcaça do Reator** ×8 | ferro, cobre, redstone |
+| **Vidro de Contenção** ×4 | carcaça, vidro |
+| **Bobina Magnética** ×2 | cobre, redstone, bloco de ferro |
+| **Solenoide Central** | bobinas, ouro, olho do Ender |
+| **Porta do Reator** ×2 | carcaça, Cabo Atômico, funil |
 | **Sintetizador** | ouro, ametista, redstone, mesa de trabalho |
 | **Discos** 16K / 64K / 256K / 1M átomos | ametista e redstone + ferro / ouro / diamante / casco de shulker |
 
@@ -161,7 +166,52 @@ encostadas, para qualquer cabo FE de outros mods e para todas as máquinas da re
 |---|---|---|
 | **Combustão** (inicial) | qualquer item com carbono. Rende `C + H/4 − O` unidades × 1.600 FE: carvão 38.400 FE, tronco 22.400 FE | 60 FE/t |
 | **Carbono** | carbono (C) guardado na rede, 2.000 FE por átomo | 200 FE/t |
-| **Fusão** | 4 H → 1 He a cada 10 ticks. Começa frio e aquece até 100% em ~50 s; o hélio volta para a rede | até 2.000 FE/t |
+| **Fusão** (multibloco) | 4 H → 1 He a cada ciclo de 10 ticks. Começa frio e aquece até 100% em 5 min; o hélio volta para a rede | 2.000 FE/t sem módulos, até 25.000 FE/t com módulos III |
+
+### Reator de Fusão (multibloco 7×7×5)
+
+Um tokamak de formato fixo. Camadas de baixo e de cima: 7×7 com os cantos recortados, de **Carcaça do Reator**,
+com o **Solenoide Central** no meio. As três camadas do meio:
+
+```
+ . C V C V C .      C = Carcaça do Reator (ou Porta do Reator)
+ C . . . . . C      V = Vidro de Contenção (só na camada central; pode ser carcaça)
+ V . B B B . V      B = Bobina Magnética
+ C . B S B . C      S = Solenoide Central
+ V . B B B . V      . = vazio (canal de plasma)
+ C . . . . . C      K = Controlador (o bloco "Reator de Fusão"), no centro da frente
+ . C V K V C .          da camada central, virado para fora
+```
+
+- **Portas do Reator** podem ficar no lugar de qualquer carcaça. Elas ligam o reator à rede de elementos (hidrogênio
+  entra, hélio sai) e entregam energia a cabos de qualquer mod. Continuam visíveis com o reator formado.
+- O botão **Mostrar estrutura** na interface do controlador marca com partículas coloridas onde falta cada peça.
+- Formado, os blocos somem e aparece o modelo grande do reator (GeckoLib), com o plasma animado.
+- **Módulos** (aba lateral, 4 slots; só o maior nível de cada tipo vale):
+
+| Módulo | I | II | III |
+|---|---|---|---|
+| Confinamento Magnético (energia por fusão) | +100% | +200% | +400% |
+| Injetor de Combustível (duração do ciclo) | 8 ticks | 6 ticks | 4 ticks |
+| Reciclador de Hidrogênio (chance de devolver 1 H) | 25% | 50% | 75% |
+| Ignição a Plasma (aquecimento; padrão 5 min) | 2 min | 1 min | 30 s |
+
+As schematics dos módulos são fabricadas no Sintetizador e aparecem em baús: nível I em fortalezas do Nether e bastiões,
+nível II em bastiões e cidades do End, nível III em cidades do End e **cidades ancestrais**.
+
+### Modelo do reator no Blockbench
+
+O modelo grande usa o **GeckoLib** (dependência obrigatória). No Blockbench, instale o plugin *GeckoLib Animation Utils*
+e crie um projeto **GeckoLib Animated Model** (tipo "Block/Item"). Esse formato não tem o limite de 3×3×3 dos modelos
+comuns. Arquivos:
+
+- `assets/atomcraft/geckolib/models/block/fusion_reactor_formed.geo.json`
+- `assets/atomcraft/geckolib/animations/block/fusion_reactor_formed.animation.json` (animação `plasma`, em loop
+  enquanto o reator está aceso)
+- `assets/atomcraft/textures/block/fusion_reactor_formed.png` e `fusion_reactor_formed_glowmask.png` (partes que brilham)
+
+O ponto (0, 0, 0) do modelo é o centro da base da estrutura (7×5×7 blocos = 112×80×112 pixels) e a frente, onde fica o
+controlador, aponta para o norte (−Z).
 
 O **Terminal de Elementos** mostra todo o estoque da rede organizado como uma tabela periódica.
 

@@ -41,7 +41,7 @@ public class GeneratorMenu extends BaseMenu {
             addSlot(new ResourceHandlerSlot(fuel, fuel::set, 0, FUEL_X, FUEL_Y));
             machineSlots = 1;
         }
-        addMachineControls(WIDTH);
+        addMachineControls(WIDTH, type == ModMenus.FUSION_REACTOR.get());
         addPlayerInventory(inventory, 8, HEIGHT - 82);
         addDataSlots(data);
     }
@@ -114,6 +114,11 @@ public class GeneratorMenu extends BaseMenu {
     /** Temperatura do plasma, 0..1 (Reator de Fusão). */
     public float heat() {
         return data.get(FusionReactorBlockEntity.DATA_HEAT) / 1000f;
+    }
+
+    /** Se a estrutura do Reator de Fusão está completa. */
+    public boolean formed() {
+        return data.get(FusionReactorBlockEntity.DATA_FORMED) != 0;
     }
 
     public int heliumProduced() {

@@ -6,6 +6,7 @@ import com.atomcraft.upgrade.UpgradeChipItem;
 import com.atomcraft.upgrade.UpgradeType;
 import com.atomcraft.upgrade.Upgrades;
 import net.minecraft.core.BlockPos;
+import java.util.List;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Containers;
@@ -33,9 +34,7 @@ public abstract class MachineBlockEntity extends BlockEntity implements MenuProv
     protected MachineStatus status = MachineStatus.IDLE;
     /** Botão de ligar/desligar da interface. */
     private boolean enabled = true;
-    private final FilteredItemHandler upgrades = new FilteredItemHandler(Upgrades.SLOTS, Upgrades.MAX_PER_SLOT,
-            (slot, resource) -> resource.getItem() instanceof UpgradeChipItem chip && supportsUpgrade(chip.type()),
-            this::setChanged);
+    private final FilteredItemHandler upgrades = createUpgrades();
 
     private @Nullable ElementNetwork network;
     private long networkScanTime = Long.MIN_VALUE;
@@ -71,6 +70,13 @@ public abstract class MachineBlockEntity extends BlockEntity implements MenuProv
     /** Se a máquina tem botão de ligar/desligar. */
     public boolean hasPowerControl() {
         return true;
+    }
+
+    /** Slots da aba de upgrades: chips por padrão; o Reator de Fusão usa módulos. */
+    protected FilteredItemHandler createUpgrades() {
+        return new FilteredItemHandler(Upgrades.SLOTS, Upgrades.MAX_PER_SLOT,
+                (slot, resource) -> resource.getItem() instanceof UpgradeChipItem chip && supportsUpgrade(chip.type()),
+                this::setChanged);
     }
 
     /** Quais chips de upgrade a máquina aceita. */
@@ -123,13 +129,23 @@ public abstract class MachineBlockEntity extends BlockEntity implements MenuProv
         return level.getServer().getPlayerList().getPlayer(owner);
     }
 
+    /** De onde a busca da rede parte (multiblocos usam as portas). */
+    protected java.util.Collection<BlockPos> networkOrigins() {
+        return List.of(worldPosition);
+    }
+
+    /** Força uma nova busca da rede no próximo uso. */
+    protected void invalidateNetwork() {
+        network = null;
+    }
+
     /** Rede conectada a esta máquina. Refeita a cada segundo ou quando um Drive some. */
     public ElementNetwork network() {
         Level lvl = getLevel();
         if (lvl == null) return ElementNetwork.EMPTY;
         long now = lvl.getGameTime();
         if (network == null || now - networkScanTime >= 20 || !network.isStillValid()) {
-            network = ElementNetwork.scan(lvl, worldPosition);
+            network = ElementNetwork.scan(lvl, networkOrigins());
             networkScanTime = now;
         }
         return network;

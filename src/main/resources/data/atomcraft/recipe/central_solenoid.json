@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "GMG",
+    "MEM",
+    "GMG"
+  ],
+  "key": {
+    "G": "minecraft:gold_ingot",
+    "M": "atomcraft:magnetic_coil",
+    "E": "minecraft:ender_eye"
+  },
+  "result": {
+    "id": "atomcraft:central_solenoid",
+    "count": 1
+  }
+}

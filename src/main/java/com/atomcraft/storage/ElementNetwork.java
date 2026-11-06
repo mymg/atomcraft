@@ -43,13 +43,19 @@ public final class ElementNetwork {
 
     /** Busca em largura pelos blocos da rede conectados a {@code origin}. */
     public static ElementNetwork scan(Level level, BlockPos origin) {
+        return scan(level, List.of(origin));
+    }
+
+    /** Busca a partir de várias origens (ex.: as portas de um multibloco), unindo tudo numa rede só. */
+    public static ElementNetwork scan(Level level, java.util.Collection<BlockPos> origins) {
         Set<BlockPos> visited = new HashSet<>();
         ArrayDeque<BlockPos> queue = new ArrayDeque<>();
         List<DriveBlockEntity> drives = new ArrayList<>();
         List<EnergyReceiver> receivers = new ArrayList<>();
-        BlockPos start = origin.immutable();
-        visited.add(start);
-        queue.add(start);
+        for (BlockPos origin : origins) {
+            BlockPos start = origin.immutable();
+            if (visited.add(start)) queue.add(start);
+        }
 
         while (!queue.isEmpty()) {
             BlockPos pos = queue.poll();

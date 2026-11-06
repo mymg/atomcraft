@@ -25,19 +25,30 @@ import java.util.List;
  */
 public abstract class GeneratorBlockEntity extends MachineBlockEntity {
 
-    protected final SimpleEnergyHandler energy = new SimpleEnergyHandler(
-            Config.GENERATOR_CAPACITY.get(), 0, Config.GENERATOR_MAX_OUTPUT.get()) {
-        @Override
-        protected void onEnergyChanged(int previousAmount) {
-            setChanged();
-        }
-    };
+    protected final SimpleEnergyHandler energy;
+    private final int maxOutput;
 
     /** FE gerado no último tick (para a interface). */
     protected int lastGenerated;
 
     protected GeneratorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        this(type, pos, state, Config.GENERATOR_CAPACITY.get(), Config.GENERATOR_MAX_OUTPUT.get());
+    }
+
+    protected GeneratorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int capacity, int maxOutput) {
         super(type, pos, state);
+        this.maxOutput = maxOutput;
+        this.energy = new SimpleEnergyHandler(capacity, 0, maxOutput) {
+            @Override
+            protected void onEnergyChanged(int previousAmount) {
+                setChanged();
+            }
+        };
+    }
+
+    /** Posições cujos vizinhos recebem energia diretamente (multiblocos usam as portas). */
+    protected java.util.Collection<BlockPos> energyOutputs() {
+        return List.of(worldPosition);
     }
 
     public SimpleEnergyHandler energy() {
@@ -84,16 +95,18 @@ public abstract class GeneratorBlockEntity extends MachineBlockEntity {
 
     private void distribute() {
         if (level == null) return;
-        int available = Math.min(energy.getAmountAsInt(), Config.GENERATOR_MAX_OUTPUT.get());
+        int available = Math.min(energy.getAmountAsInt(), maxOutput);
         if (available <= 0) return;
 
         List<EnergyHandler> targets = new ArrayList<>();
         for (EnergyReceiver receiver : network().receivers()) {
             if (!receiver.isRemoved()) targets.add(receiver.energy());
         }
-        for (Direction direction : Direction.values()) {
-            EnergyHandler handler = level.getCapability(Capabilities.Energy.BLOCK, worldPosition.relative(direction), direction.getOpposite());
-            if (handler != null && handler != energy && !targets.contains(handler)) targets.add(handler);
+        for (BlockPos output : energyOutputs()) {
+            for (Direction direction : Direction.values()) {
+                EnergyHandler handler = level.getCapability(Capabilities.Energy.BLOCK, output.relative(direction), direction.getOpposite());
+                if (handler != null && handler != energy && !targets.contains(handler)) targets.add(handler);
+            }
         }
         if (targets.isEmpty()) return;
 

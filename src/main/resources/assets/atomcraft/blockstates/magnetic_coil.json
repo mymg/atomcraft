@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "atomcraft:block/magnetic_coil"
+    }
+  }
+}

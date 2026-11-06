@@ -24,6 +24,9 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import com.atomcraft.client.render.FusionReactorRenderer;
+import com.atomcraft.registry.ModBlockEntities;
 import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
@@ -37,8 +40,14 @@ public class AtomCraftClient {
     public AtomCraftClient(IEventBus modBus, ModContainer container) {
         container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
         modBus.addListener(AtomCraftClient::registerScreens);
+        modBus.addListener(AtomCraftClient::registerRenderers);
+        FusionPreview.register();
         NeoForge.EVENT_BUS.addListener(AtomCraftClient::onTooltip);
         ClientShowcase.register();
+    }
+
+    private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerBlockEntityRenderer(ModBlockEntities.FUSION_REACTOR.get(), FusionReactorRenderer::new);
     }
 
     private static void registerScreens(RegisterMenuScreensEvent event) {

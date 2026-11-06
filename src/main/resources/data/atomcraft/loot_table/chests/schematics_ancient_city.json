@@ -1,0 +1,54 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "atomcraft:containment_module_2_schematic",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "atomcraft:injector_module_2_schematic",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "atomcraft:recycler_module_2_schematic",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "atomcraft:ignition_module_2_schematic",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "atomcraft:containment_module_3_schematic",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "atomcraft:injector_module_3_schematic",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "atomcraft:recycler_module_3_schematic",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "atomcraft:ignition_module_3_schematic",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:empty",
+          "weight": 12
+        }
+      ]
+    }
+  ]
+}
