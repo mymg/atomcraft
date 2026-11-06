@@ -235,7 +235,7 @@ public abstract class BaseMenu extends AbstractContainerMenu {
         if (!syncsNetwork() || !(player instanceof ServerPlayer serverPlayer)) return;
         if (++syncTimer < 10) return;
         syncTimer = 0;
-        ElementNetwork network = ElementNetwork.scan(serverPlayer.level(), pos);
+        ElementNetwork network = machine != null ? machine.network() : ElementNetwork.scan(serverPlayer.level(), pos);
         Composition totals = network.totals();
         long capacity = network.capacity();
         long used = network.used();
