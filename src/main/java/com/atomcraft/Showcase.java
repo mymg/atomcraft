@@ -120,11 +120,11 @@ final class Showcase {
         level.setBlock(base.south(), ModBlocks.CARBON_GENERATOR.get().defaultBlockState(), Block.UPDATE_ALL);
         level.setBlock(base.south(2), ModBlocks.COMBUSTION_GENERATOR.get().defaultBlockState(), Block.UPDATE_ALL);
         // Reator de Fusão multibloco a leste, ligado à rede por cabos até uma Porta do Reator
-        reactor = base.offset(5, 2, 0);
+        reactor = base.offset(3, 2, 0);
         net.minecraft.core.Direction facing = net.minecraft.core.Direction.WEST;
         BlockPos port = com.atomcraft.fusion.FusionStructure.toWorld(reactor, facing, 3, 0, 0);
         SelfTest.buildReactor(level, reactor, facing, java.util.Set.of(port), null);
-        for (int dx = 2; dx <= 4; dx++) {
+        for (int dx = 2; dx <= 2; dx++) {
             level.setBlock(base.offset(dx, 0, 0), ModBlocks.CABLE.get().defaultBlockState(), Block.UPDATE_ALL);
         }
         if (level.getBlockEntity(reactor) instanceof com.atomcraft.block.entity.FusionReactorBlockEntity fusion) {

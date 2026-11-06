@@ -183,6 +183,7 @@ jobs:
             sleep 1
           done
           pkill -f "net.neoforged" || true; pkill -f GradleWorkerMain || true; sleep 3
+          grep -n "Exception\|Caused by\|/ERROR" client.log | grep -v "SoundEngine\|flite\|OpenAL\|Narrator\|No key layers\|UnsatisfiedLink" | head -40 | cut -c1-400 || true
           grep "SHOWCASE" client.log | sed 's/^.*AtomCraft SHOWCASE /::notice title=Vitrine::/' || true
           ls -la run/screenshots || true
       - name: Publish screenshots
