@@ -48,4 +48,30 @@ public class FusionReactorBlock extends MachineBlock {
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new FusionReactorBlockEntity(pos, state);
     }
+
+    // Formado, o bloco fica invisível: não pode escurecer o modelo grande nem esconder as faces
+    // dos blocos vizinhos (senão dá para ver através do chão).
+    protected boolean hiddenWhenFormed(BlockState state) {
+        return state.hasProperty(FORMED) && state.getValue(FORMED);
+    }
+
+    @Override
+    protected net.minecraft.world.phys.shapes.VoxelShape getOcclusionShape(BlockState state) {
+        return hiddenWhenFormed(state) ? net.minecraft.world.phys.shapes.Shapes.empty() : super.getOcclusionShape(state);
+    }
+
+    @Override
+    protected int getLightDampening(BlockState state) {
+        return hiddenWhenFormed(state) ? 0 : super.getLightDampening(state);
+    }
+
+    @Override
+    protected boolean propagatesSkylightDown(BlockState state) {
+        return hiddenWhenFormed(state) || super.propagatesSkylightDown(state);
+    }
+
+    @Override
+    protected float getShadeBrightness(BlockState state, net.minecraft.world.level.BlockGetter level, BlockPos pos) {
+        return hiddenWhenFormed(state) ? 1.0f : super.getShadeBrightness(state, level, pos);
+    }
 }
