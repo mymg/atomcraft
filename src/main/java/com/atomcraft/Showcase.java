@@ -178,7 +178,7 @@ final class Showcase {
             default -> null;
         };
         if (target != null && level.getBlockEntity(target) instanceof MenuProvider provider) {
-            player.openMenu(provider, target);
+            player.openMenu(provider);
         }
         if (ticks == 1080) {
             // Visão do reator formado no mundo

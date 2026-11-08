@@ -26,6 +26,11 @@ public class ReactorPortBlock extends ReactorPartBlock implements EntityBlock, N
     }
 
     @Override
+    protected boolean hiddenWhenFormed(BlockState state) {
+        return false;
+    }
+
+    @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new ReactorPortBlockEntity(pos, state);
     }

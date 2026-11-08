@@ -15,6 +15,9 @@ import com.geckolib.renderer.base.RenderPassInfo;
 import com.geckolib.renderer.layer.builtin.AutoGlowingGeoLayer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.resources.Identifier;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
@@ -47,6 +50,12 @@ public class FusionReactorRenderer<R extends BlockEntityRenderState & GeoRenderS
         // leva a origem do modelo para o centro da base da estrutura.
         PoseStack poseStack = renderPassInfo.poseStack();
         poseStack.translate(0, -FusionStructure.CONTROLLER_Y, FusionStructure.SIZE / 2);
+    }
+
+    /** Translúcido, para o vidro semitransparente da textura aparecer no jogo como no Blockbench. */
+    @Override
+    public @Nullable RenderType getRenderType(R renderState, Identifier texture) {
+        return RenderTypes.entityTranslucent(texture);
     }
 
     private static final DataTicket<Boolean> FORMED = DataTicket.create("atomcraft_fusion_formed", Boolean.class);

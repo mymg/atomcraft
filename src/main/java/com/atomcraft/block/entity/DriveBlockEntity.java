@@ -81,4 +81,10 @@ public class DriveBlockEntity extends BlockEntity implements MenuProvider {
         super.saveAdditional(output);
         disks.serialize(output.child("disks"));
     }
+
+    /** Posição enviada ao cliente ao abrir o menu (vale também para o openMenu do vanilla, ex.: modo espectador). */
+    @Override
+    public void writeClientSideData(net.minecraft.world.inventory.AbstractContainerMenu menu, net.minecraft.network.RegistryFriendlyByteBuf buffer) {
+        buffer.writeBlockPos(worldPosition);
+    }
 }

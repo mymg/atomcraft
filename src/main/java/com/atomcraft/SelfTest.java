@@ -368,6 +368,10 @@ final class SelfTest {
         check(failures, fusion.isFormed() && level.getBlockState(coil).getValue(com.atomcraft.block.ReactorPartBlock.FORMED)
                         && level.getBlockState(controller).getValue(com.atomcraft.block.FusionReactorBlock.FORMED),
                 "reator forma e marca as peças");
+        check(failures, level.getBlockState(coil).getLightBlock() == 0
+                        && level.getBlockState(controller).getLightBlock() == 0
+                        && level.getBlockState(port).getLightBlock() > 0,
+                "peças formadas deixam a luz passar (modelo não fica escuro); a porta continua sólida");
         check(failures, level.getBlockEntity(port) instanceof com.atomcraft.block.entity.ReactorPortBlockEntity entity
                 && entity.energy() == fusion.energy(), "porta repassa a energia do reator");
 

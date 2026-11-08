@@ -232,6 +232,11 @@ REACTOR_PARTS = ["reactor_casing", "reactor_glass", "magnetic_coil", "central_so
 for b in REACTOR_PARTS:
     w(f"assets/atomcraft/blockstates/{b}.json", {"variants": {"": {"model": f"atomcraft:block/{b}"}}})
     model = {"parent": "minecraft:block/cube_all", "textures": {"all": f"atomcraft:block/{b}"}}
+    if b == "reactor_port":
+        # Um pouco maior que um bloco: fica por cima do casco do modelo grande (sem z-fighting).
+        model = {"parent": "minecraft:block/block", "textures": {"all": f"atomcraft:block/{b}", "particle": f"atomcraft:block/{b}"},
+                 "elements": [{"from": [-0.1, -0.1, -0.1], "to": [16.1, 16.1, 16.1],
+                               "faces": {f: {"uv": [0, 0, 16, 16], "texture": "#all"} for f in ("north", "east", "south", "west", "up", "down")}}]}
     if b == "reactor_glass":
         model["render_type"] = "minecraft:cutout"
     w(f"assets/atomcraft/models/block/{b}.json", model)

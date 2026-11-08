@@ -198,4 +198,10 @@ public abstract class MachineBlockEntity extends BlockEntity implements MenuProv
         output.putBoolean("enabled", enabled);
         upgrades.serialize(output.child("upgrades"));
     }
+
+    /** Posição enviada ao cliente ao abrir o menu (vale também para o openMenu do vanilla, ex.: modo espectador). */
+    @Override
+    public void writeClientSideData(net.minecraft.world.inventory.AbstractContainerMenu menu, net.minecraft.network.RegistryFriendlyByteBuf buffer) {
+        buffer.writeBlockPos(worldPosition);
+    }
 }
