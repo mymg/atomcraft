@@ -58,8 +58,8 @@ public class ReactorPartBlock extends Block {
     }
 
     @Override
-    protected int getLightBlock(BlockState state) {
-        return hiddenWhenFormed(state) ? 0 : super.getLightBlock(state);
+    protected int getLightDampening(BlockState state) {
+        return hiddenWhenFormed(state) ? 0 : super.getLightDampening(state);
     }
 
     @Override
