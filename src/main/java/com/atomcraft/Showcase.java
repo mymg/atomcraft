@@ -168,21 +168,21 @@ final class Showcase {
         ticks++;
         ServerLevel level = player.level();
         BlockPos target = switch (ticks) {
-            case 60 -> base.east();
-            case 160 -> base.north(2);
-            case 260 -> base;
-            case 360 -> base.west();
-            case 460 -> base.south(2);
-            case 560 -> base.south();
-            case 760 -> reactor;
-            case 860 -> base.west().above();
-            case 960 -> base.east().above();
+            case 120 -> base.east();
+            case 320 -> base.north(2);
+            case 520 -> base;
+            case 720 -> base.west();
+            case 920 -> base.south(2);
+            case 1120 -> base.south();
+            case 1320 -> reactor;
+            case 1520 -> base.west().above();
+            case 1720 -> base.east().above();
             default -> null;
         };
         if (target != null && level.getBlockEntity(target) instanceof MenuProvider provider) {
             player.openMenu(provider);
         }
-        if (ticks == 1080) {
+        if (ticks == 1960) {
             // Visão do reator formado no mundo
             player.closeContainer();
             player.getAbilities().mayfly = true;
@@ -190,10 +190,10 @@ final class Showcase {
             player.onUpdateAbilities();
             player.connection.teleport(base.getX() - 3.5, base.getY() + 4, base.getZ() + 0.5, -90f, 18f);
         }
-        if (ticks == 1300) {
+        if (ticks == 2500) {
             // Visão do Drive (discos nos slots) e do Analisador animado
             player.connection.teleport(base.getX() - 2.4, base.getY() + 1.0, base.getZ() - 0.3, -95f, 28f);
         }
-        if (ticks == 1480) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
+        if (ticks == 3400) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
     }
 }

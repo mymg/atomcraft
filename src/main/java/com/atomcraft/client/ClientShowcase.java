@@ -43,7 +43,7 @@ final class ClientShowcase {
                 worldCaptured = true;
                 AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture world_fusion_reactor");
             }
-            if (idleTicks == 300) {
+            if (idleTicks == 700) {
                 machinesCaptured = true;
                 AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture world_drive_analyzer");
             }
@@ -64,7 +64,7 @@ final class ClientShowcase {
                     : screen instanceof AnalyzerScreen ? MachineScreen.SidePanel.INFO : MachineScreen.SidePanel.NONE);
             return;
         }
-        if (++ticks == 40) {
+        if (++ticks == 25) {
             var key = BuiltInRegistries.MENU.getKey(((MachineScreen<?>) screen).getMenu().getType());
             String name = key == null ? "unknown" : key.getPath();
             AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture {}", name);
