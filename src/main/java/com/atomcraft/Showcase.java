@@ -192,7 +192,7 @@ final class Showcase {
         }
         if (ticks == 1300) {
             // Visão do Drive (discos nos slots) e do Analisador animado
-            player.connection.teleport(base.getX() - 2.6, base.getY() + 0.4, base.getZ() - 0.5, -90f, 18f);
+            player.connection.teleport(base.getX() - 2.4, base.getY() + 1.0, base.getZ() - 0.3, -95f, 28f);
         }
         if (ticks == 1480) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
     }
