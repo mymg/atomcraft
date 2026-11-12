@@ -20,8 +20,22 @@ public class ElementDiskItem extends Item {
         this.capacity = capacity;
     }
 
+    /** Abre a tela de partição no cliente (definido pelo AtomCraftClient; no servidor não faz nada). */
+    public static java.util.function.Consumer<net.minecraft.world.InteractionHand> openPartitionScreen = hand -> {};
+
+    @Override
+    public net.minecraft.world.InteractionResult use(net.minecraft.world.level.Level level, net.minecraft.world.entity.player.Player player,
+                                                     net.minecraft.world.InteractionHand hand) {
+        if (level.isClientSide()) openPartitionScreen.accept(hand);
+        return net.minecraft.world.InteractionResult.SUCCESS;
+    }
+
     public long capacity() {
         return capacity;
+    }
+
+    public static DiskPartition partition(ItemStack stack) {
+        return stack.getOrDefault(ModComponents.DISK_PARTITION.get(), DiskPartition.NONE);
     }
 
     public static Composition contents(ItemStack stack) {

@@ -1,5 +1,9 @@
 package com.atomcraft.network;
 
+import com.atomcraft.registry.ModComponents;
+import com.atomcraft.storage.ElementDiskItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.InteractionHand;
 import com.atomcraft.block.entity.MachineBlockEntity;
 import com.atomcraft.block.entity.ReplicatorBlockEntity;
 import com.atomcraft.block.entity.SynthesizerBlockEntity;
@@ -28,6 +32,13 @@ public final class ModNetwork {
         registrar.playToServer(ReplicatePayload.TYPE, ReplicatePayload.STREAM_CODEC, ModNetwork::handleReplicate);
         registrar.playToServer(MachineTogglePayload.TYPE, MachineTogglePayload.STREAM_CODEC, ModNetwork::handleToggle);
         registrar.playToServer(SynthesizePayload.TYPE, SynthesizePayload.STREAM_CODEC, ModNetwork::handleSynthesize);
+        registrar.playToServer(PartitionPayload.TYPE, PartitionPayload.STREAM_CODEC, (payload, context) -> {
+            if (!(context.player() instanceof ServerPlayer player)) return;
+            ItemStack stack = player.getItemInHand(payload.offhand() ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND);
+            if (!(stack.getItem() instanceof ElementDiskItem)) return;
+            if (payload.partition().isEmpty()) stack.remove(ModComponents.DISK_PARTITION.get());
+            else stack.set(ModComponents.DISK_PARTITION.get(), payload.partition());
+        });
         registrar.playToClient(MachineInfoPayload.TYPE, MachineInfoPayload.STREAM_CODEC, (payload, context) -> {
             if (context.player().containerMenu instanceof BaseMenu menu && menu.containerId == payload.containerId()) {
                 menu.setOwnerName(payload.ownerName());

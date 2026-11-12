@@ -25,7 +25,7 @@ final class ClientShowcase {
     private static int ticks;
     private static int screensSeen;
     private static int idleTicks;
-    private static boolean worldCaptured;
+    private static boolean worldCaptured, machinesCaptured;
 
     private ClientShowcase() {}
 
@@ -36,11 +36,16 @@ final class ClientShowcase {
 
     private static void onTick(ClientTickEvent.Post event) {
         Screen screen = Minecraft.getInstance().gui.screen();
-        if (screen == null && screensSeen >= 9 && !worldCaptured) {
-            // Depois das interfaces, o servidor fecha o menu e posiciona a câmera no reator.
-            if (++idleTicks == 100) {
+        if (screen == null && screensSeen >= 9 && !machinesCaptured) {
+            // Depois das interfaces, o servidor fecha o menu e posiciona a câmera no reator e depois no Drive.
+            idleTicks++;
+            if (idleTicks == 100 && !worldCaptured) {
                 worldCaptured = true;
                 AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture world_fusion_reactor");
+            }
+            if (idleTicks == 300) {
+                machinesCaptured = true;
+                AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture world_drive_analyzer");
             }
             return;
         }

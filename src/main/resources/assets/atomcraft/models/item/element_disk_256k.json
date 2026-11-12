@@ -1,6 +1,7 @@
 {
-  "parent": "minecraft:item/generated",
+  "parent": "atomcraft:item/disk",
   "textures": {
-    "layer0": "atomcraft:item/element_disk_256k"
+    "0": "atomcraft:item/disk_256k",
+    "particle": "atomcraft:item/disk_256k"
   }
 }

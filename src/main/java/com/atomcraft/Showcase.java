@@ -59,11 +59,13 @@ final class Showcase {
     private static void setup(ServerPlayer player) {
         ServerLevel level = player.level();
         base = player.blockPosition().offset(3, 0, 0);
-        level.setBlock(base, ModBlocks.DRIVE.get().defaultBlockState(), Block.UPDATE_ALL);
+        level.setBlock(base, ModBlocks.DRIVE.get().defaultBlockState().setValue(com.atomcraft.block.MachineBlock.FACING,
+                net.minecraft.core.Direction.WEST), Block.UPDATE_ALL);
         level.setBlock(base.east(), ModBlocks.ATOMIZER.get().defaultBlockState(), Block.UPDATE_ALL);
         level.setBlock(base.west(), ModBlocks.REPLICATOR.get().defaultBlockState(), Block.UPDATE_ALL);
         level.setBlock(base.north(), ModBlocks.CABLE.get().defaultBlockState(), Block.UPDATE_ALL);
-        level.setBlock(base.north(2), ModBlocks.ANALYZER.get().defaultBlockState(), Block.UPDATE_ALL);
+        level.setBlock(base.north(2), ModBlocks.ANALYZER.get().defaultBlockState().setValue(com.atomcraft.block.MachineBlock.FACING,
+                net.minecraft.core.Direction.WEST), Block.UPDATE_ALL);
 
         DriveBlockEntity drive = (DriveBlockEntity) level.getBlockEntity(base);
         drive.disks().set(0, ItemResource.of(ModItems.DISK_1M.get()), 1);
@@ -188,6 +190,10 @@ final class Showcase {
             player.onUpdateAbilities();
             player.connection.teleport(base.getX() - 3.5, base.getY() + 4, base.getZ() + 0.5, -90f, 18f);
         }
-        if (ticks == 1260) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
+        if (ticks == 1300) {
+            // Visão do Drive (discos nos slots) e do Analisador animado
+            player.connection.teleport(base.getX() - 2.2, base.getY() + 0.6, base.getZ() - 0.2, -100f, 22f);
+        }
+        if (ticks == 1480) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
     }
 }

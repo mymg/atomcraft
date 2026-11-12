@@ -29,9 +29,11 @@ public final class ModBlocks {
     }
 
     public static final DeferredBlock<AtomizerBlock> ATOMIZER = BLOCKS.registerBlock("atomizer", AtomizerBlock::new, ModBlocks::machine);
-    public static final DeferredBlock<AnalyzerBlock> ANALYZER = BLOCKS.registerBlock("analyzer", AnalyzerBlock::new, ModBlocks::machine);
+    public static final DeferredBlock<AnalyzerBlock> ANALYZER = BLOCKS.registerBlock("analyzer", AnalyzerBlock::new,
+            properties -> machine(properties).noOcclusion());
     public static final DeferredBlock<ReplicatorBlock> REPLICATOR = BLOCKS.registerBlock("replicator", ReplicatorBlock::new, ModBlocks::machine);
-    public static final DeferredBlock<DriveBlock> DRIVE = BLOCKS.registerBlock("drive", DriveBlock::new, ModBlocks::machine);
+    public static final DeferredBlock<DriveBlock> DRIVE = BLOCKS.registerBlock("drive", DriveBlock::new,
+            properties -> machine(properties).noOcclusion());
     public static final DeferredBlock<CombustionGeneratorBlock> COMBUSTION_GENERATOR =
             BLOCKS.registerBlock("combustion_generator", CombustionGeneratorBlock::new, ModBlocks::machine);
     public static final DeferredBlock<CarbonGeneratorBlock> CARBON_GENERATOR =

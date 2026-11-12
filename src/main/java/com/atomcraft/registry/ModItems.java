@@ -1,5 +1,7 @@
 package com.atomcraft.registry;
 
+import net.minecraft.world.item.Item;
+import com.atomcraft.block.AnalyzerItem;
 import com.atomcraft.AtomCraft;
 import com.atomcraft.storage.ElementDiskItem;
 import com.atomcraft.synthesis.SchematicItem;
@@ -21,7 +23,8 @@ public final class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(AtomCraft.MOD_ID);
 
     public static final DeferredItem<BlockItem> ATOMIZER = ITEMS.registerSimpleBlockItem(ModBlocks.ATOMIZER);
-    public static final DeferredItem<BlockItem> ANALYZER = ITEMS.registerSimpleBlockItem(ModBlocks.ANALYZER);
+    public static final DeferredItem<AnalyzerItem> ANALYZER = ITEMS.registerItem("analyzer",
+            properties -> new AnalyzerItem(ModBlocks.ANALYZER.get(), properties), Item.Properties::useBlockDescriptionPrefix);
     public static final DeferredItem<BlockItem> REPLICATOR = ITEMS.registerSimpleBlockItem(ModBlocks.REPLICATOR);
     public static final DeferredItem<BlockItem> DRIVE = ITEMS.registerSimpleBlockItem(ModBlocks.DRIVE);
     public static final DeferredItem<BlockItem> CABLE = ITEMS.registerSimpleBlockItem(ModBlocks.CABLE);
