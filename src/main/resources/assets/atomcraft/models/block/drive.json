@@ -559,7 +559,7 @@
 						0.5,
 						3.5
 					],
-					"texture": "#missing"
+					"texture": "#0"
 				},
 				"west": {
 					"uv": [
