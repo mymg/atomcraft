@@ -156,6 +156,14 @@ em `data/<namespace>/atomcraft/compositions/`, usando `"item"` ou `"tag"`.
 | **Discos** 16K / 64K / 256K / 1M átomos | ametista e redstone + ferro / ouro / diamante / casco de shulker |
 
 Os discos guardam os elementos no próprio item, então você pode tirá-los do Drive e levá-los para outra base.
+O Drive tem 10 slots, e os discos inseridos aparecem no bloco, cada um com a cor do seu nível.
+
+### Partição de discos
+
+Clique com o botão direito segurando um disco para abrir a **partição**: uma tabela periódica onde você escolhe quais
+elementos aquele disco aceita (só elementos já descobertos) e, para cada um, um limite opcional de átomos.
+Sem nenhum elemento marcado, o disco aceita tudo. Na hora de guardar, os elementos vão primeiro para os discos
+particionados para eles, depois para discos que já têm aquele elemento e por fim para qualquer disco livre.
 
 ## Energia
 
@@ -237,6 +245,14 @@ Os dados do mod (composições, receitas, loot, traduções) são gerados por `t
 (`python3 tools/gen_resources.py .`, precisa do Pillow). O script **nunca sobrescreve** modelos, blockstates,
 definições de itens e texturas que já existem: ele só cria os arquivos iniciais de blocos e itens novos.
 `--force` recria tudo do zero.
+
+Arquivos derivados da sua arte, que o script sempre recria:
+- `models/item/element_disk_*.json` e `textures/item/disk_*.png`: todos os discos usam o modelo `models/item/disk.json`;
+  as texturas de cada nível são a `disk.png` com a etiqueta verde trocada pela cor do nível.
+- `models/block/drive_frame.json`: o `drive.json` sem os elementos chamados **"drive"**. Esses elementos marcam os
+  slots no Blockbench; no jogo, os discos de verdade são desenhados por código nas mesmas posições.
+- O **Analisador** é um modelo GeckoLib (`geckolib/models/block/analyzer.geo.json`, animações `idle` e `analyzing`);
+  o item também usa o modelo animado.
 
 ## Desenvolvimento
 
