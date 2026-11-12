@@ -14,8 +14,9 @@ import java.util.Map;
 /** Drive: discos e ocupação à esquerda, elementos guardados na rede (badges) à direita. */
 public class DriveScreen extends MachineScreen<DriveMenu> {
 
-    private static final int LIST_X = 89, LIST_Y = 21, LIST_W = 80, LIST_H = 78;
-    private static final int COLS = 2, ROWS = 4, CELL_W = 37, CELL_H = 18;
+    private static final int LIST_X = 57, LIST_Y = 21, LIST_W = 112, LIST_H = 78;
+    private static final int COLS = 3, ROWS = 4, CELL_W = 35, CELL_H = 18;
+    private static final int BAR_X = 61, BAR_Y = 104, BAR_W = 104;
 
     private int scrollRow;
 
@@ -34,7 +35,7 @@ public class DriveScreen extends MachineScreen<DriveMenu> {
 
     @Override
     protected void extractPanels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        TechGui.glass(graphics, leftPos + 8, topPos + 21, 78, 78);
+        TechGui.glass(graphics, leftPos + 8, topPos + 21, 45, 96);
         TechGui.glass(graphics, leftPos + LIST_X, topPos + LIST_Y, LIST_W, LIST_H);
     }
 
@@ -42,9 +43,9 @@ public class DriveScreen extends MachineScreen<DriveMenu> {
     protected void extractMachine(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         long capacity = ClientState.networkCapacity();
         float fraction = capacity <= 0 ? 0 : (float) ClientState.networkUsed() / capacity;
-        TechGui.horizontalBar(graphics, leftPos + 12, topPos + 68, 70, 8, fraction, TechGui.STORAGE);
+        TechGui.horizontalBar(graphics, leftPos + BAR_X, topPos + BAR_Y, BAR_W, 8, fraction, TechGui.STORAGE);
         String amount = storageText();
-        graphics.text(font, amount, leftPos + 47 - font.width(amount) / 2, topPos + 81, TechGui.TEXT_TEAL, false);
+        graphics.text(font, amount, leftPos + BAR_X + BAR_W - font.width(amount), topPos + BAR_Y + 11, TechGui.TEXT_TEAL, false);
 
         List<Map.Entry<ChemicalElement, Long>> entries = entries();
         scrollRow = Math.max(0, Math.min(scrollRow, maxScroll()));
@@ -81,7 +82,7 @@ public class DriveScreen extends MachineScreen<DriveMenu> {
                 return;
             }
         }
-        if (hovering(mouseX, mouseY, 12, 68, 70, 20)) tooltip(graphics, mouseX, mouseY, storageTooltip());
+        if (hovering(mouseX, mouseY, BAR_X, BAR_Y, BAR_W, 20)) tooltip(graphics, mouseX, mouseY, storageTooltip());
     }
 
     @Override

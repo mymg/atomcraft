@@ -20,6 +20,7 @@ import com.atomcraft.chemistry.Fuel;
 import com.atomcraft.registry.ModBlocks;
 import com.atomcraft.registry.ModItems;
 import com.atomcraft.research.ResearchData;
+import com.atomcraft.storage.ElementDiskItem;
 import com.atomcraft.storage.ElementNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
@@ -168,6 +169,7 @@ final class SelfTest {
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
         }
 
+        partitions(level, failures);
         generators(level, failures);
         controlsAndSynthesis(server, level, failures);
     }
@@ -417,5 +419,32 @@ final class SelfTest {
 
     private static void place(ServerLevel level, BlockPos pos, Block block) {
         level.setBlock(pos, block.defaultBlockState(), Block.UPDATE_ALL);
+    }
+
+    /** Partição de discos: só os elementos permitidos entram, respeitando o limite. */
+    private static void partitions(ServerLevel level, List<String> failures) {
+        BlockPos drivePos = new BlockPos(0, 120, 48);
+        level.getChunk(drivePos);
+        place(level, drivePos, ModBlocks.DRIVE.get());
+        DriveBlockEntity drive = (DriveBlockEntity) level.getBlockEntity(drivePos);
+        net.minecraft.world.item.ItemStack disk = new net.minecraft.world.item.ItemStack(ModItems.DISK_16K.get());
+        disk.set(com.atomcraft.registry.ModComponents.DISK_PARTITION.get(),
+                com.atomcraft.storage.DiskPartition.of(java.util.Map.of(ChemicalElement.IRON, 0L, ChemicalElement.CARBON, 10L)));
+        drive.disks().set(0, ItemResource.of(disk), 1);
+        ElementNetwork network = ElementNetwork.scan(level, drivePos);
+        check(failures, !network.insert(new Composition(java.util.Map.of(ChemicalElement.OXYGEN, 1L)), 1), "disco particionado recusa O");
+        check(failures, network.insert(new Composition(java.util.Map.of(ChemicalElement.IRON, 500L)), 1), "disco particionado aceita Fe");
+        check(failures, network.insert(new Composition(java.util.Map.of(ChemicalElement.CARBON, 8L)), 1)
+                && !network.insert(new Composition(java.util.Map.of(ChemicalElement.CARBON, 8L)), 1), "limite de 10 C respeitado");
+        check(failures, !network.insert(new Composition(java.util.Map.of(ChemicalElement.IRON, 1L, ChemicalElement.OXYGEN, 1L)), 1)
+                && network.totals().get(ChemicalElement.IRON) == 500, "inserção é tudo ou nada (FeO não entra, nada muda)");
+        // Um segundo disco sem partição recebe o resto
+        drive.disks().set(1, ItemResource.of(ModItems.DISK_16K.get()), 1);
+        network = ElementNetwork.scan(level, drivePos);
+        check(failures, network.insert(new Composition(java.util.Map.of(ChemicalElement.OXYGEN, 5L, ChemicalElement.IRON, 5L)), 1)
+                && ElementDiskItem.contents(drive.getDisk(0)).get(ChemicalElement.IRON) == 505
+                && ElementDiskItem.contents(drive.getDisk(1)).get(ChemicalElement.OXYGEN) == 5,
+                "Fe vai para o disco particionado, O para o disco livre");
+        level.setBlock(drivePos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
     }
 }

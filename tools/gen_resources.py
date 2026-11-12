@@ -30,6 +30,14 @@ def preserved(path):
         return True
     return False
 
+def wf(path, data):
+    """Escreve sempre (arquivos derivados da arte do usuário, ex.: drive_frame.json)."""
+    p = os.path.join(R, path)
+    os.makedirs(os.path.dirname(p), exist_ok=True)
+    with open(p, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+
 def w(path, data):
     if preserved(path):
         return
@@ -311,9 +319,37 @@ w("assets/atomcraft/items/atomic_cable.json", {"model": {"type": "minecraft:mode
 
 # Discos
 DISKS = {"element_disk_16k": (90, 200, 120), "element_disk_64k": (230, 190, 60), "element_disk_256k": (90, 220, 230), "element_disk_1m": (190, 110, 230)}
+# Com um modelo 3D próprio em models/item/disk.json, todos os discos usam esse modelo e só trocam a
+# textura (disk_16k.png, disk_64k.png...). Sem ele, cada disco é um ícone plano.
+DISK_MODEL = os.path.exists(os.path.join(R, "assets/atomcraft/models/item/disk.json"))
 for d in DISKS:
-    w(f"assets/atomcraft/models/item/{d}.json", {"parent": "minecraft:item/generated", "textures": {"layer0": f"atomcraft:item/{d}"}})
+    tier = d.replace("element_", "")
+    if DISK_MODEL:
+        wf(f"assets/atomcraft/models/item/{d}.json", {"parent": "atomcraft:item/disk", "textures": {
+            "0": f"atomcraft:item/{tier}", "particle": f"atomcraft:item/{tier}"}})
+    else:
+        w(f"assets/atomcraft/models/item/{d}.json", {"parent": "minecraft:item/generated", "textures": {"layer0": f"atomcraft:item/{d}"}})
     w(f"assets/atomcraft/items/{d}.json", {"model": {"type": "minecraft:model", "model": f"atomcraft:item/{d}"}})
+
+# Drive com modelo próprio: os elementos chamados "drive" marcam os slots dos discos. Eles saem do
+# modelo do bloco (drive_frame.json, gerado) porque os discos de verdade são desenhados por código,
+# cada um com a textura do seu nível.
+DRIVE_MODEL = os.path.join(R, "assets/atomcraft/models/block/drive.json")
+if os.path.exists(DRIVE_MODEL):
+    with open(DRIVE_MODEL, encoding="utf-8") as f:
+        drive = json.load(f)
+    if any(e.get("name") == "drive" for e in drive.get("elements", [])):
+        frame = {k: v for k, v in drive.items() if k not in ("groups", "elements")}
+        frame["elements"] = [e for e in drive["elements"] if e.get("name") != "drive"]
+        wf("assets/atomcraft/models/block/drive_frame.json", frame)
+        wf("assets/atomcraft/blockstates/drive.json", {"variants": {
+            f"facing={d}": ({"model": "atomcraft:block/drive_frame"} | ({"y": y} if y else {}))
+            for d, y in (("north", 0), ("east", 90), ("south", 180), ("west", 270))}})
+
+# Analisador animado (GeckoLib): o item também usa o modelo animado
+if os.path.exists(os.path.join(R, "assets/atomcraft/geckolib/models/block/analyzer.geo.json")):
+    wf("assets/atomcraft/items/analyzer.json", {"model": {"type": "minecraft:special", "base": "atomcraft:block/analyzer",
+                                                         "model": {"type": "geckolib:geckolib"}}})
 
 # Chips e schematics
 CHIPS = ["speed_upgrade", "efficiency_upgrade", "speed_upgrade_schematic", "efficiency_upgrade_schematic"]
@@ -405,6 +441,18 @@ common = {
     "status.atomcraft.no_fuel": ("No fuel", "Sem combustível"),
     "status.atomcraft.disabled": ("Off", "Desligado"),
     "status.atomcraft.incomplete": ("Incomplete structure", "Estrutura incompleta"),
+    "gui.atomcraft.partition": ("Partition", "Partição"),
+    "gui.atomcraft.partition_limit": ("Limit", "Limite"),
+    "gui.atomcraft.partition_limit_of": ("Limit of %s:", "Limite de %s:"),
+    "gui.atomcraft.partition_none": ("No partition: accepts any element", "Sem partição: aceita qualquer elemento"),
+    "gui.atomcraft.partition_count": ("%s elements allowed", "%s elementos permitidos"),
+    "gui.atomcraft.partition_clear": ("Clear", "Limpar"),
+    "gui.atomcraft.partition_click_add": ("Click to allow it in this disk", "Clique para permitir neste disco"),
+    "gui.atomcraft.partition_click_edit": ("Click to edit its limit", "Clique para editar o limite"),
+    "gui.atomcraft.partition_click_remove": ("Click again to remove it from the partition", "Clique de novo para tirar da partição"),
+    "gui.atomcraft.partition_limit_hint": ("Maximum atoms of this element (empty = no limit)", "Máximo de átomos deste elemento (vazio = sem limite)"),
+    "tooltip.atomcraft.partition": ("Partition: %s", "Partição: %s"),
+    "tooltip.atomcraft.partition_hint": ("Right-click to edit the partition", "Botão direito para editar a partição"),
     "block.atomcraft.reactor_casing": ("Reactor Casing", "Carcaça do Reator"),
     "block.atomcraft.reactor_glass": ("Containment Glass", "Vidro de Contenção"),
     "block.atomcraft.magnetic_coil": ("Magnetic Coil", "Bobina Magnética"),
@@ -590,7 +638,19 @@ for name, c in COLORS.items():
 img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
 d.rectangle([0, 0, 15, 15], fill=(70, 74, 84, 255)); d.rectangle([5, 5, 10, 10], fill=(80, 220, 255, 255))
 d.rectangle([6, 6, 9, 9], fill=(40, 140, 180, 255)); save(img, "block/atomic_cable.png")
+DISK_TEX = os.path.join(R, "assets/atomcraft/textures/item/disk.png")
 for name, c in DISKS.items():
+    if DISK_MODEL and os.path.exists(DISK_TEX):
+        # Variante por nível: troca a cor da etiqueta verde da textura base do disco.
+        base = Image.open(DISK_TEX).convert("RGBA")
+        px = base.load()
+        for y in range(base.height):
+            for x in range(base.width):
+                r, g, b, a = px[x, y]
+                if a and (r, g, b) == (90, 200, 120):
+                    px[x, y] = c + (a,)
+        save(base, f"item/{name.replace('element_', '')}.png")
+        continue
     img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
     d.rectangle([3, 2, 12, 13], fill=(60, 64, 72, 255), outline=(30, 32, 38, 255))
     d.rectangle([5, 4, 10, 8], fill=c + (255,)); d.rectangle([5, 10, 10, 11], fill=(150, 156, 168, 255))

@@ -53,7 +53,11 @@ public abstract class MachineBlockEntity extends BlockEntity implements MenuProv
             status = MachineStatus.DISABLED;
             disabledTick();
         }
+        afterTick();
     }
+
+    /** Chamado depois de cada tick (ligado ou desligado). */
+    protected void afterTick() {}
 
     /** Tick com a máquina desligada (geradores continuam entregando a energia guardada). */
     protected void disabledTick() {}

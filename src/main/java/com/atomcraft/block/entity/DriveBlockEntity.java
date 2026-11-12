@@ -19,13 +19,37 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 
-/** Drive: guarda até 8 discos de elementos e os disponibiliza para a rede. */
+/** Drive: guarda até 10 discos de elementos e os disponibiliza para a rede. */
 public class DriveBlockEntity extends BlockEntity implements MenuProvider {
 
-    public static final int SLOTS = 8;
+    public static final int SLOTS = 10;
 
     private final FilteredItemHandler disks = new FilteredItemHandler(SLOTS, 1,
-            (slot, resource) -> resource.getItem() instanceof ElementDiskItem, this::setChanged);
+            (slot, resource) -> resource.getItem() instanceof ElementDiskItem, this::onDisksChanged);
+    /** Quais discos estão em cada slot da última vez que o cliente foi avisado. */
+    private String syncedDisks = "";
+
+    /** O cliente desenha os discos no bloco: avisa quando um disco entra ou sai (não a cada átomo). */
+    private void onDisksChanged() {
+        setChanged();
+        if (level == null || level.isClientSide()) return;
+        StringBuilder signature = new StringBuilder();
+        for (int i = 0; i < SLOTS; i++) signature.append(disks.getResource(i).getItem()).append(';');
+        if (!signature.toString().equals(syncedDisks)) {
+            syncedDisks = signature.toString();
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), net.minecraft.world.level.block.Block.UPDATE_CLIENTS);
+        }
+    }
+
+    @Override
+    public net.minecraft.network.protocol.Packet<net.minecraft.network.protocol.game.ClientGamePacketListener> getUpdatePacket() {
+        return net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public net.minecraft.nbt.CompoundTag getUpdateTag(net.minecraft.core.HolderLookup.Provider registries) {
+        return saveCustomOnly(registries);
+    }
 
     public DriveBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.DRIVE.get(), pos, state);

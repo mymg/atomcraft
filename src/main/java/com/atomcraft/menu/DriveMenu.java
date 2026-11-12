@@ -13,8 +13,9 @@ import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class DriveMenu extends BaseMenu {
 
-    public static final int WIDTH = 176, HEIGHT = 204;
-    public static final int GRID_X = 12, GRID_Y = 26;
+    public static final int WIDTH = 176, HEIGHT = 222;
+    /** Duas colunas de 5 discos, como no bloco. */
+    public static final int GRID_X = 13, GRID_Y = 26;
 
     public static DriveMenu client(int id, Inventory inventory, RegistryFriendlyByteBuf buf) {
         FilteredItemHandler handler = new FilteredItemHandler(DriveBlockEntity.SLOTS, 1,
@@ -28,9 +29,9 @@ public class DriveMenu extends BaseMenu {
 
     private DriveMenu(int id, Inventory inventory, BlockPos pos, FilteredItemHandler handler) {
         super(ModMenus.DRIVE.get(), id, inventory, pos);
-        for (int row = 0; row < 2; row++) {
-            for (int col = 0; col < 4; col++) {
-                addSlot(new ResourceHandlerSlot(handler, handler::set, col + row * 4, GRID_X + col * 18, GRID_Y + row * 18));
+        for (int row = 0; row < 5; row++) {
+            for (int col = 0; col < 2; col++) {
+                addSlot(new ResourceHandlerSlot(handler, handler::set, col + row * 2, GRID_X + col * 18, GRID_Y + row * 18));
             }
         }
         machineSlots = DriveBlockEntity.SLOTS;

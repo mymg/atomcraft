@@ -1,5 +1,12 @@
 package com.atomcraft.block.entity;
 
+import com.geckolib.util.GeckoLibUtil;
+import com.geckolib.animation.RawAnimation;
+import com.geckolib.animation.AnimationController;
+import com.geckolib.animatable.manager.AnimatableManager;
+import com.geckolib.animatable.instance.AnimatableInstanceCache;
+import com.geckolib.animatable.GeoBlockEntity;
+import com.atomcraft.block.AnalyzerBlock;
 import com.atomcraft.Config;
 import com.atomcraft.chemistry.AtomicValue;
 import com.atomcraft.chemistry.AtomicValues;
@@ -36,7 +43,11 @@ import java.util.List;
  * do Terraria. Cada unidade analisada é consumida. Ao atingir a quantidade
  * exigida pela raridade, o item entra na biblioteca do Replicador.
  */
-public class AnalyzerBlockEntity extends MachineBlockEntity {
+public class AnalyzerBlockEntity extends MachineBlockEntity implements GeoBlockEntity {
+
+    private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
+    private static final RawAnimation ANALYZING = RawAnimation.begin().thenLoop("analyzing");
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     public static final int SLOTS = 9;
     public static final int DATA_PROGRESS = 0, DATA_STATUS = 1, DATA_ITEM_LO = 2, DATA_ITEM_HI = 3,
@@ -208,5 +219,30 @@ public class AnalyzerBlockEntity extends MachineBlockEntity {
     public void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         buffer.serialize(output.child("buffer"));
+    }
+
+    @Override
+    protected void afterTick() {
+        boolean active = status == MachineStatus.WORKING;
+        BlockState state = getBlockState();
+        if (level != null && state.hasProperty(AnalyzerBlock.ACTIVE) && state.getValue(AnalyzerBlock.ACTIVE) != active) {
+            level.setBlock(worldPosition, state.setValue(AnalyzerBlock.ACTIVE, active), net.minecraft.world.level.block.Block.UPDATE_CLIENTS);
+        }
+    }
+
+    // ----- GeckoLib: "idle" parado, "analyzing" trabalhando -----
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<AnalyzerBlockEntity>("main", 5, test -> {
+            BlockState state = test.animatable().getBlockState();
+            boolean active = state.hasProperty(AnalyzerBlock.ACTIVE) && state.getValue(AnalyzerBlock.ACTIVE);
+            return test.setAndContinue(active ? ANALYZING : IDLE);
+        }));
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
     }
 }

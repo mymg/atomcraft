@@ -1,5 +1,9 @@
 package com.atomcraft.client;
 
+import com.atomcraft.client.screen.PartitionScreen;
+import com.atomcraft.storage.DiskPartition;
+import com.atomcraft.client.render.DriveRenderer;
+import com.atomcraft.client.render.AnalyzerRenderer;
 import com.atomcraft.AtomCraft;
 import com.atomcraft.chemistry.AtomicValue;
 import com.atomcraft.chemistry.AtomicValues;
@@ -42,12 +46,15 @@ public class AtomCraftClient {
         modBus.addListener(AtomCraftClient::registerScreens);
         modBus.addListener(AtomCraftClient::registerRenderers);
         FusionPreview.register();
+        ElementDiskItem.openPartitionScreen = hand -> Minecraft.getInstance().gui.setScreen(new PartitionScreen(hand));
         NeoForge.EVENT_BUS.addListener(AtomCraftClient::onTooltip);
         ClientShowcase.register();
     }
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(ModBlockEntities.FUSION_REACTOR.get(), FusionReactorRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.ANALYZER.get(), AnalyzerRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.DRIVE.get(), DriveRenderer::new);
     }
 
     private static void registerScreens(RegisterMenuScreensEvent event) {
@@ -74,6 +81,18 @@ public class AtomCraftClient {
             if (!contents.isEmpty()) {
                 tooltip.add(Component.literal(GuiUtil.ellipsize(ClientState.formula(contents), 48)).withStyle(ChatFormatting.DARK_AQUA));
             }
+            DiskPartition partition = ElementDiskItem.partition(stack);
+            if (!partition.isEmpty()) {
+                StringBuilder text = new StringBuilder();
+                partition.limits().forEach((element, limit) -> {
+                    if (!text.isEmpty()) text.append(", ");
+                    text.append(ClientState.symbol(element));
+                    if (limit > 0) text.append(" ≤").append(GuiUtil.formatAmount(limit));
+                });
+                tooltip.add(Component.translatable("tooltip.atomcraft.partition", GuiUtil.ellipsize(text.toString(), 44))
+                        .withStyle(ChatFormatting.GOLD));
+            }
+            tooltip.add(Component.translatable("tooltip.atomcraft.partition_hint").withStyle(ChatFormatting.DARK_GRAY));
             return;
         }
 
