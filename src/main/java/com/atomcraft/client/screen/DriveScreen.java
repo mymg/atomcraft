@@ -61,8 +61,8 @@ public class DriveScreen extends MachineScreen<DriveMenu> {
             int y = topPos + LIST_Y + 3 + (i / COLS) * CELL_H;
             TechGui.badge(graphics, font, x, y, entry.getKey());
             // Quantidade em meia escala no canto inferior direito, como no Applied Energistics.
-            String amount = TechGui.shortAmount(entry.getValue());
-            TechGui.smallText(graphics, font, amount, x + 17 - TechGui.smallWidth(font, amount), y + 13, 0xFFFFFFFF, true);
+            String count = TechGui.shortAmount(entry.getValue());
+            TechGui.smallText(graphics, font, count, x + 17 - TechGui.smallWidth(font, count), y + 13, 0xFFFFFFFF, true);
         }
         if (maxScroll() > 0) {
             int barY = topPos + LIST_Y + 3 + Math.round((float) scrollRow / maxScroll() * (LIST_H - 16));

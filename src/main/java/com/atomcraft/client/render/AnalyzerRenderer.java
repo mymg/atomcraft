@@ -70,9 +70,9 @@ public class AnalyzerRenderer<R extends BlockEntityRenderState & GeoRenderState>
     @Override
     public void submit(R renderState, PoseStack poseStack, SubmitNodeCollector collector, CameraRenderState camera) {
         super.submit(renderState, poseStack, collector, camera);
-        ItemStackRenderState item = renderState.getOrDefaultGeckolibData(ITEM, null);
+        ItemStackRenderState item = renderState.getOrDefaultGeckolibData(ITEM, (ItemStackRenderState) null);
         if (item == null) return;
-        float spin = renderState.getOrDefaultGeckolibData(SPIN, 0f);
+        float spin = renderState.getOrDefaultGeckolibData(SPIN, (Float) 0f);
         poseStack.pushPose();
         poseStack.translate(0.5, ITEM_Y / 16f + Math.sin(Math.toRadians(spin * 2)) * 0.02, 0.5);
         poseStack.mulPose(Axis.YP.rotationDegrees(spin));
