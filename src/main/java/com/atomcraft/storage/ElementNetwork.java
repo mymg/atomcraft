@@ -65,7 +65,7 @@ public final class ElementNetwork {
             for (Direction direction : Direction.values()) {
                 BlockPos next = pos.relative(direction);
                 if (visited.contains(next) || visited.size() >= MAX_NODES || !level.isLoaded(next)) continue;
-                if (level.getBlockState(next).getBlock() instanceof NetworkNode) {
+                if (NetworkNode.connects(level.getBlockState(next))) {
                     visited.add(next);
                     queue.add(next);
                 }

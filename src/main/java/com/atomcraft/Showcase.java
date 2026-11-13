@@ -61,15 +61,17 @@ final class Showcase {
         base = player.blockPosition().offset(3, 0, 0);
         level.setBlock(base, ModBlocks.DRIVE.get().defaultBlockState().setValue(com.atomcraft.block.MachineBlock.FACING,
                 net.minecraft.core.Direction.WEST), Block.UPDATE_ALL);
-        level.setBlock(base.east(), ModBlocks.ATOMIZER.get().defaultBlockState(), Block.UPDATE_ALL);
-        level.setBlock(base.west(), ModBlocks.REPLICATOR.get().defaultBlockState(), Block.UPDATE_ALL);
+        com.atomcraft.block.TallMachineBlock.place(level, base.east(), ModBlocks.ATOMIZER.get().defaultBlockState());
+        com.atomcraft.block.TallMachineBlock.place(level, base.west(), ModBlocks.REPLICATOR.get().defaultBlockState());
         level.setBlock(base.north(), ModBlocks.CABLE.get().defaultBlockState(), Block.UPDATE_ALL);
-        com.atomcraft.block.AnalyzerBlock.place(level, base.north(2), ModBlocks.ANALYZER.get().defaultBlockState().setValue(com.atomcraft.block.MachineBlock.FACING,
+        com.atomcraft.block.TallMachineBlock.place(level, base.north(2), ModBlocks.ANALYZER.get().defaultBlockState().setValue(com.atomcraft.block.MachineBlock.FACING,
                 net.minecraft.core.Direction.WEST));
 
         // Itens no inventário, para os prints mostrarem os ícones (Analisador, geradores, discos).
         player.getInventory().clearContent();
         player.getInventory().add(new net.minecraft.world.item.ItemStack(ModBlocks.ANALYZER.get(), 3));
+        player.getInventory().add(new net.minecraft.world.item.ItemStack(ModBlocks.ATOMIZER.get()));
+        player.getInventory().add(new net.minecraft.world.item.ItemStack(ModBlocks.REPLICATOR.get()));
         player.getInventory().add(new net.minecraft.world.item.ItemStack(ModBlocks.COMBUSTION_GENERATOR.get()));
         player.getInventory().add(new net.minecraft.world.item.ItemStack(ModBlocks.CARBON_GENERATOR.get()));
         player.getInventory().add(new net.minecraft.world.item.ItemStack(ModItems.DISK_64K.get()));
@@ -200,7 +202,8 @@ final class Showcase {
         }
         if (ticks == 2500) {
             // Visão do Drive (discos nos slots) e do Analisador animado
-            player.connection.teleport(base.getX() - 1.9, base.getY() + 0.3, base.getZ() - 0.4, -100f, 12f);
+            // De sudoeste, olhando para nordeste: Replicador, Drive, Atomizador e Analisador.
+            player.connection.teleport(base.getX() - 2.5, base.getY() + 1.6, base.getZ() + 4.0, -150f, 16f);
             // Itens novos, para o Analisador estar trabalhando (item girando na câmara) no print.
             if (player.level().getBlockEntity(base.north(2)) instanceof AnalyzerBlockEntity analyzer) {
                 int slot = 3;

@@ -71,7 +71,7 @@ public class CableBlock extends Block implements NetworkNode {
     }
 
     private static boolean connects(BlockState state) {
-        return state.getBlock() instanceof NetworkNode;
+        return NetworkNode.connects(state);
     }
 
     @Override

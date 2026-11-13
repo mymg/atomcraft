@@ -423,14 +423,14 @@ final class SelfTest {
     }
 
     private static void place(ServerLevel level, BlockPos pos, Block block) {
-        if (block instanceof com.atomcraft.block.AnalyzerBlock) {
-            com.atomcraft.block.AnalyzerBlock.place(level, pos, block.defaultBlockState());
+        if (block instanceof com.atomcraft.block.TallMachineBlock) {
+            com.atomcraft.block.TallMachineBlock.place(level, pos, block.defaultBlockState());
         } else {
             level.setBlock(pos, block.defaultBlockState(), Block.UPDATE_ALL);
         }
     }
 
-    /** Analisador de 2 blocos: a metade de cima existe, não tem block entity e some junto com a de baixo. */
+    /** Máquinas de 2 blocos: a metade de cima existe, não tem block entity, não conecta e some junto com a de baixo. */
     private static void tallAnalyzer(ServerLevel level, List<String> failures) {
         BlockPos pos = new BlockPos(0, 120, 60);
         level.getChunk(pos);
@@ -439,8 +439,16 @@ final class SelfTest {
         check(failures, upper.is(ModBlocks.ANALYZER.get()) && com.atomcraft.block.AnalyzerBlock.isUpper(upper), "analisador tem metade de cima");
         check(failures, level.getBlockEntity(pos) instanceof AnalyzerBlockEntity, "metade de baixo tem a máquina");
         check(failures, level.getBlockEntity(pos.above()) == null, "metade de cima não tem block entity");
+        check(failures, com.atomcraft.storage.NetworkNode.connects(level.getBlockState(pos))
+                && !com.atomcraft.storage.NetworkNode.connects(upper), "só a metade de baixo conecta na rede");
         level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
         check(failures, level.getBlockState(pos.above()).isAir(), "metade de cima some com a de baixo");
+        for (Block block : List.of(ModBlocks.ATOMIZER.get(), ModBlocks.REPLICATOR.get())) {
+            place(level, pos, block);
+            check(failures, com.atomcraft.block.TallMachineBlock.isUpper(level.getBlockState(pos.above()))
+                    && level.getBlockEntity(pos.above()) == null, block.getDescriptionId() + " tem 2 blocos");
+            level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+        }
     }
 
     /** Partição de discos: só os elementos permitidos entram, respeitando o limite. */
