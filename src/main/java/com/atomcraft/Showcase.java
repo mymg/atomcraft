@@ -203,7 +203,7 @@ final class Showcase {
         if (ticks == 2500) {
             // Visão do Drive (discos nos slots) e do Analisador animado
             // De sudoeste, olhando para nordeste: Replicador, Drive, Atomizador e Analisador.
-            player.connection.teleport(base.getX() - 2.5, base.getY() + 1.6, base.getZ() + 4.0, -150f, 16f);
+            player.connection.teleport(base.getX() - 2.6, base.getY() + 3.2, base.getZ() + 3.6, -140f, 34f);
             // Itens novos, para o Analisador estar trabalhando (item girando na câmara) no print.
             if (player.level().getBlockEntity(base.north(2)) instanceof AnalyzerBlockEntity analyzer) {
                 int slot = 3;
@@ -211,6 +211,10 @@ final class Showcase {
                     analyzer.buffer().set(slot++, ItemResource.of(item), 64);
                 }
             }
+        }
+        if (ticks > 2500 && ticks < 3400 && ticks % 40 == 0) {
+            // Mantém a câmera no lugar (mobs/slimes podem empurrar o jogador)
+            player.connection.teleport(base.getX() - 2.6, base.getY() + 3.2, base.getZ() + 3.6, -140f, 34f);
         }
         if (ticks == 3400) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
     }
