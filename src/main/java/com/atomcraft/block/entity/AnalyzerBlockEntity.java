@@ -136,8 +136,11 @@ public class AnalyzerBlockEntity extends MachineBlockEntity implements GeoBlockE
             }
         }
         if (slot < 0) {
-            if (current != null) setChanged();
-            current = null;
+            if (current != null) {
+                current = null;
+                setChanged();
+                syncToClient();
+            }
             progress = 0;
             currentResearched = currentRequired = 0;
             status = buffer.size() > 0 && isEmpty() ? MachineStatus.IDLE : MachineStatus.NOTHING_TO_RESEARCH;
@@ -149,6 +152,7 @@ public class AnalyzerBlockEntity extends MachineBlockEntity implements GeoBlockE
         if (item != current) {
             current = item;
             progress = 0;
+            syncToClient();
         }
         currentResearched = research.getProgress(owner, item);
         currentRequired = ResearchData.required(item);
@@ -175,6 +179,25 @@ public class AnalyzerBlockEntity extends MachineBlockEntity implements GeoBlockE
             }
         }
         setChanged();
+    }
+
+    /** Item sendo analisado (o cliente usa para desenhá-lo dentro da câmara do modelo). */
+    public @Nullable Item current() {
+        return current;
+    }
+
+    private void syncToClient() {
+        if (level != null) level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), net.minecraft.world.level.block.Block.UPDATE_CLIENTS);
+    }
+
+    @Override
+    public net.minecraft.network.protocol.Packet<net.minecraft.network.protocol.game.ClientGamePacketListener> getUpdatePacket() {
+        return net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public net.minecraft.nbt.CompoundTag getUpdateTag(net.minecraft.core.HolderLookup.Provider registries) {
+        return saveCustomOnly(registries);
     }
 
     private int analyzeTicks() {
@@ -213,21 +236,19 @@ public class AnalyzerBlockEntity extends MachineBlockEntity implements GeoBlockE
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         buffer.deserialize(input.childOrEmpty("buffer"));
+        current = input.read("current", BuiltInRegistries.ITEM.byNameCodec()).orElse(null);
     }
 
     @Override
     public void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         buffer.serialize(output.child("buffer"));
+        if (current != null) output.store("current", BuiltInRegistries.ITEM.byNameCodec(), current);
     }
 
     @Override
     protected void afterTick() {
-        boolean active = status == MachineStatus.WORKING;
-        BlockState state = getBlockState();
-        if (level != null && state.hasProperty(AnalyzerBlock.ACTIVE) && state.getValue(AnalyzerBlock.ACTIVE) != active) {
-            level.setBlock(worldPosition, state.setValue(AnalyzerBlock.ACTIVE, active), net.minecraft.world.level.block.Block.UPDATE_CLIENTS);
-        }
+        setStateFlag(AnalyzerBlock.ACTIVE, status == MachineStatus.WORKING);
     }
 
     // ----- GeckoLib: "idle" parado, "analyzing" trabalhando -----

@@ -28,6 +28,10 @@ public final class ModBlocks {
         return properties.mapColor(MapColor.METAL).strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops();
     }
 
+    private static BlockBehaviour.Properties generator(BlockBehaviour.Properties properties) {
+        return machine(properties).lightLevel(com.atomcraft.block.GeneratorBlock::lightLevel);
+    }
+
     public static final DeferredBlock<AtomizerBlock> ATOMIZER = BLOCKS.registerBlock("atomizer", AtomizerBlock::new, ModBlocks::machine);
     public static final DeferredBlock<AnalyzerBlock> ANALYZER = BLOCKS.registerBlock("analyzer", AnalyzerBlock::new,
             properties -> machine(properties).noOcclusion());
@@ -35,9 +39,9 @@ public final class ModBlocks {
     public static final DeferredBlock<DriveBlock> DRIVE = BLOCKS.registerBlock("drive", DriveBlock::new,
             properties -> machine(properties).noOcclusion());
     public static final DeferredBlock<CombustionGeneratorBlock> COMBUSTION_GENERATOR =
-            BLOCKS.registerBlock("combustion_generator", CombustionGeneratorBlock::new, ModBlocks::machine);
+            BLOCKS.registerBlock("combustion_generator", CombustionGeneratorBlock::new, ModBlocks::generator);
     public static final DeferredBlock<CarbonGeneratorBlock> CARBON_GENERATOR =
-            BLOCKS.registerBlock("carbon_generator", CarbonGeneratorBlock::new, ModBlocks::machine);
+            BLOCKS.registerBlock("carbon_generator", CarbonGeneratorBlock::new, ModBlocks::generator);
     public static final DeferredBlock<FusionReactorBlock> FUSION_REACTOR =
             BLOCKS.registerBlock("fusion_reactor", FusionReactorBlock::new,
                     properties -> machine(properties).lightLevel(state -> state.getValue(FusionReactorBlock.ACTIVE) ? 15 : 4));

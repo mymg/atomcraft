@@ -64,8 +64,15 @@ final class Showcase {
         level.setBlock(base.east(), ModBlocks.ATOMIZER.get().defaultBlockState(), Block.UPDATE_ALL);
         level.setBlock(base.west(), ModBlocks.REPLICATOR.get().defaultBlockState(), Block.UPDATE_ALL);
         level.setBlock(base.north(), ModBlocks.CABLE.get().defaultBlockState(), Block.UPDATE_ALL);
-        level.setBlock(base.north(2), ModBlocks.ANALYZER.get().defaultBlockState().setValue(com.atomcraft.block.MachineBlock.FACING,
-                net.minecraft.core.Direction.WEST), Block.UPDATE_ALL);
+        com.atomcraft.block.AnalyzerBlock.place(level, base.north(2), ModBlocks.ANALYZER.get().defaultBlockState().setValue(com.atomcraft.block.MachineBlock.FACING,
+                net.minecraft.core.Direction.WEST));
+
+        // Itens no inventário, para os prints mostrarem os ícones (Analisador, geradores, discos).
+        player.getInventory().clearContent();
+        player.getInventory().add(new net.minecraft.world.item.ItemStack(ModBlocks.ANALYZER.get(), 3));
+        player.getInventory().add(new net.minecraft.world.item.ItemStack(ModBlocks.COMBUSTION_GENERATOR.get()));
+        player.getInventory().add(new net.minecraft.world.item.ItemStack(ModBlocks.CARBON_GENERATOR.get()));
+        player.getInventory().add(new net.minecraft.world.item.ItemStack(ModItems.DISK_64K.get()));
 
         DriveBlockEntity drive = (DriveBlockEntity) level.getBlockEntity(base);
         drive.disks().set(0, ItemResource.of(ModItems.DISK_1M.get()), 1);

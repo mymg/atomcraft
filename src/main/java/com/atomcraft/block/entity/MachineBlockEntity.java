@@ -56,8 +56,18 @@ public abstract class MachineBlockEntity extends BlockEntity implements MenuProv
         afterTick();
     }
 
-    /** Chamado depois de cada tick (ligado ou desligado). */
-    protected void afterTick() {}
+    /** Chamado depois de cada tick (ligado ou desligado). Por padrão acende os geradores enquanto trabalham. */
+    protected void afterTick() {
+        setStateFlag(com.atomcraft.block.GeneratorBlock.LIT, status == MachineStatus.WORKING);
+    }
+
+    /** Liga/desliga uma propriedade booleana do blockstate (se o bloco tiver), avisando o cliente. */
+    protected void setStateFlag(net.minecraft.world.level.block.state.properties.BooleanProperty property, boolean value) {
+        BlockState state = getBlockState();
+        if (level != null && state.hasProperty(property) && state.getValue(property) != value) {
+            level.setBlock(worldPosition, state.setValue(property, value), net.minecraft.world.level.block.Block.UPDATE_CLIENTS);
+        }
+    }
 
     /** Tick com a máquina desligada (geradores continuam entregando a energia guardada). */
     protected void disabledTick() {}

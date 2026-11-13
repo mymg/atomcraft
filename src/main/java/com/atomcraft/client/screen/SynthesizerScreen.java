@@ -74,6 +74,8 @@ public class SynthesizerScreen extends MachineScreen<SynthesizerMenu> {
                 if (i >= 4) break;
                 int bx = leftPos + RECIPES_X + i * 21, by = topPos + COST_Y;
                 TechGui.badge(graphics, font, bx, by, entry.getKey(), ClientState.networkTotals().get(entry.getKey()) < entry.getValue());
+                String amount = TechGui.shortAmount(entry.getValue());
+                TechGui.smallText(graphics, font, amount, bx + 17 - TechGui.smallWidth(font, amount), by + 13, 0xFFFFFFFF, true);
                 i++;
             }
         } else if (!available.isEmpty()) {

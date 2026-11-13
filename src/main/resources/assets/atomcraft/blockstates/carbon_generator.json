@@ -1,18 +1,33 @@
 {
   "variants": {
-    "facing=north": {
+    "facing=north,lit=false": {
       "model": "atomcraft:block/carbon_generator"
     },
-    "facing=east": {
+    "facing=north,lit=true": {
+      "model": "atomcraft:block/carbon_generator_on"
+    },
+    "facing=east,lit=false": {
       "model": "atomcraft:block/carbon_generator",
       "y": 90
     },
-    "facing=south": {
+    "facing=east,lit=true": {
+      "model": "atomcraft:block/carbon_generator_on",
+      "y": 90
+    },
+    "facing=south,lit=false": {
       "model": "atomcraft:block/carbon_generator",
       "y": 180
     },
-    "facing=west": {
+    "facing=south,lit=true": {
+      "model": "atomcraft:block/carbon_generator_on",
+      "y": 180
+    },
+    "facing=west,lit=false": {
       "model": "atomcraft:block/carbon_generator",
+      "y": 270
+    },
+    "facing=west,lit=true": {
+      "model": "atomcraft:block/carbon_generator_on",
       "y": 270
     }
   }

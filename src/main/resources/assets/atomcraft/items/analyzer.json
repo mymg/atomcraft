@@ -1,7 +1,7 @@
 {
   "model": {
     "type": "minecraft:special",
-    "base": "atomcraft:block/analyzer",
+    "base": "atomcraft:item/analyzer",
     "model": {
       "type": "geckolib:geckolib"
     }

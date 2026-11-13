@@ -214,6 +214,24 @@ public final class TechGui {
         return Component.translatable(element.translationKey()).append(" (" + element.symbol() + ")");
     }
 
+    /**
+     * Texto em meia escala (como as quantidades do Applied Energistics), para as telas
+     * com muitos números não ficarem poluídas. (x, y) é o canto superior esquerdo.
+     */
+    public static void smallText(GuiGraphicsExtractor g, Font font, String text, int x, int y, int color, boolean shadow) {
+        var pose = g.pose();
+        pose.pushMatrix();
+        pose.translate(x, y);
+        pose.scale(0.5f, 0.5f);
+        g.text(font, text, 0, 0, color, shadow);
+        pose.popMatrix();
+    }
+
+    /** Largura (em pixels da tela) do texto em meia escala. */
+    public static int smallWidth(Font font, String text) {
+        return (font.width(text) + 1) / 2;
+    }
+
     /** Valor curto (até 4 caracteres): 882, 1.2k, 123k, 4.5M. */
     public static String shortAmount(long amount) {
         if (amount < 1_000) return Long.toString(amount);

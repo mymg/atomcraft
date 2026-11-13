@@ -116,9 +116,11 @@ public class PartitionScreen extends Screen {
                 graphics.fill(x, y - 1, x + TerminalScreen.CELL_W, y + TerminalScreen.CELL_H - 2, 0x402E8F7E);
             }
             TechGui.badge(graphics, font, x + (TerminalScreen.CELL_W - 16) / 2, y, element, !in);
-            String text = !in ? "-" : limits.get(element) == 0 ? "∞" : TechGui.shortAmount(limits.get(element));
-            graphics.text(font, text, x + (TerminalScreen.CELL_W - font.width(text) + 1) / 2, y + 17,
-                    in ? TechGui.TEXT_GOOD : 0xFF4A5560, false);
+            if (in) {
+                String text = limits.get(element) == 0 ? "∞" : TechGui.shortAmount(limits.get(element));
+                TechGui.smallText(graphics, font, text, x + (TerminalScreen.CELL_W - TechGui.smallWidth(font, text)) / 2, y + 18,
+                        TechGui.TEXT_GOOD, false);
+            }
         }
 
         int y = top + TerminalScreen.STORAGE_Y + 7;

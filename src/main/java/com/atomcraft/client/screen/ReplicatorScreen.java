@@ -254,7 +254,7 @@ public class ReplicatorScreen extends MachineScreen<ReplicatorMenu> {
                     }
                     TechGui.badge(graphics, font, bx, y + 20, entry.getKey());
                     String count = "×" + TechGui.shortAmount(entry.getValue());
-                    graphics.text(font, count, bx + 8 - font.width(count) / 2, y + 37, TechGui.TEXT_TEAL, false);
+                    TechGui.smallText(graphics, font, count, bx + 8 - TechGui.smallWidth(font, count) / 2, y + 37, TechGui.TEXT_TEAL, false);
                 }
 
                 // Energia e tempo totais: quantidade escolhida × custo por unidade, com os chips instalados.
