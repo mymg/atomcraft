@@ -173,6 +173,16 @@ final class Showcase {
 
     private static BlockPos reactor = BlockPos.ZERO;
 
+    /** Câmera a sudoeste e acima, apontada (yaw/pitch calculados) para o meio das máquinas de 2 blocos. */
+    private static void machinesView(ServerPlayer player) {
+        double x = base.getX() - 3.0, y = base.getY() + 2.0, z = base.getZ() + 4.5;
+        double tx = base.getX() + 0.5, ty = base.getY() + 1.0, tz = base.getZ() - 0.5;
+        double dx = tx - x, dy = ty - (y + player.getEyeHeight()), dz = tz - z;
+        float yaw = (float) Math.toDegrees(Math.atan2(-dx, dz));
+        float pitch = (float) -Math.toDegrees(Math.atan2(dy, Math.sqrt(dx * dx + dz * dz)));
+        player.connection.teleport(x, y, z, yaw, pitch);
+    }
+
     private static void onTick(ServerTickEvent.Post event) {
         if (player == null || player.hasDisconnected()) return;
         ticks++;
@@ -203,7 +213,7 @@ final class Showcase {
         if (ticks == 2500) {
             // Visão do Drive (discos nos slots) e do Analisador animado
             // De sudoeste, olhando para nordeste: Replicador, Drive, Atomizador e Analisador.
-            player.connection.teleport(base.getX() - 2.6, base.getY() + 3.2, base.getZ() + 3.6, -140f, 34f);
+            machinesView(player);
             // Itens novos, para o Analisador estar trabalhando (item girando na câmara) no print.
             if (player.level().getBlockEntity(base.north(2)) instanceof AnalyzerBlockEntity analyzer) {
                 int slot = 3;
@@ -214,7 +224,7 @@ final class Showcase {
         }
         if (ticks > 2500 && ticks < 3400 && ticks % 40 == 0) {
             // Mantém a câmera no lugar (mobs/slimes podem empurrar o jogador)
-            player.connection.teleport(base.getX() - 2.6, base.getY() + 3.2, base.getZ() + 3.6, -140f, 34f);
+            machinesView(player);
         }
         if (ticks == 3400) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
     }
