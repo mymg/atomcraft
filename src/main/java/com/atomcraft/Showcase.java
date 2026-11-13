@@ -146,7 +146,7 @@ final class Showcase {
             modules.set(1, ItemResource.of(ModItems.MODULES.get(com.atomcraft.fusion.ModuleType.IGNITION).get(2).get()), 1);
             modules.set(2, ItemResource.of(ModItems.MODULES.get(com.atomcraft.fusion.ModuleType.INJECTOR).get(0).get()), 1);
         }
-        level.setBlock(base.west().above(), ModBlocks.TERMINAL.get().defaultBlockState(), Block.UPDATE_ALL);
+        level.setBlock(base.south(3), ModBlocks.TERMINAL.get().defaultBlockState(), Block.UPDATE_ALL);
         CombustionGeneratorBlockEntity combustion = (CombustionGeneratorBlockEntity) level.getBlockEntity(base.south(2));
         combustion.fuel().set(0, ItemResource.of(Items.COAL), 12);
         combustion.upgrades().set(0, ItemResource.of(ModItems.EFFICIENCY_UPGRADE.get()), 2);
@@ -154,8 +154,8 @@ final class Showcase {
         // Chips no atomizador, Sintetizador com schematics fabricando um chip
         atomizer.upgrades().set(0, ItemResource.of(ModItems.SPEED_UPGRADE.get()), 3);
         atomizer.upgrades().set(1, ItemResource.of(ModItems.EFFICIENCY_UPGRADE.get()), 1);
-        level.setBlock(base.east().above(), ModBlocks.SYNTHESIZER.get().defaultBlockState(), Block.UPDATE_ALL);
-        SynthesizerBlockEntity synthesizer = (SynthesizerBlockEntity) level.getBlockEntity(base.east().above());
+        level.setBlock(base.south(2).west(), ModBlocks.SYNTHESIZER.get().defaultBlockState(), Block.UPDATE_ALL);
+        SynthesizerBlockEntity synthesizer = (SynthesizerBlockEntity) level.getBlockEntity(base.south(2).west());
         synthesizer.setOwner(player);
         synthesizer.energy().set(150_000);
         synthesizer.library().set(0, ItemResource.of(ModItems.SPEED_UPGRADE_SCHEMATIC.get()), 1);
@@ -195,8 +195,8 @@ final class Showcase {
             case 920 -> base.south(2);
             case 1120 -> base.south();
             case 1320 -> reactor;
-            case 1520 -> base.west().above();
-            case 1720 -> base.east().above();
+            case 1520 -> base.south(3);
+            case 1720 -> base.south(2).west();
             default -> null;
         };
         if (target != null && level.getBlockEntity(target) instanceof MenuProvider provider) {
