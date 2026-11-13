@@ -18,7 +18,7 @@ jobs:
           JAR=$(find build ~/.gradle -name "*.jar" | grep -i -E "neoforge.*(merged|minecraft)|minecraft-joined|client-extra" | grep -v sources | head -5)
           echo "$JAR"
           CP=$(find build ~/.gradle -name "*.jar" | grep -v sources | tr '\n' ':')
-          for c in net.minecraft.client.renderer.blockentity.BlockEntityRenderer net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider\$Context net.minecraft.client.renderer.item.ItemModelResolver net.minecraft.client.renderer.item.ItemStackRenderState net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState net.minecraft.client.renderer.blockentity.CampfireRenderer net.minecraft.client.renderer.blockentity.state.CampfireRenderState net.minecraft.world.item.Item net.minecraft.client.gui.screens.Screen net.minecraft.client.gui.components.EditBox; do
+          for c in com.geckolib.renderer.GeoItemRenderer com.geckolib.renderer.GeoBlockRenderer net.minecraft.client.gui.GuiGraphicsExtractor net.minecraft.world.level.storage.ValueInput net.minecraft.world.level.storage.ValueOutput net.minecraft.world.level.block.DoublePlantBlock net.minecraft.world.level.block.DoorBlock net.minecraft.world.level.block.state.properties.DoubleBlockHalf net.minecraft.world.level.block.state.BlockBehaviour; do
             javap -cp "$CP" -protected $c > /tmp/out.txt 2>&1 || true
             echo "===== $c"; cat /tmp/out.txt
           done > probe.txt
