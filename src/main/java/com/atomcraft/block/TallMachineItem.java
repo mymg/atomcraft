@@ -21,27 +21,31 @@ import org.jspecify.annotations.Nullable;
 import java.util.function.Consumer;
 
 /**
- * Item do Analisador: usa o mesmo modelo animado (GeckoLib) do bloco, com a animação "idle".
- * O tamanho em cada lugar (inventário, mão, chão, moldura) vem do bloco "display" de
- * {@code models/item/analyzer.json}, reduzido porque o modelo tem 2 blocos de altura.
+ * Item das máquinas de 2 blocos (Analisador, Atomizador, Replicador): usa o mesmo modelo
+ * animado (GeckoLib) do bloco, com a animação "idle". O tamanho em cada lugar (inventário,
+ * mão, chão, moldura) vem do bloco "display" de {@code models/item/<máquina>.json},
+ * reduzido porque o modelo tem 2 blocos de altura.
  */
-public class AnalyzerItem extends BlockItem implements GeoItem {
+public class TallMachineItem extends BlockItem implements GeoItem {
 
     private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-    public AnalyzerItem(Block block, Properties properties) {
+    private final String model;
+
+    public TallMachineItem(Block block, Properties properties, String model) {
         super(block, properties);
+        this.model = model;
     }
 
     @Override
     public void createGeoRenderer(Consumer<GeoRenderProvider> consumer) {
         consumer.accept(new GeoRenderProvider() {
-            private @Nullable GeoItemRenderer<AnalyzerItem> renderer;
+            private @Nullable GeoItemRenderer<TallMachineItem> renderer;
 
             @Override
             public @Nullable GeoItemRenderer<?> getGeoItemRenderer() {
-                if (renderer == null) renderer = new GeoItemRenderer<>(new DefaultedBlockGeoModel<AnalyzerItem>(AtomCraft.id("analyzer"))) {
+                if (renderer == null) renderer = new GeoItemRenderer<>(new DefaultedBlockGeoModel<TallMachineItem>(AtomCraft.id(model))) {
                     // Vidro semitransparente, como no bloco.
                     @Override
                     public @Nullable RenderType getRenderType(GeoRenderState renderState, Identifier texture) {
@@ -55,7 +59,7 @@ public class AnalyzerItem extends BlockItem implements GeoItem {
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<AnalyzerItem>("main", 0, test -> test.setAndContinue(IDLE)));
+        controllers.add(new AnimationController<TallMachineItem>("main", 0, test -> test.setAndContinue(IDLE)));
     }
 
     @Override

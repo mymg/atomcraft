@@ -7,8 +7,8 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** Replicador Atômico: cria itens pesquisados a partir dos elementos. */
-public class ReplicatorBlock extends MachineBlock {
+/** Replicador Atômico: cria itens pesquisados a partir dos elementos. 2 blocos de altura (ver {@link TallMachineBlock}). */
+public class ReplicatorBlock extends TallMachineBlock {
 
     public static final MapCodec<ReplicatorBlock> CODEC = simpleCodec(ReplicatorBlock::new);
 
@@ -22,7 +22,7 @@ public class ReplicatorBlock extends MachineBlock {
     }
 
     @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    protected BlockEntity createMachine(BlockPos pos, BlockState state) {
         return new ReplicatorBlockEntity(pos, state);
     }
 }

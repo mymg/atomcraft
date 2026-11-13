@@ -1,5 +1,12 @@
 package com.atomcraft.block.entity;
 
+import com.geckolib.animatable.GeoBlockEntity;
+import com.geckolib.animatable.instance.AnimatableInstanceCache;
+import com.geckolib.animatable.manager.AnimatableManager;
+import com.geckolib.animation.AnimationController;
+import com.geckolib.animation.RawAnimation;
+import com.geckolib.util.GeckoLibUtil;
+
 import com.atomcraft.Config;
 import com.atomcraft.chemistry.AtomicValue;
 import com.atomcraft.chemistry.AtomicValues;
@@ -29,7 +36,11 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
  * Atomizador: consome os itens do buffer de entrada e guarda os elementos na
  * rede. Aceita itens de hoppers, pipes e esteiras.
  */
-public class AtomizerBlockEntity extends MachineBlockEntity implements EnergyReceiver {
+public class AtomizerBlockEntity extends MachineBlockEntity implements EnergyReceiver, GeoBlockEntity {
+
+    private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
+    private static final RawAnimation WORKING = RawAnimation.begin().thenLoop("working");
+    private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 
     public static final int SLOTS = 21;
     public static final int DATA_PROGRESS = 0, DATA_STATUS = 1, DATA_ENERGY_LO = 2, DATA_ENERGY_HI = 3,
@@ -201,5 +212,22 @@ public class AtomizerBlockEntity extends MachineBlockEntity implements EnergyRec
         output.putInt("progress", progress);
         output.putLong("energy_needed", energyNeeded);
         output.putLong("energy_used", energyUsed);
+    }
+
+    // ----- GeckoLib: "idle" parado, "working" trabalhando -----
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<AtomizerBlockEntity>("main", 5, test -> {
+            net.minecraft.world.level.block.state.BlockState state = test.animatable().getBlockState();
+            boolean active = state.hasProperty(com.atomcraft.block.TallMachineBlock.ACTIVE)
+                    && state.getValue(com.atomcraft.block.TallMachineBlock.ACTIVE);
+            return test.setAndContinue(active ? WORKING : IDLE);
+        }));
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return geoCache;
     }
 }

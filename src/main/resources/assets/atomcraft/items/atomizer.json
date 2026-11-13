@@ -1,6 +1,9 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "atomcraft:block/atomizer"
+    "type": "minecraft:special",
+    "base": "atomcraft:item/atomizer",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
   }
 }

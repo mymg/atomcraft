@@ -1,5 +1,12 @@
 package com.atomcraft.block.entity;
 
+import com.geckolib.animatable.GeoBlockEntity;
+import com.geckolib.animatable.instance.AnimatableInstanceCache;
+import com.geckolib.animatable.manager.AnimatableManager;
+import com.geckolib.animation.AnimationController;
+import com.geckolib.animation.RawAnimation;
+import com.geckolib.util.GeckoLibUtil;
+
 import com.atomcraft.Config;
 import com.atomcraft.chemistry.AtomicValue;
 import com.atomcraft.chemistry.AtomicValues;
@@ -41,7 +48,11 @@ import java.util.UUID;
  * e a raridade do item. Os itens prontos vão para o buffer de saída, de onde
  * hoppers e pipes podem retirá-los.
  */
-public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyReceiver {
+public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyReceiver, GeoBlockEntity {
+
+    private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
+    private static final RawAnimation WORKING = RawAnimation.begin().thenLoop("working");
+    private final AnimatableInstanceCache geoCache = GeckoLibUtil.createInstanceCache(this);
 
     public static final int SLOTS = 9;
     public static final int MAX_REQUEST = 9999;
@@ -307,5 +318,22 @@ public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyR
         output.putInt("max_progress", maxProgress);
         output.putLong("energy_needed", energyNeeded);
         output.putLong("energy_used", energyUsed);
+    }
+
+    // ----- GeckoLib: "idle" parado, "working" trabalhando -----
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<ReplicatorBlockEntity>("main", 5, test -> {
+            net.minecraft.world.level.block.state.BlockState state = test.animatable().getBlockState();
+            boolean active = state.hasProperty(com.atomcraft.block.TallMachineBlock.ACTIVE)
+                    && state.getValue(com.atomcraft.block.TallMachineBlock.ACTIVE);
+            return test.setAndContinue(active ? WORKING : IDLE);
+        }));
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return geoCache;
     }
 }

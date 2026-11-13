@@ -7,8 +7,8 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** Atomizador: transforma itens em elementos. */
-public class AtomizerBlock extends MachineBlock {
+/** Atomizador: transforma itens em elementos. 2 blocos de altura (ver {@link TallMachineBlock}). */
+public class AtomizerBlock extends TallMachineBlock {
 
     public static final MapCodec<AtomizerBlock> CODEC = simpleCodec(AtomizerBlock::new);
 
@@ -22,7 +22,7 @@ public class AtomizerBlock extends MachineBlock {
     }
 
     @Override
-    public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    protected BlockEntity createMachine(BlockPos pos, BlockState state) {
         return new AtomizerBlockEntity(pos, state);
     }
 }

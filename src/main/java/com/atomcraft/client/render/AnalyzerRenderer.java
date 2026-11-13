@@ -32,7 +32,7 @@ import org.jspecify.annotations.Nullable;
  * Enquanto analisa, o item da vez gira dentro da câmara, em cima da plataforma
  * (y 18 px do modelo), no centro do bloco.
  */
-public class AnalyzerRenderer<R extends BlockEntityRenderState & GeoRenderState> extends GeoBlockRenderer<AnalyzerBlockEntity, R> {
+public class AnalyzerRenderer<R extends BlockEntityRenderState & GeoRenderState> extends TallMachineRenderer<AnalyzerBlockEntity, R> {
 
     /** Altura (em pixels) do centro do item: a plataforma da câmara fica em y 18. */
     private static final float ITEM_Y = 21.5f;
@@ -44,14 +44,8 @@ public class AnalyzerRenderer<R extends BlockEntityRenderState & GeoRenderState>
     private final ItemModelResolver itemModelResolver;
 
     public AnalyzerRenderer(BlockEntityRendererProvider.Context context) {
-        super(context, new DefaultedBlockGeoModel<>(AtomCraft.id("analyzer")));
+        super(context, "analyzer");
         this.itemModelResolver = context.itemModelResolver();
-    }
-
-    /** Translúcido, para o vidro semitransparente da textura aparecer como no Blockbench. */
-    @Override
-    public @Nullable RenderType getRenderType(R renderState, Identifier texture) {
-        return RenderTypes.entityTranslucent(texture);
     }
 
     @Override
@@ -81,9 +75,4 @@ public class AnalyzerRenderer<R extends BlockEntityRenderState & GeoRenderState>
         poseStack.popPose();
     }
 
-    /** O modelo ocupa 2 blocos de altura: não pode sumir quando só a parte de cima está na tela. */
-    @Override
-    public AABB getRenderBoundingBox(AnalyzerBlockEntity blockEntity) {
-        return new AABB(blockEntity.getBlockPos()).expandTowards(0, 1.25, 0).inflate(0.25);
-    }
 }

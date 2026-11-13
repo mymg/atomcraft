@@ -61,15 +61,17 @@ final class Showcase {
         base = player.blockPosition().offset(3, 0, 0);
         level.setBlock(base, ModBlocks.DRIVE.get().defaultBlockState().setValue(com.atomcraft.block.MachineBlock.FACING,
                 net.minecraft.core.Direction.WEST), Block.UPDATE_ALL);
-        level.setBlock(base.east(), ModBlocks.ATOMIZER.get().defaultBlockState(), Block.UPDATE_ALL);
-        level.setBlock(base.west(), ModBlocks.REPLICATOR.get().defaultBlockState(), Block.UPDATE_ALL);
+        com.atomcraft.block.TallMachineBlock.place(level, base.east(), ModBlocks.ATOMIZER.get().defaultBlockState());
+        com.atomcraft.block.TallMachineBlock.place(level, base.west(), ModBlocks.REPLICATOR.get().defaultBlockState());
         level.setBlock(base.north(), ModBlocks.CABLE.get().defaultBlockState(), Block.UPDATE_ALL);
-        com.atomcraft.block.AnalyzerBlock.place(level, base.north(2), ModBlocks.ANALYZER.get().defaultBlockState().setValue(com.atomcraft.block.MachineBlock.FACING,
+        com.atomcraft.block.TallMachineBlock.place(level, base.north(2), ModBlocks.ANALYZER.get().defaultBlockState().setValue(com.atomcraft.block.MachineBlock.FACING,
                 net.minecraft.core.Direction.WEST));
 
         // Itens no inventário, para os prints mostrarem os ícones (Analisador, geradores, discos).
         player.getInventory().clearContent();
         player.getInventory().add(new net.minecraft.world.item.ItemStack(ModBlocks.ANALYZER.get(), 3));
+        player.getInventory().add(new net.minecraft.world.item.ItemStack(ModBlocks.ATOMIZER.get()));
+        player.getInventory().add(new net.minecraft.world.item.ItemStack(ModBlocks.REPLICATOR.get()));
         player.getInventory().add(new net.minecraft.world.item.ItemStack(ModBlocks.COMBUSTION_GENERATOR.get()));
         player.getInventory().add(new net.minecraft.world.item.ItemStack(ModBlocks.CARBON_GENERATOR.get()));
         player.getInventory().add(new net.minecraft.world.item.ItemStack(ModItems.DISK_64K.get()));
@@ -144,7 +146,7 @@ final class Showcase {
             modules.set(1, ItemResource.of(ModItems.MODULES.get(com.atomcraft.fusion.ModuleType.IGNITION).get(2).get()), 1);
             modules.set(2, ItemResource.of(ModItems.MODULES.get(com.atomcraft.fusion.ModuleType.INJECTOR).get(0).get()), 1);
         }
-        level.setBlock(base.west().above(), ModBlocks.TERMINAL.get().defaultBlockState(), Block.UPDATE_ALL);
+        level.setBlock(base.south(3), ModBlocks.TERMINAL.get().defaultBlockState(), Block.UPDATE_ALL);
         CombustionGeneratorBlockEntity combustion = (CombustionGeneratorBlockEntity) level.getBlockEntity(base.south(2));
         combustion.fuel().set(0, ItemResource.of(Items.COAL), 12);
         combustion.upgrades().set(0, ItemResource.of(ModItems.EFFICIENCY_UPGRADE.get()), 2);
@@ -152,8 +154,8 @@ final class Showcase {
         // Chips no atomizador, Sintetizador com schematics fabricando um chip
         atomizer.upgrades().set(0, ItemResource.of(ModItems.SPEED_UPGRADE.get()), 3);
         atomizer.upgrades().set(1, ItemResource.of(ModItems.EFFICIENCY_UPGRADE.get()), 1);
-        level.setBlock(base.east().above(), ModBlocks.SYNTHESIZER.get().defaultBlockState(), Block.UPDATE_ALL);
-        SynthesizerBlockEntity synthesizer = (SynthesizerBlockEntity) level.getBlockEntity(base.east().above());
+        level.setBlock(base.south(2).west(), ModBlocks.SYNTHESIZER.get().defaultBlockState(), Block.UPDATE_ALL);
+        SynthesizerBlockEntity synthesizer = (SynthesizerBlockEntity) level.getBlockEntity(base.south(2).west());
         synthesizer.setOwner(player);
         synthesizer.energy().set(150_000);
         synthesizer.library().set(0, ItemResource.of(ModItems.SPEED_UPGRADE_SCHEMATIC.get()), 1);
@@ -171,6 +173,16 @@ final class Showcase {
 
     private static BlockPos reactor = BlockPos.ZERO;
 
+    /** Câmera a sudoeste e acima, apontada (yaw/pitch calculados) para o meio das máquinas de 2 blocos. */
+    private static void machinesView(ServerPlayer player) {
+        double x = base.getX() - 3.0, y = base.getY() + 2.0, z = base.getZ() + 4.5;
+        double tx = base.getX() + 0.5, ty = base.getY() + 1.0, tz = base.getZ() - 0.5;
+        double dx = tx - x, dy = ty - (y + player.getEyeHeight()), dz = tz - z;
+        float yaw = (float) Math.toDegrees(Math.atan2(-dx, dz));
+        float pitch = (float) -Math.toDegrees(Math.atan2(dy, Math.sqrt(dx * dx + dz * dz)));
+        player.connection.teleport(x, y, z, yaw, pitch);
+    }
+
     private static void onTick(ServerTickEvent.Post event) {
         if (player == null || player.hasDisconnected()) return;
         ticks++;
@@ -183,24 +195,20 @@ final class Showcase {
             case 920 -> base.south(2);
             case 1120 -> base.south();
             case 1320 -> reactor;
-            case 1520 -> base.west().above();
-            case 1720 -> base.east().above();
+            case 1520 -> base.south(3);
+            case 1720 -> base.south(2).west();
             default -> null;
         };
         if (target != null && level.getBlockEntity(target) instanceof MenuProvider provider) {
             player.openMenu(provider);
         }
         if (ticks == 1960) {
-            // Visão do reator formado no mundo
+            // Visão das máquinas de 2 blocos (Replicador, Drive, Atomizador e Analisador animados)
             player.closeContainer();
             player.getAbilities().mayfly = true;
             player.getAbilities().flying = true;
             player.onUpdateAbilities();
-            player.connection.teleport(base.getX() - 3.5, base.getY() + 4, base.getZ() + 0.5, -90f, 18f);
-        }
-        if (ticks == 2500) {
-            // Visão do Drive (discos nos slots) e do Analisador animado
-            player.connection.teleport(base.getX() - 1.9, base.getY() + 0.3, base.getZ() - 0.4, -100f, 12f);
+            machinesView(player);
             // Itens novos, para o Analisador estar trabalhando (item girando na câmara) no print.
             if (player.level().getBlockEntity(base.north(2)) instanceof AnalyzerBlockEntity analyzer) {
                 int slot = 3;
@@ -209,6 +217,14 @@ final class Showcase {
                 }
             }
         }
-        if (ticks == 3400) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
+        if (ticks > 1960 && ticks < 2300 && ticks % 20 == 0) {
+            // Mantém a câmera no lugar (mobs/slimes podem empurrar o jogador)
+            machinesView(player);
+        }
+        if (ticks == 2300) {
+            // Visão do reator formado no mundo
+            player.connection.teleport(base.getX() - 3.5, base.getY() + 4, base.getZ() + 0.5, -90f, 18f);
+        }
+        if (ticks == 2900) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
     }
 }

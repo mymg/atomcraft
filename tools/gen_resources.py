@@ -358,21 +358,28 @@ if os.path.exists(DRIVE_MODEL):
             f"facing={d}": ({"model": "atomcraft:block/drive_frame"} | ({"y": y} if y else {}))
             for d, y in (("north", 0), ("east", 90), ("south", 180), ("west", 270))}})
 
-# Analisador animado (GeckoLib): o item também usa o modelo animado
-# O modelo tem 2 blocos de altura: models/item/analyzer.json só define os tamanhos ("display")
-# em cada lugar (inventário, mão, chão, moldura). Ajuste à vontade no Blockbench (aba Display).
-if os.path.exists(os.path.join(R, "assets/atomcraft/geckolib/models/block/analyzer.geo.json")):
-    w("assets/atomcraft/models/item/analyzer.json", {"parent": "atomcraft:block/analyzer", "display": {
-        "gui": {"rotation": [30, 225, 0], "translation": [0, -5.5, 0], "scale": [0.36, 0.36, 0.36]},
+# Máquinas de 2 blocos animadas (GeckoLib): o item também usa o modelo animado.
+# models/item/<máquina>.json só define os tamanhos ("display") em cada lugar (inventário,
+# mão, chão, moldura), calculados pela altura do modelo. Ajuste à vontade no Blockbench (aba Display).
+TALL_MACHINES = ["analyzer", "atomizer", "replicator"]
+for b in TALL_MACHINES:
+    geo = os.path.join(R, f"assets/atomcraft/geckolib/models/block/{b}.geo.json")
+    if not os.path.exists(geo):
+        continue
+    bones = json.load(open(geo))["minecraft:geometry"][0]["bones"]
+    half = max(c["origin"][1] + c["size"][1] for bone in bones for c in bone.get("cubes", [])) / 16 / 2  # meia altura, em blocos
+    t = lambda scale, cos=1.0: round(-half * scale * 16 * cos, 2)
+    w(f"assets/atomcraft/models/item/{b}.json", {"parent": f"atomcraft:block/{b}", "display": {
+        "gui": {"rotation": [30, 225, 0], "translation": [0, t(0.36, 0.87), 0], "scale": [0.36, 0.36, 0.36]},
         "ground": {"rotation": [0, 0, 0], "translation": [0, 1, 0], "scale": [0.16, 0.16, 0.16]},
-        "fixed": {"rotation": [0, 0, 0], "translation": [0, -5, 0], "scale": [0.3, 0.3, 0.3]},
+        "fixed": {"rotation": [0, 0, 0], "translation": [0, t(0.3), 0], "scale": [0.3, 0.3, 0.3]},
         "head": {"rotation": [0, 0, 0], "translation": [0, 4, 0], "scale": [0.4, 0.4, 0.4]},
         "thirdperson_righthand": {"rotation": [75, 45, 0], "translation": [0, 1.5, 0], "scale": [0.22, 0.22, 0.22]},
         "thirdperson_lefthand": {"rotation": [75, 45, 0], "translation": [0, 1.5, 0], "scale": [0.22, 0.22, 0.22]},
         "firstperson_righthand": {"rotation": [0, 45, 0], "translation": [0, -2, 0], "scale": [0.24, 0.24, 0.24]},
         "firstperson_lefthand": {"rotation": [0, 225, 0], "translation": [0, -2, 0], "scale": [0.24, 0.24, 0.24]}}})
-    wf("assets/atomcraft/items/analyzer.json", {"model": {"type": "minecraft:special", "base": "atomcraft:item/analyzer",
-                                                         "model": {"type": "geckolib:geckolib"}}})
+    wf(f"assets/atomcraft/items/{b}.json", {"model": {"type": "minecraft:special", "base": f"atomcraft:item/{b}",
+                                                     "model": {"type": "geckolib:geckolib"}}})
 
 # Chips e schematics
 CHIPS = ["speed_upgrade", "efficiency_upgrade", "speed_upgrade_schematic", "efficiency_upgrade_schematic"]
@@ -406,9 +413,9 @@ for name, (tables, entries, empty) in LOOT.items():
 # Loot tables e tags
 for b in MACHINES + ["atomic_cable"] + REACTOR_PARTS:
     conditions = [{"condition": "minecraft:survives_explosion"}]
-    if b == "analyzer":
+    if b in TALL_MACHINES:
         # 2 blocos de altura: só a metade de baixo solta o item.
-        conditions.append({"condition": "minecraft:block_state_property", "block": "atomcraft:analyzer", "properties": {"half": "lower"}})
+        conditions.append({"condition": "minecraft:block_state_property", "block": f"atomcraft:{b}", "properties": {"half": "lower"}})
     w(f"data/atomcraft/loot_table/blocks/{b}.json", {"type": "minecraft:block", "pools": [{"rolls": 1,
         "entries": [{"type": "minecraft:item", "name": f"atomcraft:{b}"}], "conditions": conditions}]})
 w("data/minecraft/tags/block/mineable/pickaxe.json", {"values": [f"atomcraft:{b}" for b in MACHINES + ["atomic_cable"] + REACTOR_PARTS]})

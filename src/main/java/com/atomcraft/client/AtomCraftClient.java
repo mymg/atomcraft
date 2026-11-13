@@ -4,6 +4,7 @@ import com.atomcraft.client.screen.PartitionScreen;
 import com.atomcraft.storage.DiskPartition;
 import com.atomcraft.client.render.DriveRenderer;
 import com.atomcraft.client.render.AnalyzerRenderer;
+import com.atomcraft.client.render.TallMachineRenderer;
 import com.atomcraft.AtomCraft;
 import com.atomcraft.chemistry.AtomicValue;
 import com.atomcraft.chemistry.AtomicValues;
@@ -54,6 +55,8 @@ public class AtomCraftClient {
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(ModBlockEntities.FUSION_REACTOR.get(), FusionReactorRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.ANALYZER.get(), AnalyzerRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.ATOMIZER.get(), context -> new TallMachineRenderer<>(context, "atomizer"));
+        event.registerBlockEntityRenderer(ModBlockEntities.REPLICATOR.get(), context -> new TallMachineRenderer<>(context, "replicator"));
         event.registerBlockEntityRenderer(ModBlockEntities.DRIVE.get(), DriveRenderer::new);
     }
 

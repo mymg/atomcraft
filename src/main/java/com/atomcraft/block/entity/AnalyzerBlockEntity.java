@@ -246,11 +246,6 @@ public class AnalyzerBlockEntity extends MachineBlockEntity implements GeoBlockE
         if (current != null) output.store("current", BuiltInRegistries.ITEM.byNameCodec(), current);
     }
 
-    @Override
-    protected void afterTick() {
-        setStateFlag(AnalyzerBlock.ACTIVE, status == MachineStatus.WORKING);
-    }
-
     // ----- GeckoLib: "idle" parado, "analyzing" trabalhando -----
 
     @Override
