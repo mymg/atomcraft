@@ -201,6 +201,13 @@ final class Showcase {
         if (ticks == 2500) {
             // Visão do Drive (discos nos slots) e do Analisador animado
             player.connection.teleport(base.getX() - 1.9, base.getY() + 0.3, base.getZ() - 0.4, -100f, 12f);
+            // Itens novos, para o Analisador estar trabalhando (item girando na câmara) no print.
+            if (player.level().getBlockEntity(base.north(2)) instanceof AnalyzerBlockEntity analyzer) {
+                int slot = 3;
+                for (Item item : List.of(Items.COBBLESTONE, Items.DIRT, Items.SAND, Items.GRAVEL)) {
+                    analyzer.buffer().set(slot++, ItemResource.of(item), 64);
+                }
+            }
         }
         if (ticks == 3400) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
     }
