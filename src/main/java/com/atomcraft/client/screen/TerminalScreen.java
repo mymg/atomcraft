@@ -103,9 +103,10 @@ public class TerminalScreen extends MachineScreen<TerminalMenu> {
                 graphics.fill(x, y - 1, x + CELL_W, y + CELL_H - 2, 0x402E8F7E);
             }
             TechGui.badge(graphics, font, x + (CELL_W - 16) / 2, y, element, amount <= 0);
-            String text = amount <= 0 ? "-" : TechGui.shortAmount(amount);
-            graphics.text(font, text, x + (CELL_W - font.width(text) + 1) / 2, y + 17,
-                    amount <= 0 ? 0xFF4A5560 : TechGui.TEXT_TEAL, false);
+            if (amount > 0) {
+                String text = TechGui.shortAmount(amount);
+                TechGui.smallText(graphics, font, text, x + (CELL_W - TechGui.smallWidth(font, text)) / 2, y + 18, TechGui.TEXT_TEAL, false);
+            }
         }
         storageRow(graphics, 9, STORAGE_Y, imageWidth - 9);
         long kinds = totals.elements().values().stream().filter(v -> v > 0).count();

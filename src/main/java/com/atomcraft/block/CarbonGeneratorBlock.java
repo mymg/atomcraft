@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 /** Gerador de Carbono: queima o carbono guardado na rede. */
-public class CarbonGeneratorBlock extends MachineBlock {
+public class CarbonGeneratorBlock extends GeneratorBlock {
 
     public static final MapCodec<CarbonGeneratorBlock> CODEC = simpleCodec(CarbonGeneratorBlock::new);
 

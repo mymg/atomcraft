@@ -64,8 +64,15 @@ final class Showcase {
         level.setBlock(base.east(), ModBlocks.ATOMIZER.get().defaultBlockState(), Block.UPDATE_ALL);
         level.setBlock(base.west(), ModBlocks.REPLICATOR.get().defaultBlockState(), Block.UPDATE_ALL);
         level.setBlock(base.north(), ModBlocks.CABLE.get().defaultBlockState(), Block.UPDATE_ALL);
-        level.setBlock(base.north(2), ModBlocks.ANALYZER.get().defaultBlockState().setValue(com.atomcraft.block.MachineBlock.FACING,
-                net.minecraft.core.Direction.WEST), Block.UPDATE_ALL);
+        com.atomcraft.block.AnalyzerBlock.place(level, base.north(2), ModBlocks.ANALYZER.get().defaultBlockState().setValue(com.atomcraft.block.MachineBlock.FACING,
+                net.minecraft.core.Direction.WEST));
+
+        // Itens no inventário, para os prints mostrarem os ícones (Analisador, geradores, discos).
+        player.getInventory().clearContent();
+        player.getInventory().add(new net.minecraft.world.item.ItemStack(ModBlocks.ANALYZER.get(), 3));
+        player.getInventory().add(new net.minecraft.world.item.ItemStack(ModBlocks.COMBUSTION_GENERATOR.get()));
+        player.getInventory().add(new net.minecraft.world.item.ItemStack(ModBlocks.CARBON_GENERATOR.get()));
+        player.getInventory().add(new net.minecraft.world.item.ItemStack(ModItems.DISK_64K.get()));
 
         DriveBlockEntity drive = (DriveBlockEntity) level.getBlockEntity(base);
         drive.disks().set(0, ItemResource.of(ModItems.DISK_1M.get()), 1);
@@ -107,6 +114,7 @@ final class Showcase {
         research.addProgress(player.getUUID(), Items.STONE, 27);
         analyzer.buffer().set(0, ItemResource.of(Items.STONE), 23);
         analyzer.buffer().set(1, ItemResource.of(Items.GOLD_INGOT), 6);
+        analyzer.buffer().set(2, ItemResource.of(Items.EMERALD), 50); // continua analisando no print do mundo
 
         for (Item item : List.of(Items.IRON_INGOT, Items.IRON_BLOCK, Items.IRON_NUGGET, Items.DIAMOND, Items.GOLD_INGOT,
                 Items.APPLE, Items.STICK, Items.TORCH, Items.GLASS, Items.BUCKET, Items.CAKE, Items.OAK_PLANKS,
@@ -193,6 +201,13 @@ final class Showcase {
         if (ticks == 2500) {
             // Visão do Drive (discos nos slots) e do Analisador animado
             player.connection.teleport(base.getX() - 1.9, base.getY() + 0.3, base.getZ() - 0.4, -100f, 12f);
+            // Itens novos, para o Analisador estar trabalhando (item girando na câmara) no print.
+            if (player.level().getBlockEntity(base.north(2)) instanceof AnalyzerBlockEntity analyzer) {
+                int slot = 3;
+                for (Item item : List.of(Items.COBBLESTONE, Items.DIRT, Items.SAND, Items.GRAVEL)) {
+                    analyzer.buffer().set(slot++, ItemResource.of(item), 64);
+                }
+            }
         }
         if (ticks == 3400) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
     }

@@ -11,11 +11,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/** Drive: discos e ocupação à esquerda, elementos guardados na rede (badges) à direita. */
+/** Drive: discos e ocupação à esquerda, elementos guardados na rede à direita (grade estilo AE2). */
 public class DriveScreen extends MachineScreen<DriveMenu> {
 
     private static final int LIST_X = 57, LIST_Y = 21, LIST_W = 112, LIST_H = 78;
-    private static final int COLS = 3, ROWS = 4, CELL_W = 35, CELL_H = 18;
+    private static final int COLS = 6, ROWS = 4, CELL_W = 18, CELL_H = 18;
     private static final int BAR_X = 61, BAR_Y = 104, BAR_W = 104;
 
     private int scrollRow;
@@ -57,10 +57,12 @@ public class DriveScreen extends MachineScreen<DriveMenu> {
             int index = scrollRow * COLS + i;
             if (index >= entries.size()) break;
             var entry = entries.get(index);
-            int x = leftPos + LIST_X + 4 + (i % COLS) * CELL_W;
-            int y = topPos + LIST_Y + 4 + (i / COLS) * CELL_H;
+            int x = leftPos + LIST_X + 2 + (i % COLS) * CELL_W;
+            int y = topPos + LIST_Y + 3 + (i / COLS) * CELL_H;
             TechGui.badge(graphics, font, x, y, entry.getKey());
-            graphics.text(font, TechGui.shortAmount(entry.getValue()), x + 18, y + 4, TechGui.TEXT_TEAL, false);
+            // Quantidade em meia escala no canto inferior direito, como no Applied Energistics.
+            String count = TechGui.shortAmount(entry.getValue());
+            TechGui.smallText(graphics, font, count, x + 17 - TechGui.smallWidth(font, count), y + 13, 0xFFFFFFFF, true);
         }
         if (maxScroll() > 0) {
             int barY = topPos + LIST_Y + 3 + Math.round((float) scrollRow / maxScroll() * (LIST_H - 16));
@@ -74,7 +76,7 @@ public class DriveScreen extends MachineScreen<DriveMenu> {
         for (int i = 0; i < COLS * ROWS; i++) {
             int index = scrollRow * COLS + i;
             if (index >= entries.size()) break;
-            if (hovering(mouseX, mouseY, LIST_X + 4 + (i % COLS) * CELL_W, LIST_Y + 4 + (i / COLS) * CELL_H, CELL_W - 2, 16)) {
+            if (hovering(mouseX, mouseY, LIST_X + 2 + (i % COLS) * CELL_W, LIST_Y + 3 + (i / COLS) * CELL_H, CELL_W - 1, 17)) {
                 var entry = entries.get(index);
                 tooltip(graphics, mouseX, mouseY,
                         TechGui.elementName(entry.getKey()),

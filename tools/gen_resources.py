@@ -226,7 +226,19 @@ for tag, formula, rarity in COMPAT:
 
 # ---------- Blocos ----------
 MACHINES = ["atomizer", "analyzer", "replicator", "drive", "terminal", "combustion_generator", "carbon_generator", "fusion_reactor", "synthesizer"]
+GENERATORS = ["combustion_generator", "carbon_generator"]
 for b in MACHINES:
+    if b in GENERATORS:
+        # Como a fornalha: "lit" troca a frente para <gerador>_front_on. Lados e topo comuns aos dois.
+        w(f"assets/atomcraft/blockstates/{b}.json", {"variants": {
+            f"facing={d},lit={str(lit).lower()}": ({"model": f"atomcraft:block/{b}" + ("_on" if lit else "")} | ({"y": y} if y else {}))
+            for d, y in (("north", 0), ("east", 90), ("south", 180), ("west", 270)) for lit in (False, True)}})
+        for suffix in ("", "_on"):
+            w(f"assets/atomcraft/models/block/{b}{suffix}.json", {"parent": "minecraft:block/orientable", "textures": {
+                "top": "atomcraft:block/generator_top", "front": f"atomcraft:block/{b}_front{suffix}",
+                "side": "atomcraft:block/generator_side", "particle": "atomcraft:block/generator_side"}})
+        w(f"assets/atomcraft/items/{b}.json", {"model": {"type": "minecraft:model", "model": f"atomcraft:block/{b}"}})
+        continue
     w(f"assets/atomcraft/blockstates/{b}.json", {"variants": {
         f"facing={d}": ({"model": f"atomcraft:block/{b}"} | ({"y": y} if y else {}))
         for d, y in (("north", 0), ("east", 90), ("south", 180), ("west", 270))}})
@@ -347,8 +359,19 @@ if os.path.exists(DRIVE_MODEL):
             for d, y in (("north", 0), ("east", 90), ("south", 180), ("west", 270))}})
 
 # Analisador animado (GeckoLib): o item também usa o modelo animado
+# O modelo tem 2 blocos de altura: models/item/analyzer.json só define os tamanhos ("display")
+# em cada lugar (inventário, mão, chão, moldura). Ajuste à vontade no Blockbench (aba Display).
 if os.path.exists(os.path.join(R, "assets/atomcraft/geckolib/models/block/analyzer.geo.json")):
-    wf("assets/atomcraft/items/analyzer.json", {"model": {"type": "minecraft:special", "base": "atomcraft:block/analyzer",
+    w("assets/atomcraft/models/item/analyzer.json", {"parent": "atomcraft:block/analyzer", "display": {
+        "gui": {"rotation": [30, 225, 0], "translation": [0, -5.5, 0], "scale": [0.36, 0.36, 0.36]},
+        "ground": {"rotation": [0, 0, 0], "translation": [0, 1, 0], "scale": [0.16, 0.16, 0.16]},
+        "fixed": {"rotation": [0, 0, 0], "translation": [0, -5, 0], "scale": [0.3, 0.3, 0.3]},
+        "head": {"rotation": [0, 0, 0], "translation": [0, 4, 0], "scale": [0.4, 0.4, 0.4]},
+        "thirdperson_righthand": {"rotation": [75, 45, 0], "translation": [0, 1.5, 0], "scale": [0.22, 0.22, 0.22]},
+        "thirdperson_lefthand": {"rotation": [75, 45, 0], "translation": [0, 1.5, 0], "scale": [0.22, 0.22, 0.22]},
+        "firstperson_righthand": {"rotation": [0, 45, 0], "translation": [0, -2, 0], "scale": [0.24, 0.24, 0.24]},
+        "firstperson_lefthand": {"rotation": [0, 225, 0], "translation": [0, -2, 0], "scale": [0.24, 0.24, 0.24]}}})
+    wf("assets/atomcraft/items/analyzer.json", {"model": {"type": "minecraft:special", "base": "atomcraft:item/analyzer",
                                                          "model": {"type": "geckolib:geckolib"}}})
 
 # Chips e schematics
@@ -382,8 +405,12 @@ for name, (tables, entries, empty) in LOOT.items():
 
 # Loot tables e tags
 for b in MACHINES + ["atomic_cable"] + REACTOR_PARTS:
+    conditions = [{"condition": "minecraft:survives_explosion"}]
+    if b == "analyzer":
+        # 2 blocos de altura: só a metade de baixo solta o item.
+        conditions.append({"condition": "minecraft:block_state_property", "block": "atomcraft:analyzer", "properties": {"half": "lower"}})
     w(f"data/atomcraft/loot_table/blocks/{b}.json", {"type": "minecraft:block", "pools": [{"rolls": 1,
-        "entries": [{"type": "minecraft:item", "name": f"atomcraft:{b}"}], "conditions": [{"condition": "minecraft:survives_explosion"}]}]})
+        "entries": [{"type": "minecraft:item", "name": f"atomcraft:{b}"}], "conditions": conditions}]})
 w("data/minecraft/tags/block/mineable/pickaxe.json", {"values": [f"atomcraft:{b}" for b in MACHINES + ["atomic_cable"] + REACTOR_PARTS]})
 w("data/minecraft/tags/block/needs_iron_tool.json", {"values": [f"atomcraft:{b}" for b in MACHINES + REACTOR_PARTS]})
 
@@ -607,7 +634,8 @@ COLORS = {"atomizer": (80, 220, 255, 255), "analyzer": (190, 110, 240, 255), "re
     "terminal": (39, 201, 181, 255), "synthesizer": (120, 230, 140, 255), "combustion_generator": (255, 120, 30, 255), "carbon_generator": (226, 50, 50, 255), "fusion_reactor": (255, 90, 190, 255)}
 img, d = frame(); d.line([4, 5, 11, 5], fill=(60, 63, 70, 255)); d.line([4, 10, 11, 10], fill=(60, 63, 70, 255)); save(img, "block/machine_side.png")
 for name, c in COLORS.items():
-    img, d = frame(); d.rectangle([4, 4, 11, 11], fill=c); d.rectangle([6, 6, 9, 9], fill=(26, 28, 34, 255)); save(img, f"block/{name}_top.png")
+    if name not in GENERATORS:  # os geradores usam generator_top.png / generator_side.png
+        img, d = frame(); d.rectangle([4, 4, 11, 11], fill=c); d.rectangle([6, 6, 9, 9], fill=(26, 28, 34, 255)); save(img, f"block/{name}_top.png")
     img, d = frame(); d.rectangle([2, 2, 13, 13], fill=(24, 26, 32, 255))
     if name == "drive":
         for row in range(4):

@@ -31,6 +31,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import java.util.ArrayList;
@@ -170,6 +171,7 @@ final class SelfTest {
         }
 
         partitions(level, failures);
+        tallAnalyzer(level, failures);
         generators(level, failures);
         controlsAndSynthesis(server, level, failures);
     }
@@ -281,6 +283,9 @@ final class SelfTest {
         check(failures, combustion.fuel().getAmountAsInt(0) == 1, "gerador queimou 1 carvão (" + combustion.fuel().getAmountAsInt(0) + ")");
         check(failures, combustion.energy().getAmountAsInt() == 100 * Config.COMBUSTION_RATE.get(),
                 "combustão gerou " + combustion.energy().getAmountAsInt() + " FE");
+        combustion.tick();
+        check(failures, level.getBlockState(combustionPos).getValue(com.atomcraft.block.GeneratorBlock.LIT)
+                == (combustion.status() == com.atomcraft.block.entity.MachineStatus.WORKING), "gerador aceso enquanto gera");
         try (var transaction = net.neoforged.neoforge.transfer.transaction.Transaction.openRoot()) {
             check(failures, combustion.automation().insert(ItemResource.of(Items.IRON_INGOT), 1, transaction) == 0,
                     "gerador recusa itens sem carbono");
@@ -418,7 +423,24 @@ final class SelfTest {
     }
 
     private static void place(ServerLevel level, BlockPos pos, Block block) {
-        level.setBlock(pos, block.defaultBlockState(), Block.UPDATE_ALL);
+        if (block instanceof com.atomcraft.block.AnalyzerBlock) {
+            com.atomcraft.block.AnalyzerBlock.place(level, pos, block.defaultBlockState());
+        } else {
+            level.setBlock(pos, block.defaultBlockState(), Block.UPDATE_ALL);
+        }
+    }
+
+    /** Analisador de 2 blocos: a metade de cima existe, não tem block entity e some junto com a de baixo. */
+    private static void tallAnalyzer(ServerLevel level, List<String> failures) {
+        BlockPos pos = new BlockPos(0, 120, 60);
+        level.getChunk(pos);
+        place(level, pos, ModBlocks.ANALYZER.get());
+        BlockState upper = level.getBlockState(pos.above());
+        check(failures, upper.is(ModBlocks.ANALYZER.get()) && com.atomcraft.block.AnalyzerBlock.isUpper(upper), "analisador tem metade de cima");
+        check(failures, level.getBlockEntity(pos) instanceof AnalyzerBlockEntity, "metade de baixo tem a máquina");
+        check(failures, level.getBlockEntity(pos.above()) == null, "metade de cima não tem block entity");
+        level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+        check(failures, level.getBlockState(pos.above()).isAir(), "metade de cima some com a de baixo");
     }
 
     /** Partição de discos: só os elementos permitidos entram, respeitando o limite. */

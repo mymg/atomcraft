@@ -8,7 +8,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 /** Gerador de Combustão: queima itens com carbono. */
-public class CombustionGeneratorBlock extends MachineBlock {
+public class CombustionGeneratorBlock extends GeneratorBlock {
 
     public static final MapCodec<CombustionGeneratorBlock> CODEC = simpleCodec(CombustionGeneratorBlock::new);
 
