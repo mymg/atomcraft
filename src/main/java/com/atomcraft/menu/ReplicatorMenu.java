@@ -46,6 +46,7 @@ public class ReplicatorMenu extends BaseMenu {
             });
         }
         machineSlots = ReplicatorBlockEntity.SLOTS;
+        addMachineControls(WIDTH);
         addPlayerInventory(inventory, INVENTORY_X, HEIGHT - 82);
         addDataSlots(data);
     }
@@ -53,11 +54,6 @@ public class ReplicatorMenu extends BaseMenu {
     @Override
     protected Block block() {
         return ModBlocks.REPLICATOR.get();
-    }
-
-    @Override
-    protected boolean acceptsQuickMove() {
-        return false;
     }
 
     public float progress() {

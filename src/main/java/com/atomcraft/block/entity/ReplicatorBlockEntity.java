@@ -10,6 +10,8 @@ import com.atomcraft.storage.ElementNetwork;
 import com.atomcraft.storage.EnergyReceiver;
 import com.atomcraft.storage.FilteredItemHandler;
 import net.minecraft.ChatFormatting;
+import com.atomcraft.upgrade.UpgradeType;
+import com.atomcraft.upgrade.Upgrades;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -65,7 +67,6 @@ public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyR
     private int maxProgress;
     private long energyNeeded;
     private long energyUsed;
-    private MachineStatus status = MachineStatus.IDLE;
 
     private final ContainerData data = new ContainerData() {
         @Override
@@ -189,11 +190,17 @@ public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyR
                 return;
             }
             reserved = true;
+            maxProgress = 0;
             progress = 0;
-            maxProgress = value.replicateTicks();
-            energyNeeded = value.energyCost();
             energyUsed = 0;
         }
+
+        // Recalculado a cada tick: chips instalados no meio da produção já valem.
+        int speed = upgradeCount(UpgradeType.SPEED);
+        int newMax = Upgrades.ticks(value.replicateTicks(), speed);
+        progress = rescaleProgress(progress, maxProgress, newMax);
+        maxProgress = newMax;
+        energyNeeded = Upgrades.energy(value.energyCost(), speed, upgradeCount(UpgradeType.EFFICIENCY));
 
         if (progress < maxProgress || energyUsed < energyNeeded) {
             long perTick = (energyNeeded + maxProgress - 1) / Math.max(1, maxProgress);
@@ -227,6 +234,11 @@ public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyR
             status = MachineStatus.IDLE;
         }
         setChanged();
+    }
+
+    @Override
+    public boolean supportsUpgrade(UpgradeType type) {
+        return true;
     }
 
     private boolean fitsInOutput(Item item) {

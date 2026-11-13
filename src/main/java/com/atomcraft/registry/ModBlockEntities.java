@@ -6,6 +6,8 @@ import com.atomcraft.block.entity.AtomizerBlockEntity;
 import com.atomcraft.block.entity.CarbonGeneratorBlockEntity;
 import com.atomcraft.block.entity.CombustionGeneratorBlockEntity;
 import com.atomcraft.block.entity.FusionReactorBlockEntity;
+import com.atomcraft.block.entity.SynthesizerBlockEntity;
+import com.atomcraft.block.entity.ReactorPortBlockEntity;
 import com.atomcraft.block.entity.TerminalBlockEntity;
 import com.atomcraft.block.entity.DriveBlockEntity;
 import com.atomcraft.block.entity.ReplicatorBlockEntity;
@@ -36,6 +38,12 @@ public final class ModBlockEntities {
             BLOCK_ENTITIES.register("fusion_reactor", () -> new BlockEntityType<>(FusionReactorBlockEntity::new, ModBlocks.FUSION_REACTOR.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<TerminalBlockEntity>> TERMINAL =
             BLOCK_ENTITIES.register("terminal", () -> new BlockEntityType<>(TerminalBlockEntity::new, ModBlocks.TERMINAL.get()));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SynthesizerBlockEntity>> SYNTHESIZER =
+            BLOCK_ENTITIES.register("synthesizer", () -> new BlockEntityType<>(SynthesizerBlockEntity::new, ModBlocks.SYNTHESIZER.get()));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ReactorPortBlockEntity>> REACTOR_PORT =
+            BLOCK_ENTITIES.register("reactor_port", () -> new BlockEntityType<>(ReactorPortBlockEntity::new, ModBlocks.REACTOR_PORT.get()));
 
     private ModBlockEntities() {}
 }

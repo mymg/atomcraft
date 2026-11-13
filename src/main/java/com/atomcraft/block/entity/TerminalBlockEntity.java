@@ -27,4 +27,10 @@ public class TerminalBlockEntity extends BlockEntity implements MenuProvider {
     public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
         return new TerminalMenu(id, inventory, worldPosition);
     }
+
+    /** Posição enviada ao cliente ao abrir o menu (vale também para o openMenu do vanilla, ex.: modo espectador). */
+    @Override
+    public void writeClientSideData(net.minecraft.world.inventory.AbstractContainerMenu menu, net.minecraft.network.RegistryFriendlyByteBuf buffer) {
+        buffer.writeBlockPos(worldPosition);
+    }
 }

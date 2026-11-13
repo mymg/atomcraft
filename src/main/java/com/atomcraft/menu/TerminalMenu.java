@@ -10,7 +10,7 @@ import net.minecraft.world.level.block.Block;
 /** Terminal de Elementos: sem slots, só recebe o estoque da rede. */
 public class TerminalMenu extends BaseMenu {
 
-    public static final int WIDTH = 244, HEIGHT = 222;
+    public static final int WIDTH = 304, HEIGHT = 222;
 
     public static TerminalMenu client(int id, Inventory inventory, RegistryFriendlyByteBuf buf) {
         return new TerminalMenu(id, inventory, buf.readBlockPos());

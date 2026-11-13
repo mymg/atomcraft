@@ -1,13 +1,24 @@
 package com.atomcraft.block.entity;
 
+import com.geckolib.util.GeckoLibUtil;
+import com.geckolib.animation.RawAnimation;
+import com.geckolib.animation.AnimationController;
+import com.geckolib.animatable.manager.AnimatableManager;
+import com.geckolib.animatable.instance.AnimatableInstanceCache;
+import com.geckolib.animatable.GeoBlockEntity;
+import com.atomcraft.block.AnalyzerBlock;
 import com.atomcraft.Config;
+import com.atomcraft.chemistry.AtomicValue;
 import com.atomcraft.chemistry.AtomicValues;
+import com.atomcraft.chemistry.ChemicalElement;
 import com.atomcraft.menu.AnalyzerMenu;
 import com.atomcraft.network.ModNetwork;
 import com.atomcraft.registry.ModBlockEntities;
 import com.atomcraft.research.ResearchData;
 import com.atomcraft.storage.FilteredItemHandler;
 import net.minecraft.ChatFormatting;
+import com.atomcraft.upgrade.UpgradeType;
+import com.atomcraft.upgrade.Upgrades;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -25,12 +36,18 @@ import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
+
 /**
  * Analisador: pesquisa itens para o dono da máquina, no estilo do modo Journey
  * do Terraria. Cada unidade analisada é consumida. Ao atingir a quantidade
  * exigida pela raridade, o item entra na biblioteca do Replicador.
  */
-public class AnalyzerBlockEntity extends MachineBlockEntity {
+public class AnalyzerBlockEntity extends MachineBlockEntity implements GeoBlockEntity {
+
+    private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
+    private static final RawAnimation ANALYZING = RawAnimation.begin().thenLoop("analyzing");
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     public static final int SLOTS = 9;
     public static final int DATA_PROGRESS = 0, DATA_STATUS = 1, DATA_ITEM_LO = 2, DATA_ITEM_HI = 3,
@@ -43,7 +60,6 @@ public class AnalyzerBlockEntity extends MachineBlockEntity {
 
     private int progress;
     private @Nullable Item current;
-    private MachineStatus status = MachineStatus.IDLE;
     private int currentResearched;
     private int currentRequired;
 
@@ -52,7 +68,7 @@ public class AnalyzerBlockEntity extends MachineBlockEntity {
         public int get(int index) {
             int itemId = current == null ? 0 : BuiltInRegistries.ITEM.getId(current) + 1;
             return switch (index) {
-                case DATA_PROGRESS -> permille(progress, Config.ANALYZE_TICKS.get());
+                case DATA_PROGRESS -> permille(progress, analyzeTicks());
                 case DATA_STATUS -> status.ordinal();
                 case DATA_ITEM_LO -> itemId & 0xFFFF;
                 case DATA_ITEM_HI -> (itemId >>> 16) & 0xFFFF;
@@ -138,12 +154,19 @@ public class AnalyzerBlockEntity extends MachineBlockEntity {
         currentRequired = ResearchData.required(item);
         status = MachineStatus.WORKING;
 
-        if (++progress >= Config.ANALYZE_TICKS.get()) {
+        if (++progress >= analyzeTicks()) {
             progress = 0;
             buffer.shrink(slot, 1);
             currentResearched = research.addProgress(owner, item, 1);
+            // Analisar uma unidade já revela os elementos que o item contém.
+            AtomicValue value = AtomicValues.get(item, false);
+            List<ChemicalElement> discovered = value == null ? List.of() : research.discover(owner, value.composition());
             ServerPlayer player = onlineOwner();
             if (player != null) {
+                for (ChemicalElement element : discovered) {
+                    player.sendSystemMessage(Component.translatable("message.atomcraft.element_discovered",
+                            Component.translatable(element.translationKey()), element.symbol()).withStyle(ChatFormatting.AQUA));
+                }
                 ModNetwork.syncResearch(player);
                 if (currentResearched >= currentRequired) {
                     player.sendSystemMessage(Component.translatable("message.atomcraft.research_complete",
@@ -152,6 +175,15 @@ public class AnalyzerBlockEntity extends MachineBlockEntity {
             }
         }
         setChanged();
+    }
+
+    private int analyzeTicks() {
+        return Upgrades.ticks(Config.ANALYZE_TICKS.get(), upgradeCount(UpgradeType.SPEED));
+    }
+
+    @Override
+    public boolean supportsUpgrade(UpgradeType type) {
+        return type == UpgradeType.SPEED;
     }
 
     private boolean isEmpty() {
@@ -187,5 +219,30 @@ public class AnalyzerBlockEntity extends MachineBlockEntity {
     public void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         buffer.serialize(output.child("buffer"));
+    }
+
+    @Override
+    protected void afterTick() {
+        boolean active = status == MachineStatus.WORKING;
+        BlockState state = getBlockState();
+        if (level != null && state.hasProperty(AnalyzerBlock.ACTIVE) && state.getValue(AnalyzerBlock.ACTIVE) != active) {
+            level.setBlock(worldPosition, state.setValue(AnalyzerBlock.ACTIVE, active), net.minecraft.world.level.block.Block.UPDATE_CLIENTS);
+        }
+    }
+
+    // ----- GeckoLib: "idle" parado, "analyzing" trabalhando -----
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<AnalyzerBlockEntity>("main", 5, test -> {
+            BlockState state = test.animatable().getBlockState();
+            boolean active = state.hasProperty(AnalyzerBlock.ACTIVE) && state.getValue(AnalyzerBlock.ACTIVE);
+            return test.setAndContinue(active ? ANALYZING : IDLE);
+        }));
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
     }
 }

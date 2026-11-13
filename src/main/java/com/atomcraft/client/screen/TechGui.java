@@ -1,7 +1,9 @@
 package com.atomcraft.client.screen;
 
 import com.atomcraft.chemistry.ChemicalElement;
+import com.atomcraft.client.ClientState;
 import net.minecraft.client.gui.Font;
+import net.minecraft.network.chat.Component;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 
 /**
@@ -190,7 +192,7 @@ public final class TechGui {
         int highlight = scale(color, 1.35);
         g.fill(x + 4, y + 3, x + 6, y + 4, highlight);
         g.fill(x + 3, y + 4, x + 4, y + 6, highlight);
-        String symbol = element.symbol();
+        String symbol = ClientState.isDiscovered(element) ? element.symbol() : "?";
         int textColor = dim ? 0xFF8A8A8A : ElementColors.luminance(color) > 140 ? 0xFF151515 : 0xFFFFFFFF;
         // A largura da fonte inclui 1 px de espaçamento à direita; centraliza pela parte visível.
         int visible = font.width(symbol) - 1;
@@ -204,6 +206,12 @@ public final class TechGui {
             int half = (int) (Math.sqrt(Math.max(0, radius * radius - dy * dy)) + 0.5);
             g.fill(x + radius - half, y + row, x + radius + half, y + row + 1, color);
         }
+    }
+
+    /** Nome do elemento, ou "Elemento desconhecido" se o jogador ainda não o descobriu. */
+    public static Component elementName(ChemicalElement element) {
+        if (!ClientState.isDiscovered(element)) return Component.translatable("gui.atomcraft.unknown_element");
+        return Component.translatable(element.translationKey()).append(" (" + element.symbol() + ")");
     }
 
     /** Valor curto (até 4 caracteres): 882, 1.2k, 123k, 4.5M. */

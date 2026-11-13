@@ -1,6 +1,9 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "atomcraft:block/analyzer"
+    "type": "minecraft:special",
+    "base": "atomcraft:block/analyzer",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
   }
 }

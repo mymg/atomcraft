@@ -1,0 +1,9 @@
+{
+  "tag": "c:ores/platinum",
+  "elements": {
+    "Pt": 9,
+    "Si": 1,
+    "O": 2
+  },
+  "rarity": "rare"
+}

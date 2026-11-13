@@ -6,6 +6,8 @@ import com.atomcraft.chemistry.ChemicalElement;
 import com.atomcraft.client.ClientState;
 import com.atomcraft.menu.ReplicatorMenu;
 import com.atomcraft.network.ReplicatePayload;
+import com.atomcraft.upgrade.UpgradeType;
+import com.atomcraft.upgrade.Upgrades;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
@@ -255,9 +257,14 @@ public class ReplicatorScreen extends MachineScreen<ReplicatorMenu> {
                     graphics.text(font, count, bx + 8 - font.width(count) / 2, y + 37, TechGui.TEXT_TEAL, false);
                 }
 
-                graphics.text(font, Component.translatable("gui.atomcraft.energy_cost", GuiUtil.formatAmount(value.energyCost())),
+                // Energia e tempo totais: quantidade escolhida × custo por unidade, com os chips instalados.
+                int speed = installedUpgrades(UpgradeType.SPEED);
+                long units = quantityValue();
+                long energyTotal = Upgrades.energy(value.energyCost(), speed, installedUpgrades(UpgradeType.EFFICIENCY)) * units;
+                long ticksTotal = (long) Upgrades.ticks(value.replicateTicks(), speed) * units;
+                graphics.text(font, Component.translatable("gui.atomcraft.energy_cost", GuiUtil.formatAmount(energyTotal)),
                         x, y + 46, TechGui.TEXT_TEAL, false);
-                graphics.text(font, Component.translatable("gui.atomcraft.time", String.format("%.1f", value.replicateTicks() / 20.0)),
+                graphics.text(font, Component.translatable("gui.atomcraft.time", GuiUtil.formatDuration(ticksTotal)),
                         x, y + 55, TechGui.TEXT_TEAL, false);
                 long available = ClientState.maxFromNetwork(value.composition());
                 graphics.text(font, Component.translatable("gui.atomcraft.available", GuiUtil.formatAmount(available)),
@@ -297,12 +304,12 @@ public class ReplicatorScreen extends MachineScreen<ReplicatorMenu> {
                 for (int i = 0; i < Math.min(elements.size(), MAX_BADGES); i++) {
                     if (hovering(mouseX, mouseY, INFO_X + 5 + i * 19, INFO_Y + 25, 16, 26)) {
                         if (i == MAX_BADGES - 1 && elements.size() > MAX_BADGES) {
-                            tooltip(graphics, mouseX, mouseY, Component.literal(value.composition().formula()));
+                            tooltip(graphics, mouseX, mouseY, Component.literal(ClientState.formula(value.composition())));
                         } else {
                             var entry = elements.get(i);
                             long available = ClientState.networkTotals().get(entry.getKey());
                             tooltip(graphics, mouseX, mouseY,
-                                    Component.translatable(entry.getKey().translationKey()).append(" (" + entry.getKey().symbol() + ")"),
+                                    TechGui.elementName(entry.getKey()),
                                     Component.translatable("gui.atomcraft.atoms", String.format("%,d", entry.getValue())),
                                     Component.translatable("gui.atomcraft.in_network", String.format("%,d", available)));
                         }

@@ -1,18 +1,18 @@
 {
   "variants": {
     "facing=north": {
-      "model": "atomcraft:block/drive"
+      "model": "atomcraft:block/drive_frame"
     },
     "facing=east": {
-      "model": "atomcraft:block/drive",
+      "model": "atomcraft:block/drive_frame",
       "y": 90
     },
     "facing=south": {
-      "model": "atomcraft:block/drive",
+      "model": "atomcraft:block/drive_frame",
       "y": 180
     },
     "facing=west": {
-      "model": "atomcraft:block/drive",
+      "model": "atomcraft:block/drive_frame",
       "y": 270
     }
   }

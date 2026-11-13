@@ -2,6 +2,8 @@ package com.atomcraft.block.entity;
 
 import com.atomcraft.Config;
 import com.atomcraft.storage.EnergyReceiver;
+import com.atomcraft.upgrade.UpgradeType;
+import com.atomcraft.upgrade.Upgrades;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -23,20 +25,30 @@ import java.util.List;
  */
 public abstract class GeneratorBlockEntity extends MachineBlockEntity {
 
-    protected final SimpleEnergyHandler energy = new SimpleEnergyHandler(
-            Config.GENERATOR_CAPACITY.get(), 0, Config.GENERATOR_MAX_OUTPUT.get()) {
-        @Override
-        protected void onEnergyChanged(int previousAmount) {
-            setChanged();
-        }
-    };
+    protected final SimpleEnergyHandler energy;
+    private final int maxOutput;
 
     /** FE gerado no último tick (para a interface). */
     protected int lastGenerated;
-    protected MachineStatus status = MachineStatus.IDLE;
 
     protected GeneratorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        this(type, pos, state, Config.GENERATOR_CAPACITY.get(), Config.GENERATOR_MAX_OUTPUT.get());
+    }
+
+    protected GeneratorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int capacity, int maxOutput) {
         super(type, pos, state);
+        this.maxOutput = maxOutput;
+        this.energy = new SimpleEnergyHandler(capacity, 0, maxOutput) {
+            @Override
+            protected void onEnergyChanged(int previousAmount) {
+                setChanged();
+            }
+        };
+    }
+
+    /** Posições cujos vizinhos recebem energia diretamente (multiblocos usam as portas). */
+    protected java.util.Collection<BlockPos> energyOutputs() {
+        return List.of(worldPosition);
     }
 
     public SimpleEnergyHandler energy() {
@@ -60,18 +72,41 @@ public abstract class GeneratorBlockEntity extends MachineBlockEntity {
         distribute();
     }
 
+    @Override
+    protected void disabledTick() {
+        lastGenerated = 0;
+        distribute();
+    }
+
+    @Override
+    public boolean supportsUpgrade(UpgradeType type) {
+        return true;
+    }
+
+    /** Geração por tick com os chips de velocidade. */
+    protected int boostedRate(int baseRate) {
+        return (int) Math.round(baseRate * Upgrades.generatorRate(upgradeCount(UpgradeType.SPEED)));
+    }
+
+    /** FE por unidade de combustível com os chips de eficiência. */
+    protected long boostedYield(long baseEnergy) {
+        return Math.round(baseEnergy * Upgrades.generatorYield(upgradeCount(UpgradeType.EFFICIENCY)));
+    }
+
     private void distribute() {
         if (level == null) return;
-        int available = Math.min(energy.getAmountAsInt(), Config.GENERATOR_MAX_OUTPUT.get());
+        int available = Math.min(energy.getAmountAsInt(), maxOutput);
         if (available <= 0) return;
 
         List<EnergyHandler> targets = new ArrayList<>();
         for (EnergyReceiver receiver : network().receivers()) {
             if (!receiver.isRemoved()) targets.add(receiver.energy());
         }
-        for (Direction direction : Direction.values()) {
-            EnergyHandler handler = level.getCapability(Capabilities.Energy.BLOCK, worldPosition.relative(direction), direction.getOpposite());
-            if (handler != null && handler != energy && !targets.contains(handler)) targets.add(handler);
+        for (BlockPos output : energyOutputs()) {
+            for (Direction direction : Direction.values()) {
+                EnergyHandler handler = level.getCapability(Capabilities.Energy.BLOCK, output.relative(direction), direction.getOpposite());
+                if (handler != null && handler != energy && !targets.contains(handler)) targets.add(handler);
+            }
         }
         if (targets.isEmpty()) return;
 

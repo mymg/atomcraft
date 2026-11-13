@@ -1,0 +1,7 @@
+{
+  "tag": "c:rods/constantan",
+  "elements": {
+    "Cu": 2,
+    "Ni": 2
+  }
+}

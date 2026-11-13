@@ -1,7 +1,16 @@
 package com.atomcraft.menu;
 
 import com.atomcraft.chemistry.Composition;
+import com.atomcraft.block.entity.FusionReactorBlockEntity;
+import com.atomcraft.block.entity.MachineBlockEntity;
+import com.atomcraft.fusion.ReactorModuleItem;
+import com.atomcraft.network.MachineInfoPayload;
 import com.atomcraft.network.NetworkContentsPayload;
+import com.atomcraft.storage.FilteredItemHandler;
+import com.atomcraft.upgrade.UpgradeChipItem;
+import com.atomcraft.upgrade.Upgrades;
+import net.minecraft.world.inventory.DataSlot;
+import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 import com.atomcraft.storage.ElementNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -21,9 +30,25 @@ import org.jspecify.annotations.Nullable;
  */
 public abstract class BaseMenu extends AbstractContainerMenu {
 
+    /** Largura da coluna de abas laterais e do painel que elas abrem. */
+    public static final int TABS_W = 22, PANEL_W = 88;
+    /** Posição dos slots de upgrade dentro do painel (relativa ao painel). */
+    public static final int UPGRADE_SLOT_X = 18, UPGRADE_SLOT_Y = 24, UPGRADE_SLOT_GAP = 34;
+
     protected final BlockPos pos;
     protected final Player player;
     protected int machineSlots;
+
+    /** Máquina no servidor (null no cliente). */
+    protected final @Nullable MachineBlockEntity machine;
+    private int enabledClient = 1;
+    private boolean controls;
+    private boolean upgradesVisible;
+    private int upgradeSlotStart = -1;
+    private int upgradeSlotCount;
+    private boolean modules;
+    private String ownerName = "";
+    private boolean infoSent;
 
     private int syncTimer = 10;
     private @Nullable Composition lastTotals;
@@ -34,6 +59,88 @@ public abstract class BaseMenu extends AbstractContainerMenu {
         super(type, id);
         this.pos = pos;
         this.player = inventory.player;
+        this.machine = !player.level().isClientSide() && player.level().getBlockEntity(pos) instanceof MachineBlockEntity found
+                ? found : null;
+        addDataSlot(new DataSlot() {
+            @Override
+            public int get() {
+                return machine != null ? (machine.isEnabled() ? 1 : 0) : enabledClient;
+            }
+
+            @Override
+            public void set(int value) {
+                enabledClient = value;
+            }
+        });
+    }
+
+    /**
+     * Ativa as abas laterais (ligar/desligar, dono e upgrades) e cria os slots de
+     * upgrade, que ficam no painel à direita da interface ({@code guiWidth}).
+     * Deve ser chamado logo depois dos slots da máquina.
+     */
+    protected void addMachineControls(int guiWidth) {
+        addMachineControls(guiWidth, false);
+    }
+
+    /**
+     * Como {@link #addMachineControls(int)}; com {@code modules} a aba mostra os 4 slots de
+     * módulos do Reator de Fusão em vez dos 2 slots de chips.
+     */
+    protected void addMachineControls(int guiWidth, boolean modules) {
+        controls = true;
+        this.modules = modules;
+        FilteredItemHandler handler = machine != null ? machine.upgrades()
+                : modules ? new FilteredItemHandler(FusionReactorBlockEntity.MODULE_SLOTS, 1,
+                        (slot, resource) -> resource.getItem() instanceof ReactorModuleItem, () -> {})
+                : new FilteredItemHandler(Upgrades.SLOTS, Upgrades.MAX_PER_SLOT,
+                        (slot, resource) -> resource.getItem() instanceof UpgradeChipItem, () -> {});
+        upgradeSlotStart = slots.size();
+        upgradeSlotCount = handler.size();
+        int panelX = guiWidth + TABS_W - 1;
+        for (int i = 0; i < upgradeSlotCount; i++) {
+            int x = panelX + UPGRADE_SLOT_X + (i % 2) * UPGRADE_SLOT_GAP, y = 10 + UPGRADE_SLOT_Y + (i / 2) * 20;
+            addSlot(new ResourceHandlerSlot(handler, handler::set, i, x, y) {
+                @Override
+                public boolean isActive() {
+                    return upgradesVisible || !player.level().isClientSide();
+                }
+            });
+        }
+        machineSlots += upgradeSlotCount;
+    }
+
+    public boolean hasMachineControls() {
+        return controls;
+    }
+
+    public boolean isUpgradeSlot(int index) {
+        return upgradeSlotStart >= 0 && index >= upgradeSlotStart && index < upgradeSlotStart + upgradeSlotCount;
+    }
+
+    /** Se a aba de upgrades é a de módulos do Reator de Fusão. */
+    public boolean usesModules() {
+        return modules;
+    }
+
+    public int upgradeSlotCount() {
+        return upgradeSlotCount;
+    }
+
+    public void setUpgradesVisible(boolean visible) {
+        this.upgradesVisible = visible;
+    }
+
+    public boolean isEnabled() {
+        return enabledClient != 0;
+    }
+
+    public String ownerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
     }
 
     public BlockPos pos() {
@@ -82,8 +189,8 @@ public abstract class BaseMenu extends AbstractContainerMenu {
         ItemStack original = stack.copy();
 
         if (index < machineSlots) {
-            if (!moveItemStackTo(stack, machineSlots, slots.size(), true)) return ItemStack.EMPTY;
-        } else if (!acceptsQuickMove() || !moveItemStackTo(stack, 0, machineSlots, false)) {
+            if (!moveToSlots(stack, machineSlots, slots.size(), true)) return ItemStack.EMPTY;
+        } else if (!acceptsQuickMove() || !moveToSlots(stack, 0, machineSlots, false)) {
             return ItemStack.EMPTY;
         }
 
@@ -94,13 +201,41 @@ public abstract class BaseMenu extends AbstractContainerMenu {
         return original;
     }
 
+    /**
+     * Como o moveItemStackTo do vanilla, mas respeita {@link Slot#mayPlace} também
+     * ao completar pilhas: itens nunca entram em slots de saída.
+     */
+    protected boolean moveToSlots(ItemStack stack, int start, int end, boolean reverse) {
+        boolean moved = false;
+        for (int pass = 0; pass < 2 && !stack.isEmpty(); pass++) {
+            for (int k = 0; k < end - start && !stack.isEmpty(); k++) {
+                Slot slot = slots.get(reverse ? end - 1 - k : start + k);
+                if (!slot.mayPlace(stack)) continue;
+                ItemStack current = slot.getItem();
+                // 1ª passada: só completa pilhas iguais; 2ª: usa slots vazios.
+                boolean candidate = pass == 0
+                        ? !current.isEmpty() && ItemStack.isSameItemSameComponents(current, stack)
+                        : current.isEmpty();
+                if (!candidate) continue;
+                int before = stack.getCount();
+                slot.safeInsert(stack);
+                if (stack.getCount() != before) moved = true;
+            }
+        }
+        return moved;
+    }
+
     @Override
     public void broadcastChanges() {
         super.broadcastChanges();
+        if (!infoSent && machine != null && player instanceof ServerPlayer target) {
+            infoSent = true;
+            PacketDistributor.sendToPlayer(target, new MachineInfoPayload(containerId, machine.ownerName()));
+        }
         if (!syncsNetwork() || !(player instanceof ServerPlayer serverPlayer)) return;
         if (++syncTimer < 10) return;
         syncTimer = 0;
-        ElementNetwork network = ElementNetwork.scan(serverPlayer.level(), pos);
+        ElementNetwork network = machine != null ? machine.network() : ElementNetwork.scan(serverPlayer.level(), pos);
         Composition totals = network.totals();
         long capacity = network.capacity();
         long used = network.used();

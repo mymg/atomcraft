@@ -57,6 +57,7 @@ public final class AtomCraftCommand {
                             ServerPlayer player = ctx.getSource().getPlayerOrException();
                             ResearchData research = ResearchData.get(ctx.getSource().getServer());
                             AtomicValues.serverValues().keySet().forEach(item -> research.unlock(player.getUUID(), item));
+                            research.discoverAll(player.getUUID());
                             ModNetwork.syncResearch(player);
                             int count = AtomicValues.serverValues().size();
                             ctx.getSource().sendSuccess(() -> Component.translatable("message.atomcraft.research_all", count), false);

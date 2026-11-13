@@ -5,6 +5,7 @@ import com.atomcraft.block.entity.AtomizerBlockEntity;
 import com.atomcraft.block.entity.CombustionGeneratorBlockEntity;
 import com.atomcraft.block.entity.DriveBlockEntity;
 import com.atomcraft.block.entity.ReplicatorBlockEntity;
+import com.atomcraft.block.entity.SynthesizerBlockEntity;
 import com.atomcraft.chemistry.AtomicValues;
 import com.atomcraft.chemistry.ChemicalElement;
 import com.atomcraft.chemistry.Composition;
@@ -58,11 +59,13 @@ final class Showcase {
     private static void setup(ServerPlayer player) {
         ServerLevel level = player.level();
         base = player.blockPosition().offset(3, 0, 0);
-        level.setBlock(base, ModBlocks.DRIVE.get().defaultBlockState(), Block.UPDATE_ALL);
+        level.setBlock(base, ModBlocks.DRIVE.get().defaultBlockState().setValue(com.atomcraft.block.MachineBlock.FACING,
+                net.minecraft.core.Direction.WEST), Block.UPDATE_ALL);
         level.setBlock(base.east(), ModBlocks.ATOMIZER.get().defaultBlockState(), Block.UPDATE_ALL);
         level.setBlock(base.west(), ModBlocks.REPLICATOR.get().defaultBlockState(), Block.UPDATE_ALL);
         level.setBlock(base.north(), ModBlocks.CABLE.get().defaultBlockState(), Block.UPDATE_ALL);
-        level.setBlock(base.north(2), ModBlocks.ANALYZER.get().defaultBlockState(), Block.UPDATE_ALL);
+        level.setBlock(base.north(2), ModBlocks.ANALYZER.get().defaultBlockState().setValue(com.atomcraft.block.MachineBlock.FACING,
+                net.minecraft.core.Direction.WEST), Block.UPDATE_ALL);
 
         DriveBlockEntity drive = (DriveBlockEntity) level.getBlockEntity(base);
         drive.disks().set(0, ItemResource.of(ModItems.DISK_1M.get()), 1);
@@ -74,12 +77,19 @@ final class Showcase {
         contents.put(ChemicalElement.CARBON, 4_608L);
         contents.put(ChemicalElement.OXYGEN, 882L);
         contents.put(ChemicalElement.SILICON, 310L);
-        contents.put(ChemicalElement.HYDROGEN, 640L);
+        contents.put(ChemicalElement.HYDROGEN, 60_000L);
         contents.put(ChemicalElement.GOLD, 81L);
-        contents.put(ChemicalElement.REDSTONIUM, 16L);
+        contents.put(ChemicalElement.REDSTONIUM, 160L);
         contents.put(ChemicalElement.CALCIUM, 12L);
         contents.put(ChemicalElement.NITROGEN, 40L);
         contents.put(ChemicalElement.ENDERIUM, 8L);
+        contents.put(ChemicalElement.COPPER, 200L);
+        contents.put(ChemicalElement.LUMINIUM, 64L);
+        contents.put(ChemicalElement.SULFUR, 30L);
+        contents.put(ChemicalElement.TIN, 450L);
+        contents.put(ChemicalElement.SILVER, 90L);
+        contents.put(ChemicalElement.URANIUM, 27L);
+        contents.put(ChemicalElement.ALLTHEMODIUM, 9L);
         drive.setDiskContents(0, new Composition(contents));
 
         AtomizerBlockEntity atomizer = (AtomizerBlockEntity) level.getBlockEntity(base.east());
@@ -111,31 +121,79 @@ final class Showcase {
         // Geradores e terminal, todos ligados à rede.
         level.setBlock(base.south(), ModBlocks.CARBON_GENERATOR.get().defaultBlockState(), Block.UPDATE_ALL);
         level.setBlock(base.south(2), ModBlocks.COMBUSTION_GENERATOR.get().defaultBlockState(), Block.UPDATE_ALL);
-        level.setBlock(base.above(), ModBlocks.FUSION_REACTOR.get().defaultBlockState(), Block.UPDATE_ALL);
+        // Reator de Fusão multibloco a leste, ligado à rede por cabos até uma Porta do Reator
+        reactor = base.offset(3, 2, 0);
+        net.minecraft.core.Direction facing = net.minecraft.core.Direction.WEST;
+        BlockPos port = com.atomcraft.fusion.FusionStructure.toWorld(reactor, facing, 3, 0, 0);
+        SelfTest.buildReactor(level, reactor, facing, java.util.Set.of(port), null);
+        for (int dx = 2; dx <= 2; dx++) {
+            level.setBlock(base.offset(dx, 0, 0), ModBlocks.CABLE.get().defaultBlockState(), Block.UPDATE_ALL);
+        }
+        if (level.getBlockEntity(reactor) instanceof com.atomcraft.block.entity.FusionReactorBlockEntity fusion) {
+            fusion.setOwner(player);
+            var modules = fusion.upgrades();
+            modules.set(0, ItemResource.of(ModItems.MODULES.get(com.atomcraft.fusion.ModuleType.CONTAINMENT).get(2).get()), 1);
+            modules.set(1, ItemResource.of(ModItems.MODULES.get(com.atomcraft.fusion.ModuleType.IGNITION).get(2).get()), 1);
+            modules.set(2, ItemResource.of(ModItems.MODULES.get(com.atomcraft.fusion.ModuleType.INJECTOR).get(0).get()), 1);
+        }
         level.setBlock(base.west().above(), ModBlocks.TERMINAL.get().defaultBlockState(), Block.UPDATE_ALL);
         CombustionGeneratorBlockEntity combustion = (CombustionGeneratorBlockEntity) level.getBlockEntity(base.south(2));
         combustion.fuel().set(0, ItemResource.of(Items.COAL), 12);
+        combustion.upgrades().set(0, ItemResource.of(ModItems.EFFICIENCY_UPGRADE.get()), 2);
+
+        // Chips no atomizador, Sintetizador com schematics fabricando um chip
+        atomizer.upgrades().set(0, ItemResource.of(ModItems.SPEED_UPGRADE.get()), 3);
+        atomizer.upgrades().set(1, ItemResource.of(ModItems.EFFICIENCY_UPGRADE.get()), 1);
+        level.setBlock(base.east().above(), ModBlocks.SYNTHESIZER.get().defaultBlockState(), Block.UPDATE_ALL);
+        SynthesizerBlockEntity synthesizer = (SynthesizerBlockEntity) level.getBlockEntity(base.east().above());
+        synthesizer.setOwner(player);
+        synthesizer.energy().set(150_000);
+        synthesizer.library().set(0, ItemResource.of(ModItems.SPEED_UPGRADE_SCHEMATIC.get()), 1);
+        synthesizer.library().set(1, ItemResource.of(ModItems.EFFICIENCY_UPGRADE_SCHEMATIC.get()), 1);
+        synthesizer.output().set(0, ItemResource.of(ModItems.SPEED_UPGRADE.get()), 2);
+        synthesizer.select(ModItems.SPEED_UPGRADE.get());
+
+        // Gerador de Carbono desligado, para mostrar o botão vermelho
+        if (level.getBlockEntity(base.south()) instanceof com.atomcraft.block.entity.MachineBlockEntity carbon) {
+            carbon.setOwner(player);
+            carbon.setEnabled(false);
+        }
         AtomCraft.LOGGER.info("AtomCraft SHOWCASE pronto em {}", base);
     }
+
+    private static BlockPos reactor = BlockPos.ZERO;
 
     private static void onTick(ServerTickEvent.Post event) {
         if (player == null || player.hasDisconnected()) return;
         ticks++;
         ServerLevel level = player.level();
         BlockPos target = switch (ticks) {
-            case 60 -> base.east();
-            case 160 -> base.north(2);
-            case 260 -> base;
-            case 360 -> base.west();
-            case 460 -> base.south(2);
-            case 560 -> base.south();
-            case 760 -> base.above();
-            case 860 -> base.west().above();
+            case 120 -> base.east();
+            case 320 -> base.north(2);
+            case 520 -> base;
+            case 720 -> base.west();
+            case 920 -> base.south(2);
+            case 1120 -> base.south();
+            case 1320 -> reactor;
+            case 1520 -> base.west().above();
+            case 1720 -> base.east().above();
             default -> null;
         };
         if (target != null && level.getBlockEntity(target) instanceof MenuProvider provider) {
-            player.openMenu(provider, target);
+            player.openMenu(provider);
         }
-        if (ticks == 980) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
+        if (ticks == 1960) {
+            // Visão do reator formado no mundo
+            player.closeContainer();
+            player.getAbilities().mayfly = true;
+            player.getAbilities().flying = true;
+            player.onUpdateAbilities();
+            player.connection.teleport(base.getX() - 3.5, base.getY() + 4, base.getZ() + 0.5, -90f, 18f);
+        }
+        if (ticks == 2500) {
+            // Visão do Drive (discos nos slots) e do Analisador animado
+            player.connection.teleport(base.getX() - 1.9, base.getY() + 0.3, base.getZ() - 0.4, -100f, 12f);
+        }
+        if (ticks == 3400) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
     }
 }

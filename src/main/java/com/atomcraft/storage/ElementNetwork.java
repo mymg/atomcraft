@@ -43,13 +43,19 @@ public final class ElementNetwork {
 
     /** Busca em largura pelos blocos da rede conectados a {@code origin}. */
     public static ElementNetwork scan(Level level, BlockPos origin) {
+        return scan(level, List.of(origin));
+    }
+
+    /** Busca a partir de várias origens (ex.: as portas de um multibloco), unindo tudo numa rede só. */
+    public static ElementNetwork scan(Level level, java.util.Collection<BlockPos> origins) {
         Set<BlockPos> visited = new HashSet<>();
         ArrayDeque<BlockPos> queue = new ArrayDeque<>();
         List<DriveBlockEntity> drives = new ArrayList<>();
         List<EnergyReceiver> receivers = new ArrayList<>();
-        BlockPos start = origin.immutable();
-        visited.add(start);
-        queue.add(start);
+        for (BlockPos origin : origins) {
+            BlockPos start = origin.immutable();
+            if (visited.add(start)) queue.add(start);
+        }
 
         while (!queue.isEmpty()) {
             BlockPos pos = queue.poll();
@@ -124,34 +130,41 @@ public final class ElementNetwork {
     }
 
     public boolean canInsert(Composition composition, long times) {
-        long free = 0;
-        for (DiskRef disk : disks()) free += disk.free();
-        return free >= composition.totalAtoms() * times;
+        return distribute(disks(), composition, times);
     }
 
     public boolean insert(Composition composition, long times) {
         List<DiskRef> disks = disks();
-        long free = 0;
-        for (DiskRef disk : disks) free += disk.free();
-        if (free < composition.totalAtoms() * times) return false;
+        if (!distribute(disks, composition, times)) return false;
+        commit(disks);
+        return true;
+    }
 
+    /**
+     * Distribui a composição pelos discos (nas cópias em memória), respeitando a capacidade e a
+     * partição de cada disco. Ordem de preferência: discos particionados para o elemento, discos
+     * que já têm o elemento, e por fim qualquer disco livre. Retorna falso se não couber tudo
+     * (nesse caso as cópias ficam alteradas, mas nada é gravado).
+     */
+    private static boolean distribute(List<DiskRef> disks, Composition composition, long times) {
         for (var entry : composition.elements().entrySet()) {
+            ChemicalElement element = entry.getKey();
             long remaining = entry.getValue() * times;
-            // Preferência para discos que já têm esse elemento, para mantê-los organizados.
-            for (int round = 0; round < 2 && remaining > 0; round++) {
+            for (int round = 0; round < 3 && remaining > 0; round++) {
                 for (DiskRef disk : disks) {
                     if (remaining <= 0) break;
-                    boolean hasElement = disk.contents.containsKey(entry.getKey());
-                    if ((round == 0) != hasElement) continue;
-                    long moved = Math.min(remaining, disk.free());
+                    int preference = !disk.partition.isEmpty() && disk.partition.allows(element) ? 0
+                            : disk.contents.containsKey(element) ? 1 : 2;
+                    if (preference != round) continue;
+                    long moved = Math.min(remaining, disk.room(element));
                     if (moved <= 0) continue;
-                    disk.contents.merge(entry.getKey(), moved, Long::sum);
+                    disk.contents.merge(element, moved, Long::sum);
                     disk.dirty = true;
                     remaining -= moved;
                 }
             }
+            if (remaining > 0) return false;
         }
-        commit(disks);
         return true;
     }
 
@@ -182,7 +195,8 @@ public final class ElementNetwork {
             for (int slot = 0; slot < DriveBlockEntity.SLOTS; slot++) {
                 ItemStack stack = drive.getDisk(slot);
                 if (stack.getItem() instanceof ElementDiskItem disk) {
-                    result.add(new DiskRef(drive, slot, disk.capacity(), ElementDiskItem.contents(stack)));
+                    result.add(new DiskRef(drive, slot, disk.capacity(), ElementDiskItem.contents(stack),
+                            ElementDiskItem.partition(stack)));
                 }
             }
         }
@@ -200,12 +214,14 @@ public final class ElementNetwork {
         final int slot;
         final long capacity;
         final Map<ChemicalElement, Long> contents;
+        final DiskPartition partition;
         boolean dirty;
 
-        DiskRef(DriveBlockEntity drive, int slot, long capacity, Composition contents) {
+        DiskRef(DriveBlockEntity drive, int slot, long capacity, Composition contents, DiskPartition partition) {
             this.drive = drive;
             this.slot = slot;
             this.capacity = capacity;
+            this.partition = partition;
             this.contents = new EnumMap<>(ChemicalElement.class);
             this.contents.putAll(contents.elements());
         }
@@ -218,6 +234,11 @@ public final class ElementNetwork {
 
         long free() {
             return Math.max(0, capacity - used());
+        }
+
+        /** Quanto ainda cabe do elemento neste disco (capacidade e partição). */
+        long room(ChemicalElement element) {
+            return Math.min(free(), partition.room(element, contents.getOrDefault(element, 0L)));
         }
     }
 }

@@ -1,0 +1,9 @@
+{
+  "tag": "c:ores/ruby",
+  "elements": {
+    "Al": 4,
+    "O": 8,
+    "Si": 1
+  },
+  "rarity": "uncommon"
+}

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "XAX",
+    "AHA",
+    "XAX"
+  ],
+  "key": {
+    "X": "atomcraft:reactor_casing",
+    "A": "atomcraft:atomic_cable",
+    "H": "minecraft:hopper"
+  },
+  "result": {
+    "id": "atomcraft:reactor_port",
+    "count": 2
+  }
+}

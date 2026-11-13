@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "atomcraft:block/synthesizer"
+    },
+    "facing=east": {
+      "model": "atomcraft:block/synthesizer",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "atomcraft:block/synthesizer",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "atomcraft:block/synthesizer",
+      "y": 270
+    }
+  }
+}

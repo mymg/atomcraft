@@ -66,7 +66,7 @@ public class CombustionGeneratorBlockEntity extends GeneratorBlockEntity {
 
     @Override
     protected int generate() {
-        int rate = Config.COMBUSTION_RATE.get();
+        int rate = boostedRate(Config.COMBUSTION_RATE.get());
         if (room() <= 0) {
             status = MachineStatus.IDLE;
             return 0;
@@ -79,7 +79,7 @@ public class CombustionGeneratorBlockEntity extends GeneratorBlockEntity {
                 return 0;
             }
             fuel.shrink(0, 1);
-            burnRemaining = burnTotal = energy;
+            burnRemaining = burnTotal = boostedYield(energy);
         }
         int generated = (int) Math.min(Math.min(rate, burnRemaining), room());
         burnRemaining -= generated;

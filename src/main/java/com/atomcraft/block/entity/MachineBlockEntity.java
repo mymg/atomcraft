@@ -2,7 +2,11 @@ package com.atomcraft.block.entity;
 
 import com.atomcraft.storage.ElementNetwork;
 import com.atomcraft.storage.FilteredItemHandler;
+import com.atomcraft.upgrade.UpgradeChipItem;
+import com.atomcraft.upgrade.UpgradeType;
+import com.atomcraft.upgrade.Upgrades;
 import net.minecraft.core.BlockPos;
+import java.util.List;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Containers;
@@ -27,6 +31,10 @@ public abstract class MachineBlockEntity extends BlockEntity implements MenuProv
 
     protected @Nullable UUID owner;
     protected String ownerName = "";
+    protected MachineStatus status = MachineStatus.IDLE;
+    /** Botão de ligar/desligar da interface. */
+    private boolean enabled = true;
+    private final FilteredItemHandler upgrades = createUpgrades();
 
     private @Nullable ElementNetwork network;
     private long networkScanTime = Long.MIN_VALUE;
@@ -36,6 +44,69 @@ public abstract class MachineBlockEntity extends BlockEntity implements MenuProv
     }
 
     public abstract void serverTick();
+
+    /** Chamado pelo ticker do bloco: respeita o botão de ligar/desligar. */
+    public final void tick() {
+        if (enabled) {
+            serverTick();
+        } else {
+            status = MachineStatus.DISABLED;
+            disabledTick();
+        }
+        afterTick();
+    }
+
+    /** Chamado depois de cada tick (ligado ou desligado). */
+    protected void afterTick() {}
+
+    /** Tick com a máquina desligada (geradores continuam entregando a energia guardada). */
+    protected void disabledTick() {}
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+        setChanged();
+    }
+
+    /** Se a máquina tem botão de ligar/desligar. */
+    public boolean hasPowerControl() {
+        return true;
+    }
+
+    /** Slots da aba de upgrades: chips por padrão; o Reator de Fusão usa módulos. */
+    protected FilteredItemHandler createUpgrades() {
+        return new FilteredItemHandler(Upgrades.SLOTS, Upgrades.MAX_PER_SLOT,
+                (slot, resource) -> resource.getItem() instanceof UpgradeChipItem chip && supportsUpgrade(chip.type()),
+                this::setChanged);
+    }
+
+    /** Quais chips de upgrade a máquina aceita. */
+    public boolean supportsUpgrade(UpgradeType type) {
+        return false;
+    }
+
+    public FilteredItemHandler upgrades() {
+        return upgrades;
+    }
+
+    /** Quantidade de chips instalados de um tipo (até {@link Upgrades#MAX_PER_TYPE}). */
+    public int upgradeCount(UpgradeType type) {
+        if (!supportsUpgrade(type)) return 0;
+        int count = 0;
+        for (int i = 0; i < upgrades.size(); i++) {
+            if (upgrades.getResource(i).getItem() instanceof UpgradeChipItem chip && chip.type() == type) {
+                count += upgrades.getAmountAsInt(i);
+            }
+        }
+        return Math.min(Upgrades.MAX_PER_TYPE, count);
+    }
+
+    public MachineStatus status() {
+        return status;
+    }
 
     public void setOwner(Player player) {
         this.owner = player.getUUID();
@@ -62,13 +133,23 @@ public abstract class MachineBlockEntity extends BlockEntity implements MenuProv
         return level.getServer().getPlayerList().getPlayer(owner);
     }
 
+    /** De onde a busca da rede parte (multiblocos usam as portas). */
+    protected java.util.Collection<BlockPos> networkOrigins() {
+        return List.of(worldPosition);
+    }
+
+    /** Força uma nova busca da rede no próximo uso. */
+    protected void invalidateNetwork() {
+        network = null;
+    }
+
     /** Rede conectada a esta máquina. Refeita a cada segundo ou quando um Drive some. */
     public ElementNetwork network() {
         Level lvl = getLevel();
         if (lvl == null) return ElementNetwork.EMPTY;
         long now = lvl.getGameTime();
         if (network == null || now - networkScanTime >= 20 || !network.isStillValid()) {
-            network = ElementNetwork.scan(lvl, worldPosition);
+            network = ElementNetwork.scan(lvl, networkOrigins());
             networkScanTime = now;
         }
         return network;
@@ -76,6 +157,15 @@ public abstract class MachineBlockEntity extends BlockEntity implements MenuProv
 
     protected boolean isClientSide() {
         return level != null && level.isClientSide();
+    }
+
+    /**
+     * Mantém a fração já concluída quando a duração muda no meio da operação
+     * (ex.: chips de velocidade instalados durante a produção).
+     */
+    protected static int rescaleProgress(int progress, int oldMax, int newMax) {
+        if (oldMax <= 0 || oldMax == newMax) return progress;
+        return (int) Math.min(newMax, (long) progress * newMax / oldMax);
     }
 
     protected static int permille(int progress, int max) {
@@ -90,10 +180,18 @@ public abstract class MachineBlockEntity extends BlockEntity implements MenuProv
     }
 
     @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        if (level != null && !level.isClientSide()) dropContents(level, pos, upgrades);
+    }
+
+    @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         owner = input.read("owner", UUIDUtil.CODEC).orElse(null);
         ownerName = input.getStringOr("owner_name", "");
+        enabled = input.getBooleanOr("enabled", true);
+        upgrades.deserialize(input.childOrEmpty("upgrades"));
     }
 
     @Override
@@ -101,5 +199,13 @@ public abstract class MachineBlockEntity extends BlockEntity implements MenuProv
         super.saveAdditional(output);
         if (owner != null) output.store("owner", UUIDUtil.CODEC, owner);
         output.putString("owner_name", ownerName);
+        output.putBoolean("enabled", enabled);
+        upgrades.serialize(output.child("upgrades"));
+    }
+
+    /** Posição enviada ao cliente ao abrir o menu (vale também para o openMenu do vanilla, ex.: modo espectador). */
+    @Override
+    public void writeClientSideData(net.minecraft.world.inventory.AbstractContainerMenu menu, net.minecraft.network.RegistryFriendlyByteBuf buffer) {
+        buffer.writeBlockPos(worldPosition);
     }
 }

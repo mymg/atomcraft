@@ -63,7 +63,7 @@ public abstract class MachineBlock extends BaseEntityBlock implements NetworkNod
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer
                 && level.getBlockEntity(pos) instanceof MenuProvider provider) {
-            serverPlayer.openMenu(provider, pos);
+            serverPlayer.openMenu(provider);
         }
         return InteractionResult.SUCCESS;
     }
@@ -80,7 +80,7 @@ public abstract class MachineBlock extends BaseEntityBlock implements NetworkNod
     public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide()) return null;
         return (tickLevel, tickPos, tickState, blockEntity) -> {
-            if (blockEntity instanceof MachineBlockEntity machine) machine.serverTick();
+            if (blockEntity instanceof MachineBlockEntity machine) machine.tick();
         };
     }
 }

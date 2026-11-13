@@ -55,7 +55,7 @@ public class CarbonGeneratorBlockEntity extends GeneratorBlockEntity {
 
     @Override
     protected int generate() {
-        int rate = Config.CARBON_RATE.get();
+        int rate = boostedRate(Config.CARBON_RATE.get());
         if (room() <= 0) {
             status = MachineStatus.IDLE;
             return 0;
@@ -70,7 +70,7 @@ public class CarbonGeneratorBlockEntity extends GeneratorBlockEntity {
                 status = MachineStatus.NO_ELEMENTS;
                 return 0;
             }
-            pending = Config.CARBON_FE_PER_ATOM.get();
+            pending = boostedYield(Config.CARBON_FE_PER_ATOM.get());
             burned++;
         }
         int generated = (int) Math.min(Math.min(rate, pending), room());
