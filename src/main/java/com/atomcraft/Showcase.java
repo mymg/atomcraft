@@ -114,6 +114,7 @@ final class Showcase {
         research.addProgress(player.getUUID(), Items.STONE, 27);
         analyzer.buffer().set(0, ItemResource.of(Items.STONE), 23);
         analyzer.buffer().set(1, ItemResource.of(Items.GOLD_INGOT), 6);
+        analyzer.buffer().set(2, ItemResource.of(Items.EMERALD), 50); // continua analisando no print do mundo
 
         for (Item item : List.of(Items.IRON_INGOT, Items.IRON_BLOCK, Items.IRON_NUGGET, Items.DIAMOND, Items.GOLD_INGOT,
                 Items.APPLE, Items.STICK, Items.TORCH, Items.GLASS, Items.BUCKET, Items.CAKE, Items.OAK_PLANKS,
