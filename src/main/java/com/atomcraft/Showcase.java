@@ -203,16 +203,11 @@ final class Showcase {
             player.openMenu(provider);
         }
         if (ticks == 1960) {
-            // Visão do reator formado no mundo
+            // Visão das máquinas de 2 blocos (Replicador, Drive, Atomizador e Analisador animados)
             player.closeContainer();
             player.getAbilities().mayfly = true;
             player.getAbilities().flying = true;
             player.onUpdateAbilities();
-            player.connection.teleport(base.getX() - 3.5, base.getY() + 4, base.getZ() + 0.5, -90f, 18f);
-        }
-        if (ticks == 2500) {
-            // Visão do Drive (discos nos slots) e do Analisador animado
-            // De sudoeste, olhando para nordeste: Replicador, Drive, Atomizador e Analisador.
             machinesView(player);
             // Itens novos, para o Analisador estar trabalhando (item girando na câmara) no print.
             if (player.level().getBlockEntity(base.north(2)) instanceof AnalyzerBlockEntity analyzer) {
@@ -222,10 +217,14 @@ final class Showcase {
                 }
             }
         }
-        if (ticks > 2500 && ticks < 3400 && ticks % 40 == 0) {
+        if (ticks > 1960 && ticks < 2300 && ticks % 20 == 0) {
             // Mantém a câmera no lugar (mobs/slimes podem empurrar o jogador)
             machinesView(player);
         }
-        if (ticks == 3400) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
+        if (ticks == 2300) {
+            // Visão do reator formado no mundo
+            player.connection.teleport(base.getX() - 3.5, base.getY() + 4, base.getZ() + 0.5, -90f, 18f);
+        }
+        if (ticks == 2900) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
     }
 }
