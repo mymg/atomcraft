@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "WRW",
+    "GSG",
+    "WRW"
+  ],
+  "key": {
+    "W": "atomcraft:copper_wire",
+    "R": "minecraft:redstone",
+    "G": "minecraft:gold_nugget",
+    "S": "atomcraft:silicon_wafer"
+  },
+  "result": {
+    "id": "atomcraft:circuit_board",
+    "count": 2
+  }
+}

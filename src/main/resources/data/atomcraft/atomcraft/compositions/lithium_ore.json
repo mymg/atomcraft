@@ -1,0 +1,9 @@
+{
+  "item": "atomcraft:lithium_ore",
+  "elements": {
+    "Li": 6,
+    "Al": 1,
+    "Si": 3,
+    "O": 2
+  }
+}

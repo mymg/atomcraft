@@ -2,13 +2,13 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    "ICI",
-    "CRC",
-    "ICI"
+    "SLS",
+    "LRL",
+    "SLS"
   ],
   "key": {
-    "I": "minecraft:iron_ingot",
-    "C": "minecraft:copper_ingot",
+    "S": "atomcraft:stainless_steel_plate",
+    "L": "atomcraft:lead_plate",
     "R": "minecraft:redstone"
   },
   "result": {

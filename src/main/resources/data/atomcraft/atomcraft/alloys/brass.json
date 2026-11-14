@@ -1,0 +1,11 @@
+{
+  "result": "atomcraft:brass_ingot",
+  "count": 1,
+  "elements": {
+    "Cu": 6,
+    "Zn": 3
+  },
+  "energy": 4000,
+  "ticks": 100,
+  "order": 30
+}

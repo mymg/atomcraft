@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "atomcraft:block/duralumin_block",
+    "top": "atomcraft:block/duralumin_block",
+    "side": "atomcraft:block/duralumin_block"
+  }
+}

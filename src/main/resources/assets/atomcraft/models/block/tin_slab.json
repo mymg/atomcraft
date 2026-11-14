@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "bottom": "atomcraft:block/tin_block",
+    "top": "atomcraft:block/tin_block",
+    "side": "atomcraft:block/tin_block"
+  }
+}

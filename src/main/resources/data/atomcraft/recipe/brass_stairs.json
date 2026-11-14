@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "#  ",
+    "## ",
+    "###"
+  ],
+  "key": {
+    "#": "atomcraft:brass_block"
+  },
+  "result": {
+    "id": "atomcraft:brass_stairs",
+    "count": 4
+  }
+}

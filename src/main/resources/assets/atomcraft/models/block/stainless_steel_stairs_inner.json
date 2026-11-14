@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/inner_stairs",
+  "textures": {
+    "bottom": "atomcraft:block/stainless_steel_block",
+    "top": "atomcraft:block/stainless_steel_block",
+    "side": "atomcraft:block/stainless_steel_block"
+  }
+}

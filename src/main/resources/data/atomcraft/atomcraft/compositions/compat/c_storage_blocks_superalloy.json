@@ -1,0 +1,10 @@
+{
+  "tag": "c:storage_blocks/superalloy",
+  "elements": {
+    "Ni": 45,
+    "Cr": 18,
+    "Co": 9,
+    "Ti": 9
+  },
+  "rarity": "epic"
+}

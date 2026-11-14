@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "atomcraft:block/alloy_forge"
+    },
+    "facing=east": {
+      "model": "atomcraft:block/alloy_forge",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "atomcraft:block/alloy_forge",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "atomcraft:block/alloy_forge",
+      "y": 270
+    }
+  }
+}

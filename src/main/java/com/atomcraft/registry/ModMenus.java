@@ -39,5 +39,8 @@ public final class ModMenus {
     public static final DeferredHolder<MenuType<?>, MenuType<SynthesizerMenu>> SYNTHESIZER =
             MENUS.register("synthesizer", () -> IMenuTypeExtension.create(SynthesizerMenu::client));
 
+    public static final DeferredHolder<MenuType<?>, MenuType<com.atomcraft.menu.AlloyForgeMenu>> ALLOY_FORGE =
+            MENUS.register("alloy_forge", () -> IMenuTypeExtension.create(com.atomcraft.menu.AlloyForgeMenu::client));
+
     private ModMenus() {}
 }

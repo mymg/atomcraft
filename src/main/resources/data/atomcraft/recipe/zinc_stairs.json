@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "#  ",
+    "## ",
+    "###"
+  ],
+  "key": {
+    "#": "atomcraft:zinc_block"
+  },
+  "result": {
+    "id": "atomcraft:zinc_stairs",
+    "count": 4
+  }
+}

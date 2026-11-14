@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "atomcraft:tungsten_carbide_block",
+  "result": {
+    "id": "atomcraft:tungsten_carbide_wall",
+    "count": 1
+  }
+}

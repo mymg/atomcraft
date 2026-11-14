@@ -174,6 +174,69 @@ final class SelfTest {
         tallAnalyzer(level, failures);
         generators(level, failures);
         controlsAndSynthesis(server, level, failures);
+        materials(server, level, failures);
+    }
+
+    /** Materiais: elementos novos, receitas da forja sem criar/destruir matéria, Forja de Ligas e minérios no mundo. */
+    private static void materials(MinecraftServer server, ServerLevel level, List<String> failures) {
+        for (String symbol : List.of("Li", "Ti", "V", "Cr", "Co", "W")) {
+            check(failures, com.atomcraft.chemistry.ChemicalElement.bySymbol(symbol) != null, "elemento " + symbol + " existe");
+        }
+        var recipes = com.atomcraft.alloy.AlloyRecipes.all();
+        check(failures, recipes.size() >= 17, "receitas da forja carregadas (" + recipes.size() + ")");
+        for (var recipe : recipes) {
+            var value = com.atomcraft.chemistry.AtomicValues.get(recipe.result(), false);
+            check(failures, value != null && value.composition().equals(recipe.elements()),
+                    "forja conserva a matéria: " + recipe.result() + " " + (value == null ? "sem valor" : value.composition()) + " vs " + recipe.elements());
+        }
+        for (var plate : com.atomcraft.material.ModMaterials.PLATES.values()) {
+            check(failures, com.atomcraft.chemistry.AtomicValues.get(plate.get(), false) != null, plate.getId() + " tem valor (derivado)");
+        }
+        check(failures, com.atomcraft.chemistry.AtomicValues.get(
+                com.atomcraft.material.ModMaterials.SLABS.get(com.atomcraft.material.Material.STEEL).get().asItem(), false) != null,
+                "laje de aço tem valor (derivado)");
+
+        // Forja: aço a partir de Fe e C da rede
+        BlockPos drivePos = new BlockPos(0, 120, 72);
+        level.getChunk(drivePos);
+        place(level, drivePos, ModBlocks.DRIVE.get());
+        place(level, drivePos.east(), ModBlocks.ALLOY_FORGE.get());
+        DriveBlockEntity drive = (DriveBlockEntity) level.getBlockEntity(drivePos);
+        var forge = (com.atomcraft.block.entity.AlloyForgeBlockEntity) level.getBlockEntity(drivePos.east());
+        drive.disks().set(0, ItemResource.of(ModItems.DISK_64K.get()), 1);
+        var network = forge.network();
+        var fe = com.atomcraft.chemistry.ChemicalElement.IRON;
+        var c = com.atomcraft.chemistry.ChemicalElement.CARBON;
+        network.insert(new com.atomcraft.chemistry.Composition(java.util.Map.of(fe, 16L, c, 2L)), 1);
+        forge.energy().set(forge.energy().getCapacityAsInt());
+        var steel = com.atomcraft.material.ModMaterials.INGOTS.get(com.atomcraft.material.Material.STEEL).get();
+        forge.select(steel);
+        for (int i = 0; i < 400; i++) forge.tick();
+        check(failures, forge.output().getAmountAsInt(0) == 2 && forge.output().getResource(0).getItem() == steel,
+                "forja fez 2 lingotes de aço (" + forge.output().getAmountAsInt(0) + ")");
+        check(failures, network.totals().get(fe) == 0 && network.totals().get(c) == 0, "forja consumiu Fe e C da rede");
+        forge.tick();
+        check(failures, forge.status() == MachineStatus.NO_ELEMENTS, "forja para sem elementos (" + forge.status() + ")");
+
+        // Minérios: features registradas e geradas
+        var placed = server.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.PLACED_FEATURE);
+        for (var ore : com.atomcraft.material.OreType.values()) {
+            check(failures, placed.get(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.PLACED_FEATURE,
+                    AtomCraft.id("ore_" + ore.id()))).isPresent(), "feature do minério " + ore.id() + " registrada");
+        }
+        int found = 0;
+        var tin = com.atomcraft.material.ModMaterials.ORES.get(com.atomcraft.material.OreType.TIN).get();
+        var deepTin = com.atomcraft.material.ModMaterials.DEEPSLATE_ORES.get(com.atomcraft.material.OreType.TIN).get();
+        for (int cx = -3; cx <= 3 && found == 0; cx++) {
+            for (int cz = -3; cz <= 3 && found == 0; cz++) {
+                var chunk = level.getChunk(cx, cz);
+                for (int x = 0; x < 16 && found == 0; x++) for (int z = 0; z < 16 && found == 0; z++) for (int y = -16; y < 112; y++) {
+                    var state = chunk.getBlockState(new BlockPos(cx * 16 + x, y, cz * 16 + z));
+                    if (state.is(tin) || state.is(deepTin)) { found++; break; }
+                }
+            }
+        }
+        check(failures, found > 0, "minério de estanho gerado no mundo");
     }
 
     /** Botão de ligar/desligar, chips de upgrade, Sintetizador e loot das schematics. */

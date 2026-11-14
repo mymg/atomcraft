@@ -1,0 +1,11 @@
+{
+  "result": "atomcraft:invar_ingot",
+  "count": 1,
+  "elements": {
+    "Fe": 6,
+    "Ni": 3
+  },
+  "energy": 12000,
+  "ticks": 160,
+  "order": 60
+}

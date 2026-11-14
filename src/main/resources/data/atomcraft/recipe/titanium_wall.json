@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": "atomcraft:titanium_block"
+  },
+  "result": {
+    "id": "atomcraft:titanium_wall",
+    "count": 6
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "bottom": "atomcraft:block/tungsten_carbide_block",
+    "top": "atomcraft:block/tungsten_carbide_block",
+    "side": "atomcraft:block/tungsten_carbide_block"
+  }
+}

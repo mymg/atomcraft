@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "atomcraft:block/cobalt_block"
+    }
+  }
+}

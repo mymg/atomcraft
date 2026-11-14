@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "atomcraft:duralumin_block",
+  "result": {
+    "id": "atomcraft:duralumin_stairs",
+    "count": 1
+  }
+}

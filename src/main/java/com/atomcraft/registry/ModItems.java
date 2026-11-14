@@ -31,6 +31,7 @@ public final class ModItems {
             properties -> new TallMachineItem(ModBlocks.REPLICATOR.get(), properties, "replicator"), Item.Properties::useBlockDescriptionPrefix);
     public static final DeferredItem<BlockItem> DRIVE = ITEMS.registerSimpleBlockItem(ModBlocks.DRIVE);
     public static final DeferredItem<BlockItem> CABLE = ITEMS.registerSimpleBlockItem(ModBlocks.CABLE);
+    public static final DeferredItem<BlockItem> ALLOY_FORGE = ITEMS.registerSimpleBlockItem(ModBlocks.ALLOY_FORGE);
     public static final DeferredItem<BlockItem> TERMINAL = ITEMS.registerSimpleBlockItem(ModBlocks.TERMINAL);
     public static final DeferredItem<BlockItem> SYNTHESIZER = ITEMS.registerSimpleBlockItem(ModBlocks.SYNTHESIZER,
             properties -> properties.rarity(Rarity.UNCOMMON));

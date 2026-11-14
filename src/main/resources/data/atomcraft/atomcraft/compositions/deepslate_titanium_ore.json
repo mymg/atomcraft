@@ -1,0 +1,11 @@
+{
+  "item": "atomcraft:deepslate_titanium_ore",
+  "elements": {
+    "Ti": 8,
+    "V": 1,
+    "Si": 1,
+    "O": 2,
+    "Mg": 1
+  },
+  "rarity": "uncommon"
+}

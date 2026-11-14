@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/inner_stairs",
+  "textures": {
+    "bottom": "atomcraft:block/tungsten_carbide_block",
+    "top": "atomcraft:block/tungsten_carbide_block",
+    "side": "atomcraft:block/tungsten_carbide_block"
+  }
+}

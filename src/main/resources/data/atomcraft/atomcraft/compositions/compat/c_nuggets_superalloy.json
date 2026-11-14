@@ -1,0 +1,10 @@
+{
+  "tag": "c:nuggets/superalloy",
+  "elements": {
+    "Ni": 1,
+    "Cr": 1,
+    "Co": 1,
+    "Ti": 1
+  },
+  "rarity": "epic"
+}

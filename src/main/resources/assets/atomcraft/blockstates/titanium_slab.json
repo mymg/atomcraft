@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "atomcraft:block/titanium_slab"
+    },
+    "type=top": {
+      "model": "atomcraft:block/titanium_slab_top"
+    },
+    "type=double": {
+      "model": "atomcraft:block/titanium_block"
+    }
+  }
+}

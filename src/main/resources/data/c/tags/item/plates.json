@@ -1,0 +1,20 @@
+{
+  "values": [
+    "#c:plates/tin",
+    "#c:plates/zinc",
+    "#c:plates/lead",
+    "#c:plates/nickel",
+    "#c:plates/cobalt",
+    "#c:plates/titanium",
+    "#c:plates/tungsten",
+    "#c:plates/steel",
+    "#c:plates/bronze",
+    "#c:plates/brass",
+    "#c:plates/stainless_steel",
+    "#c:plates/duralumin",
+    "#c:plates/invar",
+    "#c:plates/titanium_alloy",
+    "#c:plates/tungsten_carbide",
+    "#c:plates/superalloy"
+  ]
+}

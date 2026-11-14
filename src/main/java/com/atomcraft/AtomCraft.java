@@ -35,6 +35,7 @@ public class AtomCraft {
     }
 
     public AtomCraft(IEventBus modBus, ModContainer container) {
+        com.atomcraft.material.ModMaterials.init(); // registra os materiais antes de entregar os registros ao NeoForge
         ModBlocks.BLOCKS.register(modBus);
         ModItems.ITEMS.register(modBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modBus);
@@ -54,6 +55,7 @@ public class AtomCraft {
 
     private static void addReloadListeners(AddServerReloadListenersEvent event) {
         event.addListener(id("compositions"), new CompositionManager());
+        event.addListener(id("alloys"), new com.atomcraft.alloy.AlloyRecipes());
     }
 
     private static void onServerStarted(ServerStartedEvent event) {

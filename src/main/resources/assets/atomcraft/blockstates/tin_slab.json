@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "atomcraft:block/tin_slab"
+    },
+    "type=top": {
+      "model": "atomcraft:block/tin_slab_top"
+    },
+    "type=double": {
+      "model": "atomcraft:block/tin_block"
+    }
+  }
+}

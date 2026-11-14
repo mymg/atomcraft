@@ -1,0 +1,11 @@
+{
+  "result": "atomcraft:bronze_ingot",
+  "count": 1,
+  "elements": {
+    "Cu": 7,
+    "Sn": 2
+  },
+  "energy": 4000,
+  "ticks": 100,
+  "order": 20
+}

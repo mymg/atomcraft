@@ -1,0 +1,10 @@
+{
+  "tag": "c:gears/superalloy",
+  "elements": {
+    "Ni": 20,
+    "Cr": 8,
+    "Co": 4,
+    "Ti": 4
+  },
+  "rarity": "epic"
+}

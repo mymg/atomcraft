@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###"
+  ],
+  "key": {
+    "#": "atomcraft:bronze_block"
+  },
+  "result": {
+    "id": "atomcraft:bronze_slab",
+    "count": 6
+  }
+}

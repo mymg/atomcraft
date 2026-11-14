@@ -1,0 +1,11 @@
+{
+  "result": "atomcraft:tungsten_carbide_ingot",
+  "count": 1,
+  "elements": {
+    "W": 5,
+    "C": 4
+  },
+  "energy": 40000,
+  "ticks": 240,
+  "order": 80
+}

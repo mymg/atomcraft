@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": "atomcraft:zinc_block"
+  },
+  "result": {
+    "id": "atomcraft:zinc_wall",
+    "count": 6
+  }
+}

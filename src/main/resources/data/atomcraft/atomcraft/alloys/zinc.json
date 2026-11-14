@@ -1,0 +1,10 @@
+{
+  "result": "atomcraft:zinc_ingot",
+  "count": 1,
+  "elements": {
+    "Zn": 9
+  },
+  "energy": 2000,
+  "ticks": 60,
+  "order": 110
+}

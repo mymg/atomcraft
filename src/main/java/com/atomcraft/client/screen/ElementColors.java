@@ -11,6 +11,7 @@ public final class ElementColors {
         return switch (element) {
             case HYDROGEN -> 0xFFF2F2F2;
             case HELIUM -> 0xFFC8F7FF;
+            case LITHIUM -> 0xFFCC80FF;
             case BERYLLIUM -> 0xFFB8E85A;
             case CARBON -> 0xFFE02626;
             case NITROGEN -> 0xFF3A5BF0;
@@ -24,12 +25,17 @@ public final class ElementColors {
             case CHLORINE -> 0xFF2FE07A;
             case POTASSIUM -> 0xFF8F40D4;
             case CALCIUM -> 0xFF9CD69C;
+            case TITANIUM -> 0xFFBFC2C7;
+            case VANADIUM -> 0xFFA6A6AB;
+            case CHROMIUM -> 0xFF8A99C7;
             case IRON -> 0xFFC9CED4;
+            case COBALT -> 0xFFF090A0;
             case NICKEL -> 0xFF9FB08A;
             case COPPER -> 0xFFC97B3A;
             case ZINC -> 0xFF8E96B8;
             case SILVER -> 0xFFE3E7EC;
             case TIN -> 0xFFA9B7C2;
+            case TUNGSTEN -> 0xFF2194D6;
             case OSMIUM -> 0xFF5C7FA3;
             case IRIDIUM -> 0xFFD8E8F0;
             case PLATINUM -> 0xFFC9D3DD;

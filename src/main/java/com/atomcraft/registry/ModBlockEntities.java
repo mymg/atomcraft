@@ -39,6 +39,8 @@ public final class ModBlockEntities {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<TerminalBlockEntity>> TERMINAL =
             BLOCK_ENTITIES.register("terminal", () -> new BlockEntityType<>(TerminalBlockEntity::new, ModBlocks.TERMINAL.get()));
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.atomcraft.block.entity.AlloyForgeBlockEntity>> ALLOY_FORGE =
+            BLOCK_ENTITIES.register("alloy_forge", () -> new BlockEntityType<>(com.atomcraft.block.entity.AlloyForgeBlockEntity::new, ModBlocks.ALLOY_FORGE.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SynthesizerBlockEntity>> SYNTHESIZER =
             BLOCK_ENTITIES.register("synthesizer", () -> new BlockEntityType<>(SynthesizerBlockEntity::new, ModBlocks.SYNTHESIZER.get()));
 

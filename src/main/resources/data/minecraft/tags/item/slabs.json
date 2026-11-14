@@ -1,0 +1,20 @@
+{
+  "values": [
+    "atomcraft:tin_slab",
+    "atomcraft:zinc_slab",
+    "atomcraft:lead_slab",
+    "atomcraft:nickel_slab",
+    "atomcraft:cobalt_slab",
+    "atomcraft:titanium_slab",
+    "atomcraft:tungsten_slab",
+    "atomcraft:steel_slab",
+    "atomcraft:bronze_slab",
+    "atomcraft:brass_slab",
+    "atomcraft:stainless_steel_slab",
+    "atomcraft:duralumin_slab",
+    "atomcraft:invar_slab",
+    "atomcraft:titanium_alloy_slab",
+    "atomcraft:tungsten_carbide_slab",
+    "atomcraft:superalloy_slab"
+  ]
+}

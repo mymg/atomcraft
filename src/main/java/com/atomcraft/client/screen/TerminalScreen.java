@@ -18,7 +18,7 @@ import java.util.List;
 public class TerminalScreen extends MachineScreen<TerminalMenu> {
 
     /** Grupos da tabela que o mod usa, na ordem das colunas. */
-    private static final int[] GROUPS = {1, 2, 3, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18};
+    private static final int[] GROUPS = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18};
     /** Períodos que o mod usa, na ordem das linhas. */
     private static final int[] PERIODS = {1, 2, 3, 4, 5, 6, 7};
     public static final int CELL_W = 20, CELL_H = 24, TABLE_X = 12, TABLE_Y = 22, STORAGE_Y = 196;
@@ -34,8 +34,7 @@ public class TerminalScreen extends MachineScreen<TerminalMenu> {
         return false;
     }
 
-    /** Posição relativa da célula do elemento. */
-    /** Posição da célula do elemento, relativa ao painel de 304 de largura (também usada na partição de discos). */
+    /** Posição da célula do elemento, relativa ao painel de 384 de largura (também usada na partição de discos). */
     public static int[] cell(ChemicalElement element) {
         if (element.exotic()) {
             int index = element.ordinal() - ChemicalElement.REDSTONIUM.ordinal();

@@ -1,0 +1,8 @@
+{
+  "item": "atomcraft:tin_ore",
+  "elements": {
+    "Sn": 9,
+    "Si": 1,
+    "O": 2
+  }
+}

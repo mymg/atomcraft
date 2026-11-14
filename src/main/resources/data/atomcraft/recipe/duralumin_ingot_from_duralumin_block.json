@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "atomcraft:duralumin_block"
+  ],
+  "result": {
+    "id": "atomcraft:duralumin_ingot",
+    "count": 9
+  }
+}

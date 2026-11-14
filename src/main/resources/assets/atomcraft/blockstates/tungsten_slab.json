@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "atomcraft:block/tungsten_slab"
+    },
+    "type=top": {
+      "model": "atomcraft:block/tungsten_slab_top"
+    },
+    "type=double": {
+      "model": "atomcraft:block/tungsten_block"
+    }
+  }
+}

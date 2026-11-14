@@ -1,0 +1,8 @@
+{
+  "item": "atomcraft:invar_ingot",
+  "elements": {
+    "Fe": 6,
+    "Ni": 3
+  },
+  "rarity": "uncommon"
+}

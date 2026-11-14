@@ -1,0 +1,8 @@
+{
+  "item": "atomcraft:nickel_ore",
+  "elements": {
+    "Ni": 9,
+    "Si": 1,
+    "O": 2
+  }
+}

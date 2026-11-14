@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/stairs",
+  "textures": {
+    "bottom": "atomcraft:block/zinc_block",
+    "top": "atomcraft:block/zinc_block",
+    "side": "atomcraft:block/zinc_block"
+  }
+}

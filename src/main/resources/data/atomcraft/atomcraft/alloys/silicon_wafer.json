@@ -1,0 +1,10 @@
+{
+  "result": "atomcraft:silicon_wafer",
+  "count": 1,
+  "elements": {
+    "Si": 9
+  },
+  "energy": 6000,
+  "ticks": 120,
+  "order": 170
+}

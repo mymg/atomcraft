@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###"
+  ],
+  "key": {
+    "#": "atomcraft:superalloy_block"
+  },
+  "result": {
+    "id": "atomcraft:superalloy_slab",
+    "count": 6
+  }
+}

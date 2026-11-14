@@ -70,6 +70,7 @@ public class AtomCraftClient {
         event.register(ModMenus.FUSION_REACTOR.get(), GeneratorScreen::new);
         event.register(ModMenus.TERMINAL.get(), TerminalScreen::new);
         event.register(ModMenus.SYNTHESIZER.get(), SynthesizerScreen::new);
+        event.register(ModMenus.ALLOY_FORGE.get(), com.atomcraft.client.screen.AlloyForgeScreen::new);
     }
 
     /** Mostra a fórmula, a raridade e o progresso de pesquisa no tooltip de cada item. */

@@ -21,6 +21,8 @@ public final class ModCapabilities {
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.CARBON_GENERATOR.get(), (be, side) -> be.energy());
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.FUSION_REACTOR.get(), (be, side) -> be.energy());
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.SYNTHESIZER.get(), (be, side) -> be.energy());
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.ALLOY_FORGE.get(), (be, side) -> be.energy());
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.ALLOY_FORGE.get(), (be, side) -> be.automation());
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.REACTOR_PORT.get(), (be, side) -> be.energy());
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.SYNTHESIZER.get(), (be, side) -> be.automation());
     }

@@ -1,0 +1,9 @@
+{
+  "item": "atomcraft:stainless_steel_ingot",
+  "elements": {
+    "Fe": 6,
+    "Cr": 2,
+    "Ni": 1
+  },
+  "rarity": "uncommon"
+}
