@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###"
+  ],
+  "key": {
+    "#": "atomcraft:nickel_block"
+  },
+  "result": {
+    "id": "atomcraft:nickel_slab",
+    "count": 6
+  }
+}

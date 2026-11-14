@@ -1,0 +1,9 @@
+{
+  "tag": "c:wires/stainless_steel",
+  "elements": {
+    "Fe": 3,
+    "Cr": 1,
+    "Ni": 1
+  },
+  "rarity": "uncommon"
+}

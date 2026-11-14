@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "#",
+    "#"
+  ],
+  "key": {
+    "#": "atomcraft:superalloy_ingot"
+  },
+  "result": {
+    "id": "atomcraft:superalloy_plate",
+    "count": 2
+  }
+}

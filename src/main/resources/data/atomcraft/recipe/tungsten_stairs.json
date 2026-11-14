@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "#  ",
+    "## ",
+    "###"
+  ],
+  "key": {
+    "#": "atomcraft:tungsten_block"
+  },
+  "result": {
+    "id": "atomcraft:tungsten_stairs",
+    "count": 4
+  }
+}

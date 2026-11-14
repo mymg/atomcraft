@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:smelting",
+  "category": "misc",
+  "ingredient": "atomcraft:raw_tin",
+  "result": {
+    "id": "atomcraft:tin_ingot"
+  },
+  "experience": 0.7,
+  "cookingtime": 200
+}

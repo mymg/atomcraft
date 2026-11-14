@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "atomcraft:zinc_block"
+  ],
+  "result": {
+    "id": "atomcraft:zinc_ingot",
+    "count": 9
+  }
+}

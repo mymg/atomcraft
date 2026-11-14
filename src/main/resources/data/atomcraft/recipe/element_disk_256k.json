@@ -2,14 +2,15 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    "DRD",
-    "RAR",
-    "DDD"
+    "PRP",
+    "DCD",
+    "PPP"
   ],
   "key": {
-    "D": "minecraft:diamond",
+    "P": "atomcraft:stainless_steel_plate",
     "R": "minecraft:redstone",
-    "A": "minecraft:amethyst_shard"
+    "D": "minecraft:diamond",
+    "C": "atomcraft:circuit_board"
   },
   "result": {
     "id": "atomcraft:element_disk_256k",

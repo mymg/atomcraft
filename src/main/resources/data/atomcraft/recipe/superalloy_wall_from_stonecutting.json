@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "atomcraft:superalloy_block",
+  "result": {
+    "id": "atomcraft:superalloy_wall",
+    "count": 1
+  }
+}

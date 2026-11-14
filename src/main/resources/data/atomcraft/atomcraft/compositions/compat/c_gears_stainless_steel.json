@@ -1,0 +1,9 @@
+{
+  "tag": "c:gears/stainless_steel",
+  "elements": {
+    "Fe": 24,
+    "Cr": 8,
+    "Ni": 4
+  },
+  "rarity": "uncommon"
+}

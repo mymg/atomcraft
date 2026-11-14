@@ -1,0 +1,20 @@
+{
+  "values": [
+    "#c:ingots/tin",
+    "#c:ingots/zinc",
+    "#c:ingots/lead",
+    "#c:ingots/nickel",
+    "#c:ingots/cobalt",
+    "#c:ingots/titanium",
+    "#c:ingots/tungsten",
+    "#c:ingots/steel",
+    "#c:ingots/bronze",
+    "#c:ingots/brass",
+    "#c:ingots/stainless_steel",
+    "#c:ingots/duralumin",
+    "#c:ingots/invar",
+    "#c:ingots/titanium_alloy",
+    "#c:ingots/tungsten_carbide",
+    "#c:ingots/superalloy"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###"
+  ],
+  "key": {
+    "#": "atomcraft:stainless_steel_block"
+  },
+  "result": {
+    "id": "atomcraft:stainless_steel_slab",
+    "count": 6
+  }
+}

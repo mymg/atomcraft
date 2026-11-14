@@ -2,12 +2,13 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    "IRI",
+    "PCP",
     "AAA",
-    "IRI"
+    "PRP"
   ],
   "key": {
-    "I": "minecraft:iron_ingot",
+    "P": "atomcraft:steel_plate",
+    "C": "atomcraft:circuit_board",
     "A": "minecraft:amethyst_shard",
     "R": "minecraft:redstone"
   },

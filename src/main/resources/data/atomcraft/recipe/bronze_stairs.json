@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "#  ",
+    "## ",
+    "###"
+  ],
+  "key": {
+    "#": "atomcraft:bronze_block"
+  },
+  "result": {
+    "id": "atomcraft:bronze_stairs",
+    "count": 4
+  }
+}

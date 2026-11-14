@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "atomcraft:block/duralumin_block"
+    }
+  }
+}

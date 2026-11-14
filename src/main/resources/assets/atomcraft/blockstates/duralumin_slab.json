@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "atomcraft:block/duralumin_slab"
+    },
+    "type=top": {
+      "model": "atomcraft:block/duralumin_slab_top"
+    },
+    "type=double": {
+      "model": "atomcraft:block/duralumin_block"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "tag": "c:ores/chromium",
+  "elements": {
+    "Cr": 9,
+    "Si": 1,
+    "O": 2
+  }
+}

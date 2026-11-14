@@ -1,0 +1,9 @@
+{
+  "tag": "c:storage_blocks/stainless_steel",
+  "elements": {
+    "Fe": 54,
+    "Cr": 18,
+    "Ni": 9
+  },
+  "rarity": "uncommon"
+}

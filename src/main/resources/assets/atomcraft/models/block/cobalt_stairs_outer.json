@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/outer_stairs",
+  "textures": {
+    "bottom": "atomcraft:block/cobalt_block",
+    "top": "atomcraft:block/cobalt_block",
+    "side": "atomcraft:block/cobalt_block"
+  }
+}

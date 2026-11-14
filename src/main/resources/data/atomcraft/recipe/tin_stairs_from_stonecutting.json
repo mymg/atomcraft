@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "atomcraft:tin_block",
+  "result": {
+    "id": "atomcraft:tin_stairs",
+    "count": 1
+  }
+}

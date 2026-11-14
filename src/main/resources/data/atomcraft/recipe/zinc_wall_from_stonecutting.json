@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "atomcraft:zinc_block",
+  "result": {
+    "id": "atomcraft:zinc_wall",
+    "count": 1
+  }
+}

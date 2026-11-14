@@ -1,0 +1,10 @@
+{
+  "tag": "c:ingots/superalloy",
+  "elements": {
+    "Ni": 5,
+    "Cr": 2,
+    "Co": 1,
+    "Ti": 1
+  },
+  "rarity": "epic"
+}

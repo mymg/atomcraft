@@ -2,12 +2,12 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    "GMG",
+    "TMT",
     "MEM",
-    "GMG"
+    "TMT"
   ],
   "key": {
-    "G": "minecraft:gold_ingot",
+    "T": "atomcraft:tungsten_carbide_plate",
     "M": "atomcraft:magnetic_coil",
     "E": "minecraft:ender_eye"
   },

@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "atomcraft:block/brass_slab"
+    },
+    "type=top": {
+      "model": "atomcraft:block/brass_slab_top"
+    },
+    "type=double": {
+      "model": "atomcraft:block/brass_block"
+    }
+  }
+}

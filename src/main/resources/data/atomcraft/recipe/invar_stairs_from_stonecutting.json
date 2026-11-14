@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "atomcraft:invar_block",
+  "result": {
+    "id": "atomcraft:invar_stairs",
+    "count": 1
+  }
+}

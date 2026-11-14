@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": "atomcraft:cobalt_ingot"
+  },
+  "result": {
+    "id": "atomcraft:cobalt_block",
+    "count": 1
+  }
+}

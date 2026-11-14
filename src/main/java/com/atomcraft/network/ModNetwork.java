@@ -27,6 +27,8 @@ public final class ModNetwork {
                 (payload, context) -> AtomicValues.setClientValues(payload.values()));
         registrar.playToClient(ResearchSyncPayload.TYPE, ResearchSyncPayload.STREAM_CODEC,
                 (payload, context) -> ClientState.setResearch(payload.progress(), payload.discovered()));
+        registrar.playToClient(AlloySyncPayload.TYPE, AlloySyncPayload.STREAM_CODEC,
+                (payload, context) -> com.atomcraft.alloy.AlloyRecipes.set(payload.recipes()));
         registrar.playToClient(NetworkContentsPayload.TYPE, NetworkContentsPayload.STREAM_CODEC,
                 (payload, context) -> ClientState.setNetwork(payload.totals(), payload.capacity(), payload.used()));
         registrar.playToServer(ReplicatePayload.TYPE, ReplicatePayload.STREAM_CODEC, ModNetwork::handleReplicate);
@@ -62,6 +64,8 @@ public final class ModNetwork {
         if (!(context.player() instanceof ServerPlayer player) || !inReach(player, payload.pos())) return;
         if (player.level().getBlockEntity(payload.pos()) instanceof SynthesizerBlockEntity synthesizer) {
             synthesizer.select(payload.item());
+        } else if (player.level().getBlockEntity(payload.pos()) instanceof com.atomcraft.block.entity.AlloyForgeBlockEntity forge) {
+            forge.select(payload.item());
         }
     }
 
@@ -79,6 +83,7 @@ public final class ModNetwork {
     /** Envia valores atômicos e pesquisa ao jogador (ao entrar e após /reload). */
     public static void syncAll(ServerPlayer player) {
         PacketDistributor.sendToPlayer(player, new ValuesSyncPayload(AtomicValues.serverValues()));
+        PacketDistributor.sendToPlayer(player, new AlloySyncPayload(com.atomcraft.alloy.AlloyRecipes.all()));
         syncResearch(player);
     }
 

@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": "atomcraft:duralumin_block"
+  },
+  "result": {
+    "id": "atomcraft:duralumin_wall",
+    "count": 6
+  }
+}

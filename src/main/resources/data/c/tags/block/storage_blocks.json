@@ -1,0 +1,20 @@
+{
+  "values": [
+    "#c:storage_blocks/tin",
+    "#c:storage_blocks/zinc",
+    "#c:storage_blocks/lead",
+    "#c:storage_blocks/nickel",
+    "#c:storage_blocks/cobalt",
+    "#c:storage_blocks/titanium",
+    "#c:storage_blocks/tungsten",
+    "#c:storage_blocks/steel",
+    "#c:storage_blocks/bronze",
+    "#c:storage_blocks/brass",
+    "#c:storage_blocks/stainless_steel",
+    "#c:storage_blocks/duralumin",
+    "#c:storage_blocks/invar",
+    "#c:storage_blocks/titanium_alloy",
+    "#c:storage_blocks/tungsten_carbide",
+    "#c:storage_blocks/superalloy"
+  ]
+}

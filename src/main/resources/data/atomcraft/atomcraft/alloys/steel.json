@@ -1,0 +1,11 @@
+{
+  "result": "atomcraft:steel_ingot",
+  "count": 1,
+  "elements": {
+    "Fe": 8,
+    "C": 1
+  },
+  "energy": 4000,
+  "ticks": 100,
+  "order": 10
+}

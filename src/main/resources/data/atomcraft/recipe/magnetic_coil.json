@@ -2,13 +2,13 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    "CRC",
-    "RIR",
-    "CRC"
+    "WSW",
+    "SIS",
+    "WSW"
   ],
   "key": {
-    "C": "minecraft:copper_ingot",
-    "R": "minecraft:redstone",
+    "W": "atomcraft:copper_wire",
+    "S": "atomcraft:invar_plate",
     "I": "minecraft:iron_block"
   },
   "result": {

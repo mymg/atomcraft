@@ -1,0 +1,10 @@
+{
+  "tag": "c:rods/superalloy",
+  "elements": {
+    "Ni": 2,
+    "Cr": 1,
+    "Co": 1,
+    "Ti": 1
+  },
+  "rarity": "epic"
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "#  ",
+    "## ",
+    "###"
+  ],
+  "key": {
+    "#": "atomcraft:nickel_block"
+  },
+  "result": {
+    "id": "atomcraft:nickel_stairs",
+    "count": 4
+  }
+}

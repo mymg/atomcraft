@@ -1,0 +1,13 @@
+{
+  "result": "atomcraft:superalloy_ingot",
+  "count": 1,
+  "elements": {
+    "Ni": 5,
+    "Cr": 2,
+    "Co": 1,
+    "Ti": 1
+  },
+  "energy": 120000,
+  "ticks": 400,
+  "order": 90
+}

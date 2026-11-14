@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "atomcraft:block/superalloy_slab"
+    },
+    "type=top": {
+      "model": "atomcraft:block/superalloy_slab_top"
+    },
+    "type=double": {
+      "model": "atomcraft:block/superalloy_block"
+    }
+  }
+}

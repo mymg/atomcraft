@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###"
+  ],
+  "key": {
+    "#": "atomcraft:titanium_alloy_block"
+  },
+  "result": {
+    "id": "atomcraft:titanium_alloy_slab",
+    "count": 6
+  }
+}

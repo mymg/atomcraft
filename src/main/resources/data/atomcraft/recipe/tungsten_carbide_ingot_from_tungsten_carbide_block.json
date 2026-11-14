@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "atomcraft:tungsten_carbide_block"
+  ],
+  "result": {
+    "id": "atomcraft:tungsten_carbide_ingot",
+    "count": 9
+  }
+}

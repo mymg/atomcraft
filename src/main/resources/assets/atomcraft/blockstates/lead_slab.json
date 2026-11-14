@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "atomcraft:block/lead_slab"
+    },
+    "type=top": {
+      "model": "atomcraft:block/lead_slab_top"
+    },
+    "type=double": {
+      "model": "atomcraft:block/lead_block"
+    }
+  }
+}

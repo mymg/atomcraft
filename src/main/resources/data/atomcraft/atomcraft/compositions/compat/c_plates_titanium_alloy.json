@@ -1,0 +1,9 @@
+{
+  "tag": "c:plates/titanium_alloy",
+  "elements": {
+    "Ti": 7,
+    "Al": 1,
+    "V": 1
+  },
+  "rarity": "rare"
+}

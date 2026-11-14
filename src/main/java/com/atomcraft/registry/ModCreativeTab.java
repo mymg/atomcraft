@@ -31,6 +31,7 @@ public final class ModCreativeTab {
                 output.accept(ModItems.CENTRAL_SOLENOID.get());
                 output.accept(ModItems.REACTOR_PORT.get());
                 output.accept(ModItems.SYNTHESIZER.get());
+                output.accept(ModItems.ALLOY_FORGE.get());
                 output.accept(ModItems.SPEED_UPGRADE.get());
                 output.accept(ModItems.EFFICIENCY_UPGRADE.get());
                 output.accept(ModItems.SPEED_UPGRADE_SCHEMATIC.get());
@@ -42,6 +43,15 @@ public final class ModCreativeTab {
                 output.accept(ModItems.DISK_256K.get());
                 output.accept(ModItems.DISK_1M.get());
             })
+            .build());
+
+    /** Aba de materiais: minérios, lingotes, chapas, blocos de construção e componentes. */
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MATERIALS = TABS.register("materials", () -> CreativeModeTab.builder()
+            .title(Component.translatable("itemGroup.atomcraft.materials"))
+            .icon(() -> new ItemStack(com.atomcraft.material.ModMaterials.INGOTS.get(com.atomcraft.material.Material.STEEL).get()))
+            .withTabsBefore(MAIN.getKey())
+            .displayItems((parameters, output) ->
+                    com.atomcraft.material.ModMaterials.TAB_ORDER.forEach(item -> output.accept(item.get())))
             .build());
 
     private ModCreativeTab() {}

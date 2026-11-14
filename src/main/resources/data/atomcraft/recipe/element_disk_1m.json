@@ -2,14 +2,15 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    "SRS",
-    "RER",
-    "SSS"
+    "PRP",
+    "ECE",
+    "PPP"
   ],
   "key": {
-    "S": "minecraft:shulker_shell",
+    "P": "atomcraft:titanium_alloy_plate",
     "R": "minecraft:redstone",
-    "E": "minecraft:ender_eye"
+    "E": "minecraft:ender_eye",
+    "C": "atomcraft:circuit_board"
   },
   "result": {
     "id": "atomcraft:element_disk_1m",

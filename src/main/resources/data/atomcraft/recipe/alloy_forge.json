@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "IAI",
+    "CFC",
+    "IRI"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "A": "minecraft:amethyst_shard",
+    "C": "minecraft:copper_ingot",
+    "F": "minecraft:blast_furnace",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "atomcraft:alloy_forge",
+    "count": 1
+  }
+}

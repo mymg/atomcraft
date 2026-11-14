@@ -176,10 +176,14 @@ METALS = [
     ("zinc", "Zn9", None, True), ("aluminum", "Al9", None, True), ("silver", "Ag9", "uncommon", True),
     ("osmium", "Os9", "rare", True), ("platinum", "Pt9", "rare", True), ("iridium", "Ir9", "rare", True),
     ("uranium", "U9", "rare", True),
+    ("titanium", "Ti9", "uncommon", True), ("tungsten", "W9", "rare", True), ("cobalt", "Co9", "uncommon", True),
+    ("chromium", "Cr9", None, True), ("lithium", "Li9", None, True),
     # Ligas
     ("bronze", "Cu7 Sn2", None, False), ("brass", "Cu6 Zn3", None, False), ("steel", "Fe8 C1", None, False),
     ("invar", "Fe6 Ni3", None, False), ("constantan", "Cu5 Ni4", None, False),
-    ("electrum", "Au5 Ag4", "uncommon", False),
+    ("electrum", "Au5 Ag4", "uncommon", False), ("stainless_steel", "Fe6 Cr2 Ni1", "uncommon", False),
+    ("duralumin", "Al7 Cu1 Mg1", "uncommon", False), ("titanium_alloy", "Ti7 Al1 V1", "rare", False),
+    ("tungsten_carbide", "W5 C4", "rare", False), ("superalloy", "Ni5 Cr2 Co1 Ti1", "epic", False),
     # All the Mods (Allthemodium): metais fictícios → elementos exóticos
     ("allthemodium", "Ad9", "epic", True), ("vibranium", "Vb9", "legendary", True),
     ("unobtainium", "Ub9", "legendary", True),
@@ -225,7 +229,7 @@ for tag, formula, rarity in COMPAT:
     w(f"data/atomcraft/atomcraft/compositions/compat/{tag.replace(':', '_').replace('/', '_')}.json", entry)
 
 # ---------- Blocos ----------
-MACHINES = ["atomizer", "analyzer", "replicator", "drive", "terminal", "combustion_generator", "carbon_generator", "fusion_reactor", "synthesizer"]
+MACHINES = ["atomizer", "analyzer", "replicator", "drive", "terminal", "combustion_generator", "carbon_generator", "fusion_reactor", "synthesizer", "alloy_forge"]
 GENERATORS = ["combustion_generator", "carbon_generator"]
 for b in MACHINES:
     if b in GENERATORS:
@@ -418,8 +422,6 @@ for b in MACHINES + ["atomic_cable"] + REACTOR_PARTS:
         conditions.append({"condition": "minecraft:block_state_property", "block": f"atomcraft:{b}", "properties": {"half": "lower"}})
     w(f"data/atomcraft/loot_table/blocks/{b}.json", {"type": "minecraft:block", "pools": [{"rolls": 1,
         "entries": [{"type": "minecraft:item", "name": f"atomcraft:{b}"}], "conditions": conditions}]})
-w("data/minecraft/tags/block/mineable/pickaxe.json", {"values": [f"atomcraft:{b}" for b in MACHINES + ["atomic_cable"] + REACTOR_PARTS]})
-w("data/minecraft/tags/block/needs_iron_tool.json", {"values": [f"atomcraft:{b}" for b in MACHINES + REACTOR_PARTS]})
 
 # Receitas
 def shaped(name, pattern, key, result, count=1):
@@ -427,29 +429,270 @@ def shaped(name, pattern, key, result, count=1):
         "pattern": pattern, "key": key, "result": {"id": result, "count": count}})
 IRON, RED, AME = "minecraft:iron_ingot", "minecraft:redstone", "minecraft:amethyst_shard"
 shaped("atomizer", ["IAI", "ARA", "IRI"], {"I": IRON, "A": AME, "R": RED}, "atomcraft:atomizer")
-shaped("analyzer", ["IRI", "AAA", "IRI"], {"I": IRON, "A": AME, "R": RED}, "atomcraft:analyzer")
-shaped("replicator", ["DED", "IRI", "DED"], {"D": "minecraft:diamond", "E": "minecraft:ender_pearl", "I": IRON, "R": "minecraft:redstone_block"}, "atomcraft:replicator")
+# Progressão: atomizador, drive, terminal, gerador a combustão, disco 16k, cabo e Forja de Ligas usam só
+# itens do vanilla; o resto pede ligas (aço → inox/invar → titânio/carbeto → superliga) e circuitos.
+def plate(m): return f"atomcraft:{m}_plate"
+CIRCUIT, WIRE = "atomcraft:circuit_board", "atomcraft:copper_wire"
+shaped("alloy_forge", ["IAI", "CFC", "IRI"], {"I": IRON, "A": AME, "C": "minecraft:copper_ingot", "F": "minecraft:blast_furnace", "R": RED}, "atomcraft:alloy_forge")
+shaped("analyzer", ["PCP", "AAA", "PRP"], {"P": plate("steel"), "C": CIRCUIT, "A": AME, "R": RED}, "atomcraft:analyzer")
+shaped("replicator", ["PCP", "ERE", "PDP"], {"P": plate("steel"), "C": CIRCUIT, "E": "minecraft:ender_pearl", "R": "minecraft:redstone_block", "D": "minecraft:diamond"}, "atomcraft:replicator")
 shaped("drive", ["IRI", "ICI", "IAI"], {"I": IRON, "R": RED, "C": "minecraft:chest", "A": AME}, "atomcraft:drive")
 shaped("terminal", ["IGI", "ARA", "III"], {"I": IRON, "G": "minecraft:glass", "A": AME, "R": RED}, "atomcraft:terminal")
 shaped("combustion_generator", ["III", "IFI", "CRC"], {"I": IRON, "F": "minecraft:furnace", "C": "minecraft:copper_ingot", "R": RED}, "atomcraft:combustion_generator")
-shaped("carbon_generator", ["IAI", "AGA", "IBI"], {"I": IRON, "A": AME, "G": "atomcraft:combustion_generator", "B": "minecraft:blast_furnace"}, "atomcraft:carbon_generator")
-shaped("fusion_reactor", ["IEI", "DSD", "IEI"], {"I": "minecraft:iron_block", "E": "minecraft:end_crystal", "D": "minecraft:diamond_block", "S": "minecraft:nether_star"}, "atomcraft:fusion_reactor")
-shaped("synthesizer", ["GAG", "RCR", "GAG"], {"G": "minecraft:gold_ingot", "A": AME, "R": RED, "C": "minecraft:crafting_table"}, "atomcraft:synthesizer")
-shaped("reactor_casing", ["ICI", "CRC", "ICI"], {"I": IRON, "C": "minecraft:copper_ingot", "R": RED}, "atomcraft:reactor_casing", 8)
+shaped("carbon_generator", ["PAP", "AGA", "PBP"], {"P": plate("steel"), "A": AME, "G": "atomcraft:combustion_generator", "B": "minecraft:blast_furnace"}, "atomcraft:carbon_generator")
+shaped("fusion_reactor", ["SCS", "ENE", "SCS"], {"S": plate("superalloy"), "C": CIRCUIT, "E": "minecraft:end_crystal", "N": "minecraft:nether_star"}, "atomcraft:fusion_reactor")
+shaped("synthesizer", ["GCG", "RTR", "PPP"], {"G": "minecraft:gold_ingot", "C": CIRCUIT, "R": RED, "T": "minecraft:crafting_table", "P": plate("brass")}, "atomcraft:synthesizer")
+shaped("reactor_casing", ["SLS", "LRL", "SLS"], {"S": plate("stainless_steel"), "L": plate("lead"), "R": RED}, "atomcraft:reactor_casing", 8)
 shaped("reactor_glass", ["XGX", "G G", "XGX"], {"X": "atomcraft:reactor_casing", "G": "minecraft:glass"}, "atomcraft:reactor_glass", 4)
-shaped("magnetic_coil", ["CRC", "RIR", "CRC"], {"C": "minecraft:copper_ingot", "R": RED, "I": "minecraft:iron_block"}, "atomcraft:magnetic_coil", 2)
-shaped("central_solenoid", ["GMG", "MEM", "GMG"], {"G": "minecraft:gold_ingot", "M": "atomcraft:magnetic_coil", "E": "minecraft:ender_eye"}, "atomcraft:central_solenoid")
+shaped("magnetic_coil", ["WSW", "SIS", "WSW"], {"W": WIRE, "S": plate("invar"), "I": "minecraft:iron_block"}, "atomcraft:magnetic_coil", 2)
+shaped("central_solenoid", ["TMT", "MEM", "TMT"], {"T": plate("tungsten_carbide"), "M": "atomcraft:magnetic_coil", "E": "minecraft:ender_eye"}, "atomcraft:central_solenoid")
 shaped("reactor_port", ["XAX", "AHA", "XAX"], {"X": "atomcraft:reactor_casing", "A": "atomcraft:atomic_cable", "H": "minecraft:hopper"}, "atomcraft:reactor_port", 2)
 shaped("atomic_cable", ["NNN", "RAR", "NNN"], {"N": "minecraft:iron_nugget", "R": RED, "A": AME}, "atomcraft:atomic_cable", 8)
 shaped("element_disk_16k", ["ARA", "RIR", "III"], {"A": AME, "R": RED, "I": IRON}, "atomcraft:element_disk_16k")
-shaped("element_disk_64k", ["GRG", "RAR", "GGG"], {"G": "minecraft:gold_ingot", "R": RED, "A": AME}, "atomcraft:element_disk_64k")
-shaped("element_disk_256k", ["DRD", "RAR", "DDD"], {"D": "minecraft:diamond", "R": RED, "A": AME}, "atomcraft:element_disk_256k")
-shaped("element_disk_1m", ["SRS", "RER", "SSS"], {"S": "minecraft:shulker_shell", "R": RED, "E": "minecraft:ender_eye"}, "atomcraft:element_disk_1m")
+shaped("element_disk_64k", ["PRP", "RCR", "PPP"], {"P": plate("steel"), "R": RED, "C": CIRCUIT}, "atomcraft:element_disk_64k")
+shaped("element_disk_256k", ["PRP", "DCD", "PPP"], {"P": plate("stainless_steel"), "R": RED, "D": "minecraft:diamond", "C": CIRCUIT}, "atomcraft:element_disk_256k")
+shaped("element_disk_1m", ["PRP", "ECE", "PPP"], {"P": plate("titanium_alloy"), "R": RED, "E": "minecraft:ender_eye", "C": CIRCUIT}, "atomcraft:element_disk_1m")
+
+# ---------- Materiais: metais, ligas, minérios e componentes ----------
+# (id, nome en, nome pt, cor RGB, fórmula do lingote (9 átomos), raridade, tier)
+MATERIALS = [
+    ("tin", "Tin", "Estanho", (206, 210, 216), "Sn9", None, 1),
+    ("zinc", "Zinc", "Zinco", (168, 178, 204), "Zn9", None, 1),
+    ("lead", "Lead", "Chumbo", (98, 104, 130), "Pb9", None, 1),
+    ("nickel", "Nickel", "Níquel", (204, 204, 162), "Ni9", None, 2),
+    ("cobalt", "Cobalt", "Cobalto", (74, 112, 222), "Co9", "uncommon", 2),
+    ("titanium", "Titanium", "Titânio", (192, 198, 210), "Ti9", "uncommon", 3),
+    ("tungsten", "Tungsten", "Tungstênio", (86, 92, 104), "W9", "rare", 3),
+    ("steel", "Steel", "Aço", (132, 140, 152), "Fe8 C1", None, 1),
+    ("bronze", "Bronze", "Bronze", (205, 128, 52), "Cu7 Sn2", None, 1),
+    ("brass", "Brass", "Latão", (226, 190, 92), "Cu6 Zn3", None, 1),
+    ("stainless_steel", "Stainless Steel", "Aço Inoxidável", (202, 212, 222), "Fe6 Cr2 Ni1", "uncommon", 2),
+    ("duralumin", "Duralumin", "Duralumínio", (218, 222, 230), "Al7 Cu1 Mg1", "uncommon", 2),
+    ("invar", "Invar", "Invar", (166, 172, 150), "Fe6 Ni3", "uncommon", 2),
+    ("titanium_alloy", "Titanium Alloy", "Liga de Titânio", (150, 166, 194), "Ti7 Al1 V1", "rare", 3),
+    ("tungsten_carbide", "Tungsten Carbide", "Carbeto de Tungstênio", (62, 64, 76), "W5 C4", "rare", 3),
+    ("superalloy", "Superalloy", "Superliga", (118, 152, 140), "Ni5 Cr2 Co1 Ti1", "epic", 4),
+]
+ALLOY_IDS = ["steel", "bronze", "brass", "stainless_steel", "duralumin", "invar", "titanium_alloy", "tungsten_carbide", "superalloy"]
+# (id, en, pt, cor das pintas, fórmula do minério bruto, raridade, ferramenta, lingote ao fundir, (tamanho, veios/chunk, y mín, y máx))
+ORE_TYPES = [
+    ("tin", "Tin", "Estanho", (228, 228, 232), "Sn9", None, "stone", "tin", (9, 10, -16, 112)),
+    ("zinc", "Zinc", "Zinco", (176, 188, 222), "Zn9", None, "stone", "zinc", (8, 8, -16, 80)),
+    ("lead", "Lead", "Chumbo", (110, 116, 150), "Pb9", None, "stone", "lead", (8, 6, -32, 64)),
+    ("lithium", "Lithium", "Lítio", (232, 168, 232), "Li6 Al1 Si2", None, "stone", None, (6, 4, -16, 64)),
+    ("nickel", "Nickel", "Níquel", (220, 220, 172), "Ni9", None, "iron", "nickel", (7, 6, -48, 48)),
+    ("chromium", "Chromium", "Cromo", (140, 162, 222), "Cr6 Fe3", None, "iron", None, (6, 5, -48, 32)),
+    ("cobalt", "Cobalt", "Cobalto", (80, 124, 236), "Co9", "uncommon", "iron", "cobalt", (5, 4, -64, 24)),
+    ("titanium", "Titanium", "Titânio", (214, 218, 228), "Ti8 V1", "uncommon", "iron", "titanium", (5, 4, -64, 16)),
+    ("tungsten", "Tungsten", "Tungstênio", (250, 214, 120), "W9", "rare", "diamond", "tungsten", (4, 3, -64, -8)),
+]
+COMPONENTS = [("copper_wire", "Copper Wire", "Fio de Cobre"), ("silicon_wafer", "Silicon Wafer", "Wafer de Silício"),
+              ("circuit_board", "Circuit Board", "Placa de Circuito")]
+MAT_LANG = {}
+
+def item_model(name, texture=None):
+    w(f"assets/atomcraft/models/item/{name}.json", {"parent": "minecraft:item/generated", "textures": {"layer0": f"atomcraft:item/{texture or name}"}})
+    w(f"assets/atomcraft/items/{name}.json", {"model": {"type": "minecraft:model", "model": f"atomcraft:item/{name}"}})
+
+def block_item(name, model=None):
+    w(f"assets/atomcraft/items/{name}.json", {"model": {"type": "minecraft:model", "model": f"atomcraft:block/{model or name}"}})
+
+def simple_block(name, texture):
+    w(f"assets/atomcraft/blockstates/{name}.json", {"variants": {"": {"model": f"atomcraft:block/{name}"}}})
+    w(f"assets/atomcraft/models/block/{name}.json", {"parent": "minecraft:block/cube_all", "textures": {"all": f"atomcraft:block/{texture}"}})
+    block_item(name)
+
+def self_drop(name):
+    w(f"data/atomcraft/loot_table/blocks/{name}.json", {"type": "minecraft:block", "pools": [{"rolls": 1, "bonus_rolls": 0,
+        "entries": [{"type": "minecraft:item", "name": f"atomcraft:{name}"}], "conditions": [{"condition": "minecraft:survives_explosion"}]}]})
+
+def recipe(name, data):
+    w(f"data/atomcraft/recipe/{name}.json", data)
+
+def shapeless(name, ingredients, result, count=1):
+    recipe(name, {"type": "minecraft:crafting_shapeless", "category": "misc", "ingredients": ingredients, "result": {"id": result, "count": count}})
+
+def stonecut(name, ingredient, result, count=1):
+    recipe(name, {"type": "minecraft:stonecutting", "ingredient": ingredient, "result": {"id": result, "count": count}})
+
+def cook(name, kind, ingredient, result, xp, time):
+    recipe(name, {"type": f"minecraft:{kind}", "category": "misc", "ingredient": ingredient, "result": {"id": result}, "experience": xp, "cookingtime": time})
+
+def stairs_states(name, tex):
+    base = f"atomcraft:block/{name}"
+    for suffix, parent in (("", "stairs"), ("_inner", "inner_stairs"), ("_outer", "outer_stairs")):
+        w(f"assets/atomcraft/models/block/{name}{suffix}.json", {"parent": f"minecraft:block/{parent}",
+            "textures": {"bottom": tex, "top": tex, "side": tex}})
+    variants = {}
+    facing_y = {"east": 0, "south": 90, "west": 180, "north": 270}
+    for facing, fy in facing_y.items():
+        for half in ("bottom", "top"):
+            for shape in ("straight", "inner_left", "inner_right", "outer_left", "outer_right"):
+                model = base + ("_inner" if shape.startswith("inner") else "_outer" if shape.startswith("outer") else "")
+                y = fy
+                if half == "bottom" and shape in ("inner_left", "outer_left"): y = fy - 90
+                if half == "top" and shape in ("inner_right", "outer_right"): y = fy + 90
+                y %= 360
+                v = {"model": model}
+                if half == "top": v["x"] = 180
+                if y: v["y"] = y
+                if half == "top" or y: v["uvlock"] = True
+                variants[f"facing={facing},half={half},shape={shape}"] = v
+    w(f"assets/atomcraft/blockstates/{name}.json", {"variants": variants})
+
+def slab_states(name, tex, full):
+    w(f"assets/atomcraft/models/block/{name}.json", {"parent": "minecraft:block/slab", "textures": {"bottom": tex, "top": tex, "side": tex}})
+    w(f"assets/atomcraft/models/block/{name}_top.json", {"parent": "minecraft:block/slab_top", "textures": {"bottom": tex, "top": tex, "side": tex}})
+    w(f"assets/atomcraft/blockstates/{name}.json", {"variants": {
+        "type=bottom": {"model": f"atomcraft:block/{name}"}, "type=top": {"model": f"atomcraft:block/{name}_top"},
+        "type=double": {"model": full}}})
+
+def wall_states(name, tex):
+    for suffix, parent in (("_post", "template_wall_post"), ("_side", "template_wall_side"), ("_side_tall", "template_wall_side_tall"),
+                           ("_inventory", "wall_inventory")):
+        w(f"assets/atomcraft/models/block/{name}{suffix}.json", {"parent": f"minecraft:block/{parent}", "textures": {"wall": tex}})
+    base = f"atomcraft:block/{name}"
+    parts = [{"when": {"up": "true"}, "apply": {"model": base + "_post"}}]
+    for d, y in (("north", 0), ("east", 90), ("south", 180), ("west", 270)):
+        for height, suffix in (("low", "_side"), ("tall", "_side_tall")):
+            apply = {"model": base + suffix, "uvlock": True}
+            if y: apply["y"] = y
+            parts.append({"when": {d: height}, "apply": apply})
+    w(f"assets/atomcraft/blockstates/{name}.json", {"multipart": parts})
+
+MATERIAL_BLOCKS = []
+for mid, en_name, pt_name, color, formula, rarity, tier in MATERIALS:
+    ingot, plate, blk = f"{mid}_ingot", f"{mid}_plate", f"{mid}_block"
+    slab, stairs, wall = f"{mid}_slab", f"{mid}_stairs", f"{mid}_wall"
+    tex = f"atomcraft:block/{blk}"
+    entry = {"item": f"atomcraft:{ingot}", "elements": parse(formula)}
+    if rarity: entry["rarity"] = rarity
+    w(f"data/atomcraft/atomcraft/compositions/{ingot}.json", entry)
+    item_model(ingot); item_model(plate)
+    simple_block(blk, blk)
+    slab_states(slab, tex, f"atomcraft:block/{blk}"); block_item(slab)
+    stairs_states(stairs, tex); block_item(stairs)
+    wall_states(wall, tex); block_item(wall, wall + "_inventory")
+    for b in (blk, stairs, wall):
+        self_drop(b)
+    w(f"data/atomcraft/loot_table/blocks/{slab}.json", {"type": "minecraft:block", "pools": [{"rolls": 1, "bonus_rolls": 0,
+        "entries": [{"type": "minecraft:item", "name": f"atomcraft:{slab}", "functions": [
+            {"function": "minecraft:set_count", "add": False, "count": 2,
+             "conditions": [{"condition": "minecraft:block_state_property", "block": f"atomcraft:{slab}", "properties": {"type": "double"}}]},
+            {"function": "minecraft:explosion_decay"}]}]}]})
+    MATERIAL_BLOCKS += [blk, slab, stairs, wall]
+    shaped(blk, ["###", "###", "###"], {"#": f"atomcraft:{ingot}"}, f"atomcraft:{blk}")
+    shapeless(f"{ingot}_from_{blk}", [f"atomcraft:{blk}"], f"atomcraft:{ingot}", 9)
+    shaped(plate, ["#", "#"], {"#": f"atomcraft:{ingot}"}, f"atomcraft:{plate}", 2)
+    shaped(slab, ["###"], {"#": f"atomcraft:{blk}"}, f"atomcraft:{slab}", 6)
+    shaped(stairs, ["#  ", "## ", "###"], {"#": f"atomcraft:{blk}"}, f"atomcraft:{stairs}", 4)
+    shaped(wall, ["###", "###"], {"#": f"atomcraft:{blk}"}, f"atomcraft:{wall}", 6)
+    stonecut(f"{slab}_from_stonecutting", f"atomcraft:{blk}", f"atomcraft:{slab}", 2)
+    stonecut(f"{stairs}_from_stonecutting", f"atomcraft:{blk}", f"atomcraft:{stairs}")
+    stonecut(f"{wall}_from_stonecutting", f"atomcraft:{blk}", f"atomcraft:{wall}")
+    for key, e, p in ((ingot, f"{en_name} Ingot", f"Lingote de {pt_name}"), (plate, f"{en_name} Plate", f"Chapa de {pt_name}")):
+        MAT_LANG[f"item.atomcraft.{key}"] = (e, p)
+    for key, e, p in ((blk, f"Block of {en_name}", f"Bloco de {pt_name}"), (slab, f"{en_name} Slab", f"Laje de {pt_name}"),
+                      (stairs, f"{en_name} Stairs", f"Escada de {pt_name}"), (wall, f"{en_name} Wall", f"Muro de {pt_name}")):
+        MAT_LANG[f"block.atomcraft.{key}"] = (e, p)
+
+ORE_BLOCKS = []
+TOOL_TAGS = {"stone": [], "iron": [], "diamond": []}
+for oid, en_name, pt_name, color, formula, rarity, tool, smelts, (size, count, ymin, ymax) in ORE_TYPES:
+    raw, ore, deep = f"raw_{oid}", f"{oid}_ore", f"deepslate_{oid}_ore"
+    for key, content in ((raw, formula), (ore, add(formula, SIO2)), (deep, add(formula, "Si1 O2 Mg1"))):
+        entry = {"item": f"atomcraft:{key}", "elements": parse(content)}
+        if rarity: entry["rarity"] = rarity
+        w(f"data/atomcraft/atomcraft/compositions/{key}.json", entry)
+    item_model(raw)
+    simple_block(ore, ore); simple_block(deep, deep)
+    ORE_BLOCKS += [ore, deep]
+    TOOL_TAGS[tool] += [ore, deep]
+    for b in (ore, deep):
+        w(f"data/atomcraft/loot_table/blocks/{b}.json", {"type": "minecraft:block", "pools": [{"rolls": 1, "bonus_rolls": 0, "entries": [{
+            "type": "minecraft:alternatives", "children": [
+                {"type": "minecraft:item", "name": f"atomcraft:{b}", "conditions": [{"condition": "minecraft:match_tool", "predicate": {
+                    "predicates": {"minecraft:enchantments": [{"enchantments": "minecraft:silk_touch", "levels": {"min": 1}}]}}}]},
+                {"type": "minecraft:item", "name": f"atomcraft:{raw}", "functions": [
+                    {"function": "minecraft:apply_bonus", "enchantment": "minecraft:fortune", "formula": "minecraft:ore_drops"},
+                    {"function": "minecraft:explosion_decay"}]}]}]}]})
+    if smelts:
+        ingot = f"atomcraft:{smelts}_ingot"
+        for src in (raw, ore, deep):
+            cook(f"{smelts}_ingot_from_smelting_{src}", "smelting", f"atomcraft:{src}", ingot, 0.7, 200)
+            cook(f"{smelts}_ingot_from_blasting_{src}", "blasting", f"atomcraft:{src}", ingot, 0.7, 100)
+    # Geração no mundo (veios de pedra e deepslate em todo o Overworld)
+    w(f"data/atomcraft/worldgen/configured_feature/ore_{oid}.json", {"type": "minecraft:ore", "config": {
+        "size": size, "discard_chance_on_air_exposure": 0.0, "targets": [
+            {"target": {"predicate_type": "minecraft:tag_match", "tag": "minecraft:stone_ore_replaceables"}, "state": {"Name": f"atomcraft:{ore}"}},
+            {"target": {"predicate_type": "minecraft:tag_match", "tag": "minecraft:deepslate_ore_replaceables"}, "state": {"Name": f"atomcraft:{deep}"}}]}})
+    w(f"data/atomcraft/worldgen/placed_feature/ore_{oid}.json", {"feature": f"atomcraft:ore_{oid}", "placement": [
+        {"type": "minecraft:count", "count": count}, {"type": "minecraft:in_square"},
+        {"type": "minecraft:height_range", "height": {"type": "minecraft:uniform",
+            "min_inclusive": {"absolute": ymin}, "max_inclusive": {"absolute": ymax}}},
+        {"type": "minecraft:biome"}]})
+    w(f"data/atomcraft/neoforge/biome_modifier/ore_{oid}.json", {"type": "neoforge:add_features", "biomes": "#minecraft:is_overworld",
+        "features": f"atomcraft:ore_{oid}", "step": "underground_ores"})
+    MAT_LANG[f"item.atomcraft.{raw}"] = (f"Raw {en_name}", f"{pt_name} Bruto" if pt_name not in ("Prata",) else f"{pt_name} Bruta")
+    MAT_LANG[f"block.atomcraft.{ore}"] = (f"{en_name} Ore", f"Minério de {pt_name}")
+    MAT_LANG[f"block.atomcraft.{deep}"] = (f"Deepslate {en_name} Ore", f"Minério de {pt_name} de Ardósia Profunda")
+    # Tags comuns
+    w(f"data/c/tags/block/ores/{oid}.json", {"values": [f"atomcraft:{ore}", f"atomcraft:{deep}"]})
+    w(f"data/c/tags/item/ores/{oid}.json", {"values": [f"atomcraft:{ore}", f"atomcraft:{deep}"]})
+    w(f"data/c/tags/item/raw_materials/{oid}.json", {"values": [f"atomcraft:{raw}"]})
+w("data/c/tags/block/ores.json", {"values": [f"#c:ores/{o[0]}" for o in ORE_TYPES]})
+w("data/c/tags/item/ores.json", {"values": [f"#c:ores/{o[0]}" for o in ORE_TYPES]})
+w("data/c/tags/item/raw_materials.json", {"values": [f"#c:raw_materials/{o[0]}" for o in ORE_TYPES]})
+for tag_dir in ("block", "item"):
+    w(f"data/c/tags/{tag_dir}/ores_in_ground/stone.json", {"values": [f"atomcraft:{o[0]}_ore" for o in ORE_TYPES]})
+    w(f"data/c/tags/{tag_dir}/ores_in_ground/deepslate.json", {"values": [f"atomcraft:deepslate_{o[0]}_ore" for o in ORE_TYPES]})
+for mid, *_ in MATERIALS:
+    w(f"data/c/tags/item/ingots/{mid}.json", {"values": [f"atomcraft:{mid}_ingot"]})
+    w(f"data/c/tags/item/plates/{mid}.json", {"values": [f"atomcraft:{mid}_plate"]})
+    w(f"data/c/tags/block/storage_blocks/{mid}.json", {"values": [f"atomcraft:{mid}_block"]})
+    w(f"data/c/tags/item/storage_blocks/{mid}.json", {"values": [f"atomcraft:{mid}_block"]})
+w("data/c/tags/item/ingots.json", {"values": [f"#c:ingots/{m[0]}" for m in MATERIALS]})
+w("data/c/tags/item/plates.json", {"values": [f"#c:plates/{m[0]}" for m in MATERIALS]})
+w("data/c/tags/block/storage_blocks.json", {"values": [f"#c:storage_blocks/{m[0]}" for m in MATERIALS]})
+w("data/c/tags/item/storage_blocks.json", {"values": [f"#c:storage_blocks/{m[0]}" for m in MATERIALS]})
+w("data/c/tags/item/wires/copper.json", {"values": ["atomcraft:copper_wire"]})
+for tag_dir in ("block", "item"):
+    w(f"data/minecraft/tags/{tag_dir}/slabs.json", {"values": [f"atomcraft:{m[0]}_slab" for m in MATERIALS]})
+    w(f"data/minecraft/tags/{tag_dir}/stairs.json", {"values": [f"atomcraft:{m[0]}_stairs" for m in MATERIALS]})
+    w(f"data/minecraft/tags/{tag_dir}/walls.json", {"values": [f"atomcraft:{m[0]}_wall" for m in MATERIALS]})
+
+for cid, e, p in COMPONENTS:
+    item_model(cid)
+    MAT_LANG[f"item.atomcraft.{cid}"] = (e, p)
+w("data/atomcraft/atomcraft/compositions/silicon_wafer.json", {"item": "atomcraft:silicon_wafer", "elements": parse("Si9")})
+shaped("copper_wire", ["CCC"], {"C": "minecraft:copper_ingot"}, "atomcraft:copper_wire", 6)
+shaped("circuit_board", ["WRW", "GSG", "WRW"], {"W": "atomcraft:copper_wire", "R": "minecraft:redstone", "G": "minecraft:gold_nugget",
+                                                "S": "atomcraft:silicon_wafer"}, "atomcraft:circuit_board", 2)
+
+# Receitas da Forja de Ligas (data/atomcraft/atomcraft/alloys). Os elementos = composição do resultado.
+FORGE_TIER = {1: (4000, 100), 2: (12000, 160), 3: (40000, 240), 4: (120000, 400)}
+order = 0
+for mid, en_name, pt_name, color, formula, rarity, tier in sorted(MATERIALS, key=lambda m: (m[0] not in ALLOY_IDS, m[6])):
+    order += 10
+    energy, ticks = FORGE_TIER[tier] if mid in ALLOY_IDS else (2000, 60)
+    w(f"data/atomcraft/atomcraft/alloys/{mid}.json", {"result": f"atomcraft:{mid}_ingot", "count": 1, "elements": parse(formula),
+                                                      "energy": energy, "ticks": ticks, "order": order})
+w("data/atomcraft/atomcraft/alloys/silicon_wafer.json", {"result": "atomcraft:silicon_wafer", "count": 1, "elements": parse("Si9"),
+                                                         "energy": 6000, "ticks": 120, "order": order + 10})
+
+w("data/minecraft/tags/block/mineable/pickaxe.json", {"values": [f"atomcraft:{b}" for b in MACHINES + ["atomic_cable"] + REACTOR_PARTS + MATERIAL_BLOCKS + ORE_BLOCKS]})
+w("data/minecraft/tags/block/needs_iron_tool.json", {"values": [f"atomcraft:{b}" for b in MACHINES + REACTOR_PARTS + TOOL_TAGS["iron"]]
+                                                     + [f"atomcraft:{m[0]}_{s}" for m in MATERIALS if m[6] >= 2 for s in ("block", "slab", "stairs", "wall")]})
+w("data/minecraft/tags/block/needs_stone_tool.json", {"values": [f"atomcraft:{b}" for b in TOOL_TAGS["stone"]]
+                                                      + [f"atomcraft:{m[0]}_{s}" for m in MATERIALS if m[6] < 2 for s in ("block", "slab", "stairs", "wall")]})
+w("data/minecraft/tags/block/needs_diamond_tool.json", {"values": [f"atomcraft:{b}" for b in TOOL_TAGS["diamond"]]})
 
 # ---------- Traduções ----------
 MODULE_NAMES = {"containment": ("Magnetic Containment", "Confinamento Magnético"), "injector": ("Fuel Injector", "Injetor de Combustível"),
                 "recycler": ("Hydrogen Recycler", "Reciclador de Hidrogênio"), "ignition": ("Plasma Ignition", "Ignição a Plasma")}
 ELEMENTS = [("hydrogen", "Hydrogen", "Hidrogênio"), ("helium", "Helium", "Hélio"),
+    ("lithium", "Lithium", "Lítio"), ("titanium", "Titanium", "Titânio"), ("vanadium", "Vanadium", "Vanádio"),
+    ("chromium", "Chromium", "Cromo"), ("cobalt", "Cobalt", "Cobalto"), ("tungsten", "Tungsten", "Tungstênio"),
     ("nickel", "Nickel", "Níquel"), ("zinc", "Zinc", "Zinco"), ("silver", "Silver", "Prata"), ("tin", "Tin", "Estanho"),
     ("osmium", "Osmium", "Ósmio"), ("iridium", "Iridium", "Irídio"), ("platinum", "Platinum", "Platina"),
     ("lead", "Lead", "Chumbo"), ("uranium", "Uranium", "Urânio"),
@@ -464,6 +707,10 @@ ELEMENTS = [("hydrogen", "Hydrogen", "Hidrogênio"), ("helium", "Helium", "Héli
     ("sculkium", "Sculkium", "Sculkio"), ("stellarium", "Stellarium", "Estelário")]
 common = {
     "block.atomcraft.atomizer": ("Atomizer", "Atomizador"),
+    "block.atomcraft.alloy_forge": ("Alloy Forge", "Forja de Ligas"),
+    "itemGroup.atomcraft.materials": ("AtomCraft: Materials", "AtomCraft: Materiais"),
+    "gui.atomcraft.no_alloy_recipes": ("No recipes loaded", "Nenhuma receita carregada"),
+    "gui.atomcraft.select_alloy": ("Pick what to forge", "Escolha o que forjar"),
     "block.atomcraft.analyzer": ("Analyzer", "Analisador"),
     "block.atomcraft.replicator": ("Atomic Replicator", "Replicador Atômico"),
     "block.atomcraft.drive": ("Element Drive", "Drive de Elementos"),
@@ -606,6 +853,7 @@ common = {
     "atomcraft.configuration.maxEnergyInput": ("Max energy input", "Entrada máxima de energia"),
     "atomcraft.configuration.ticksPerItem": ("Ticks per item", "Ticks por item"),
 }
+common.update(MAT_LANG)
 en = {k: v[0] for k, v in common.items()}
 pt = {k: v[1] for k, v in common.items()}
 for key, e, p in ELEMENTS:
@@ -638,7 +886,7 @@ def atom(d, c, cx=7.5, cy=7.5):
     d.point((int(cx), int(cy)), fill=(255, 255, 255, 255)); d.point((int(cx) + 1, int(cy) + 1), fill=(255, 255, 255, 255))
 
 COLORS = {"atomizer": (80, 220, 255, 255), "analyzer": (190, 110, 240, 255), "replicator": (255, 170, 60, 255), "drive": (90, 220, 120, 255),
-    "terminal": (39, 201, 181, 255), "synthesizer": (120, 230, 140, 255), "combustion_generator": (255, 120, 30, 255), "carbon_generator": (226, 50, 50, 255), "fusion_reactor": (255, 90, 190, 255)}
+    "terminal": (39, 201, 181, 255), "synthesizer": (120, 230, 140, 255), "combustion_generator": (255, 120, 30, 255), "carbon_generator": (226, 50, 50, 255), "fusion_reactor": (255, 90, 190, 255), "alloy_forge": (255, 140, 40, 255)}
 img, d = frame(); d.line([4, 5, 11, 5], fill=(60, 63, 70, 255)); d.line([4, 10, 11, 10], fill=(60, 63, 70, 255)); save(img, "block/machine_side.png")
 for name, c in COLORS.items():
     if name not in GENERATORS:  # os geradores usam generator_top.png / generator_side.png
@@ -665,6 +913,10 @@ for name, c in COLORS.items():
         d.line([4, 7, 2, 7], fill=(201, 166, 70, 255)); d.line([11, 7, 13, 7], fill=(201, 166, 70, 255))
         d.line([7, 4, 7, 2], fill=(201, 166, 70, 255)); d.line([7, 11, 7, 13], fill=(201, 166, 70, 255))
         d.rectangle([6, 6, 9, 9], fill=c)
+    elif name == "alloy_forge":
+        # Cadinho com metal derretido
+        d.polygon([(4, 5), (11, 5), (10, 12), (5, 12)], fill=(60, 62, 70, 255), outline=(120, 124, 136, 255))
+        d.rectangle([5, 6, 10, 8], fill=c); d.line([6, 7, 9, 7], fill=(255, 220, 120, 255))
     elif name == "analyzer":
         d.ellipse([4, 4, 11, 11], outline=c); d.line([6, 7, 9, 7], fill=c); d.line([7, 6, 7, 9], fill=c)
     else:
@@ -768,6 +1020,72 @@ for mtype, c in MODULE_TYPES.items():
         for i in range(tier):
             d.rectangle([4 + i * 3, 11, 5 + i * 3, 12], fill=TIER_EDGE[tier])
         save(img, f"item/{mtype}_module_{tier}_schematic.png")
+
+# Materiais: lingotes, chapas, minério bruto, blocos e minérios (provisórios; troque à vontade, o gerador não sobrescreve)
+import random
+def shade(c, f):
+    return tuple(max(0, min(255, int(v * f))) for v in c[:3]) + (255,)
+def ingot_tex(c):
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+    d.polygon([(2, 10), (5, 6), (14, 6), (11, 10)], fill=shade(c, 1.15))
+    d.polygon([(2, 10), (11, 10), (11, 13), (2, 13)], fill=shade(c, 0.85))
+    d.polygon([(11, 10), (14, 6), (14, 9), (11, 13)], fill=shade(c, 0.65))
+    d.line([(5, 7), (12, 7)], fill=shade(c, 1.4))
+    return img
+def plate_tex(c):
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+    d.rectangle([2, 3, 13, 12], fill=shade(c, 1.0), outline=shade(c, 0.6))
+    d.line([(3, 4), (12, 4)], fill=shade(c, 1.35)); d.line([(3, 4), (3, 11)], fill=shade(c, 1.2))
+    for x, y in ((4, 10), (11, 10)):
+        d.point((x, y), fill=shade(c, 0.7))
+    return img
+def raw_tex(c, seed):
+    rnd = random.Random(seed); img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+    d.ellipse([3, 5, 12, 13], fill=shade(c, 0.8)); d.ellipse([5, 3, 13, 10], fill=shade(c, 1.0))
+    for _ in range(10):
+        x, y = rnd.randint(5, 12), rnd.randint(4, 11)
+        d.point((x, y), fill=shade(c, rnd.choice((0.65, 1.25, 1.4))))
+    return img
+def block_tex(c):
+    img = Image.new("RGBA", (16, 16), shade(c, 0.95)); d = ImageDraw.Draw(img)
+    d.rectangle([0, 0, 15, 15], outline=shade(c, 0.6)); d.line([(1, 1), (14, 1)], fill=shade(c, 1.3)); d.line([(1, 1), (1, 14)], fill=shade(c, 1.15))
+    d.line([(1, 14), (14, 14)], fill=shade(c, 0.75)); d.line([(14, 1), (14, 14)], fill=shade(c, 0.75))
+    d.rectangle([4, 4, 11, 11], outline=shade(c, 0.82))
+    for x, y in ((3, 3), (12, 3), (3, 12), (12, 12)):
+        d.point((x, y), fill=shade(c, 0.6))
+    return img
+def ore_tex(c, seed, deep):
+    rnd = random.Random(seed); base = (70, 70, 78) if deep else (125, 125, 125)
+    img = Image.new("RGBA", (16, 16), base + (255,)); d = ImageDraw.Draw(img)
+    for _ in range(70):
+        f = rnd.choice((0.8, 0.9, 1.1, 1.2)); d.point((rnd.randint(0, 15), rnd.randint(0, 15)), fill=shade(base, f))
+    for _ in range(5):
+        x, y = rnd.randint(1, 13), rnd.randint(1, 13)
+        d.rectangle([x, y, x + 1, y + 1], fill=c + (255,)); d.point((x + 1, y + 1), fill=shade(c, 0.7)); d.point((x, y), fill=shade(c, 1.3))
+    return img
+for mid, en_name, pt_name, color, formula, rarity, tier in MATERIALS:
+    save(ingot_tex(color), f"item/{mid}_ingot.png")
+    save(plate_tex(color), f"item/{mid}_plate.png")
+    save(block_tex(color), f"block/{mid}_block.png")
+for i, (oid, en_name, pt_name, color, *_rest) in enumerate(ORE_TYPES):
+    save(raw_tex(color, i), f"item/raw_{oid}.png")
+    save(ore_tex(color, i, False), f"block/{oid}_ore.png")
+    save(ore_tex(color, i + 50, True), f"block/deepslate_{oid}_ore.png")
+img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+for k in range(5):
+    d.ellipse([3 + k, 4, 7 + k, 12], outline=(201, 123, 58, 255))
+d.line([(1, 8), (3, 8)], fill=(201, 123, 58, 255)); d.line([(12, 8), (14, 8)], fill=(201, 123, 58, 255)); save(img, "item/copper_wire.png")
+img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+d.ellipse([2, 2, 13, 13], fill=(70, 78, 110, 255), outline=(40, 44, 64, 255))
+for x in range(4, 12, 2):
+    for y in range(4, 12, 2):
+        d.point((x, y), fill=(150, 170, 230, 255))
+save(img, "item/silicon_wafer.png")
+img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+d.rectangle([1, 3, 14, 12], fill=(30, 110, 60, 255), outline=(14, 56, 30, 255))
+d.rectangle([6, 6, 9, 9], fill=(40, 40, 46, 255)); d.line([(2, 5), (5, 5), (5, 7)], fill=(220, 180, 70, 255))
+d.line([(10, 8), (13, 8)], fill=(220, 180, 70, 255)); d.line([(7, 10), (7, 11), (12, 11)], fill=(220, 180, 70, 255))
+save(img, "item/circuit_board.png")
 
 print("ok", len(BASE), "itens base,", len(TAGS), "tags vanilla,", len(COMPAT), "tags de compatibilidade,",
       len(kept), "arquivos de aparência preservados")

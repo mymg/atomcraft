@@ -1,0 +1,9 @@
+{
+  "item": "atomcraft:duralumin_ingot",
+  "elements": {
+    "Al": 7,
+    "Cu": 1,
+    "Mg": 1
+  },
+  "rarity": "uncommon"
+}

@@ -1,0 +1,12 @@
+{
+  "result": "atomcraft:duralumin_ingot",
+  "count": 1,
+  "elements": {
+    "Al": 7,
+    "Cu": 1,
+    "Mg": 1
+  },
+  "energy": 12000,
+  "ticks": 160,
+  "order": 50
+}

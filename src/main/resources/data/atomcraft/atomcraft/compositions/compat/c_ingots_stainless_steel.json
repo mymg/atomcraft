@@ -1,0 +1,9 @@
+{
+  "tag": "c:ingots/stainless_steel",
+  "elements": {
+    "Fe": 6,
+    "Cr": 2,
+    "Ni": 1
+  },
+  "rarity": "uncommon"
+}

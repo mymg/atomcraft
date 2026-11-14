@@ -30,7 +30,7 @@ import java.util.Map;
  */
 public class PartitionScreen extends Screen {
 
-    private static final int WIDTH = 304, HEIGHT = 222, TAB = 10;
+    private static final int WIDTH = 384, HEIGHT = 222, TAB = 10;
     private static final int CLEAR_W = 50, CLEAR_H = 13;
 
     private final InteractionHand hand;

@@ -1,0 +1,10 @@
+{
+  "item": "atomcraft:deepslate_lithium_ore",
+  "elements": {
+    "Li": 6,
+    "Al": 1,
+    "Si": 3,
+    "O": 2,
+    "Mg": 1
+  }
+}

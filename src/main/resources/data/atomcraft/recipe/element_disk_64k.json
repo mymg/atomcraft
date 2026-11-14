@@ -2,14 +2,14 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    "GRG",
-    "RAR",
-    "GGG"
+    "PRP",
+    "RCR",
+    "PPP"
   ],
   "key": {
-    "G": "minecraft:gold_ingot",
+    "P": "atomcraft:steel_plate",
     "R": "minecraft:redstone",
-    "A": "minecraft:amethyst_shard"
+    "C": "atomcraft:circuit_board"
   },
   "result": {
     "id": "atomcraft:element_disk_64k",

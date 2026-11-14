@@ -75,6 +75,17 @@ final class Showcase {
         player.getInventory().add(new net.minecraft.world.item.ItemStack(ModBlocks.COMBUSTION_GENERATOR.get()));
         player.getInventory().add(new net.minecraft.world.item.ItemStack(ModBlocks.CARBON_GENERATOR.get()));
         player.getInventory().add(new net.minecraft.world.item.ItemStack(ModItems.DISK_64K.get()));
+        player.getInventory().add(new net.minecraft.world.item.ItemStack(ModBlocks.ALLOY_FORGE.get()));
+        for (var material : List.of(com.atomcraft.material.Material.STEEL, com.atomcraft.material.Material.BRONZE,
+                com.atomcraft.material.Material.STAINLESS_STEEL, com.atomcraft.material.Material.TITANIUM_ALLOY,
+                com.atomcraft.material.Material.SUPERALLOY)) {
+            player.getInventory().add(new net.minecraft.world.item.ItemStack(com.atomcraft.material.ModMaterials.INGOTS.get(material).get(), 16));
+            player.getInventory().add(new net.minecraft.world.item.ItemStack(com.atomcraft.material.ModMaterials.BLOCKS.get(material).get(), 8));
+        }
+        for (var ore : com.atomcraft.material.OreType.values()) {
+            player.getInventory().add(new net.minecraft.world.item.ItemStack(com.atomcraft.material.ModMaterials.ORES.get(ore).get(), 4));
+        }
+        player.getInventory().add(new net.minecraft.world.item.ItemStack(com.atomcraft.material.ModMaterials.CIRCUIT_BOARD.get(), 4));
 
         DriveBlockEntity drive = (DriveBlockEntity) level.getBlockEntity(base);
         drive.disks().set(0, ItemResource.of(ModItems.DISK_1M.get()), 1);
@@ -163,6 +174,17 @@ final class Showcase {
         synthesizer.output().set(0, ItemResource.of(ModItems.SPEED_UPGRADE.get()), 2);
         synthesizer.select(ModItems.SPEED_UPGRADE.get());
 
+        // Forja de Ligas fazendo aço, com alguns materiais de exemplo no inventário
+        level.setBlock(base.south(4), ModBlocks.ALLOY_FORGE.get().defaultBlockState(), Block.UPDATE_ALL);
+        if (level.getBlockEntity(base.south(4)) instanceof com.atomcraft.block.entity.AlloyForgeBlockEntity forge) {
+            forge.setOwner(player);
+            forge.energy().set(150_000);
+            forge.network().insert(new com.atomcraft.chemistry.Composition(java.util.Map.of(
+                    com.atomcraft.chemistry.ChemicalElement.IRON, 4000L, com.atomcraft.chemistry.ChemicalElement.CARBON, 500L,
+                    com.atomcraft.chemistry.ChemicalElement.COPPER, 800L, com.atomcraft.chemistry.ChemicalElement.TIN, 200L)), 1);
+            forge.select(com.atomcraft.material.ModMaterials.INGOTS.get(com.atomcraft.material.Material.STEEL).get());
+        }
+
         // Gerador de Carbono desligado, para mostrar o botão vermelho
         if (level.getBlockEntity(base.south()) instanceof com.atomcraft.block.entity.MachineBlockEntity carbon) {
             carbon.setOwner(player);
@@ -197,12 +219,13 @@ final class Showcase {
             case 1320 -> reactor;
             case 1520 -> base.south(3);
             case 1720 -> base.south(2).west();
+            case 1920 -> base.south(4);
             default -> null;
         };
         if (target != null && level.getBlockEntity(target) instanceof MenuProvider provider) {
             player.openMenu(provider);
         }
-        if (ticks == 1960) {
+        if (ticks == 2160) {
             // Visão das máquinas de 2 blocos (Replicador, Drive, Atomizador e Analisador animados)
             player.closeContainer();
             player.getAbilities().mayfly = true;
@@ -217,14 +240,14 @@ final class Showcase {
                 }
             }
         }
-        if (ticks > 1960 && ticks < 2300 && ticks % 20 == 0) {
+        if (ticks > 2160 && ticks < 2500 && ticks % 20 == 0) {
             // Mantém a câmera no lugar (mobs/slimes podem empurrar o jogador)
             machinesView(player);
         }
-        if (ticks == 2300) {
+        if (ticks == 2500) {
             // Visão do reator formado no mundo
             player.connection.teleport(base.getX() - 3.5, base.getY() + 4, base.getZ() + 0.5, -90f, 18f);
         }
-        if (ticks == 2900) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
+        if (ticks == 3100) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
     }
 }

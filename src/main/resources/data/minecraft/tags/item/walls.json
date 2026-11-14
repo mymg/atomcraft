@@ -1,0 +1,20 @@
+{
+  "values": [
+    "atomcraft:tin_wall",
+    "atomcraft:zinc_wall",
+    "atomcraft:lead_wall",
+    "atomcraft:nickel_wall",
+    "atomcraft:cobalt_wall",
+    "atomcraft:titanium_wall",
+    "atomcraft:tungsten_wall",
+    "atomcraft:steel_wall",
+    "atomcraft:bronze_wall",
+    "atomcraft:brass_wall",
+    "atomcraft:stainless_steel_wall",
+    "atomcraft:duralumin_wall",
+    "atomcraft:invar_wall",
+    "atomcraft:titanium_alloy_wall",
+    "atomcraft:tungsten_carbide_wall",
+    "atomcraft:superalloy_wall"
+  ]
+}

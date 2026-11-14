@@ -2,15 +2,16 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    "DED",
-    "IRI",
-    "DED"
+    "PCP",
+    "ERE",
+    "PDP"
   ],
   "key": {
-    "D": "minecraft:diamond",
+    "P": "atomcraft:steel_plate",
+    "C": "atomcraft:circuit_board",
     "E": "minecraft:ender_pearl",
-    "I": "minecraft:iron_ingot",
-    "R": "minecraft:redstone_block"
+    "R": "minecraft:redstone_block",
+    "D": "minecraft:diamond"
   },
   "result": {
     "id": "atomcraft:replicator",

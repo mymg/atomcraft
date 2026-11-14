@@ -1,0 +1,13 @@
+{
+  "values": [
+    "#c:raw_materials/tin",
+    "#c:raw_materials/zinc",
+    "#c:raw_materials/lead",
+    "#c:raw_materials/lithium",
+    "#c:raw_materials/nickel",
+    "#c:raw_materials/chromium",
+    "#c:raw_materials/cobalt",
+    "#c:raw_materials/titanium",
+    "#c:raw_materials/tungsten"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "atomcraft:nickel_block",
+  "result": {
+    "id": "atomcraft:nickel_wall",
+    "count": 1
+  }
+}

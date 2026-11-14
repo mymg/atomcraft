@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###"
+  ],
+  "key": {
+    "#": "atomcraft:tin_block"
+  },
+  "result": {
+    "id": "atomcraft:tin_slab",
+    "count": 6
+  }
+}

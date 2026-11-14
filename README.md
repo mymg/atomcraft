@@ -136,24 +136,30 @@ em `data/<namespace>/atomcraft/compositions/`, usando `"item"` ou `"tag"`.
 
 ## Blocos e itens
 
+O começo usa só itens do vanilla (Atomizador, Drive, Terminal, Cabo, Gerador de Combustão, Disco 16K e Forja de Ligas).
+O resto pede ligas e circuitos, numa progressão aço → inox/invar → liga de titânio/carbeto de tungstênio → superliga.
+
 | | Receita |
 |---|---|
 | **Atomizador** | ferro, ametista, redstone |
-| **Analisador** | ferro, ametista, redstone |
-| **Replicador Atômico** | diamantes, pérolas do Ender, ferro, bloco de redstone |
 | **Drive de Elementos** | ferro, baú, redstone, ametista |
 | **Cabo Atômico** (×8) | pepitas de ferro, redstone, ametista |
 | **Terminal de Elementos** | ferro, vidro, ametista, redstone |
 | **Gerador de Combustão** | ferro, fornalha, cobre, redstone |
-| **Gerador de Carbono** | ferro, ametista, Gerador de Combustão, alto-forno |
-| **Reator de Fusão** (controlador) | blocos de ferro, cristais do End, blocos de diamante, estrela do Nether |
-| **Carcaça do Reator** ×8 | ferro, cobre, redstone |
+| **Forja de Ligas** | ferro, ametista, cobre, alto-forno, redstone |
+| **Analisador** | chapas de aço, placa de circuito, ametista, redstone |
+| **Replicador Atômico** | chapas de aço, placa de circuito, pérolas do Ender, bloco de redstone, diamante |
+| **Sintetizador** | ouro, placas de circuito, redstone, mesa de trabalho, chapas de latão |
+| **Gerador de Carbono** | chapas de aço, ametista, Gerador de Combustão, alto-forno |
+| **Reator de Fusão** (controlador) | chapas de superliga, placas de circuito, cristais do End, estrela do Nether |
+| **Carcaça do Reator** ×8 | chapas de aço inox, chapas de chumbo, redstone |
 | **Vidro de Contenção** ×4 | carcaça, vidro |
-| **Bobina Magnética** ×2 | cobre, redstone, bloco de ferro |
-| **Solenoide Central** | bobinas, ouro, olho do Ender |
+| **Bobina Magnética** ×2 | fio de cobre, chapas de invar, bloco de ferro |
+| **Solenoide Central** | bobinas, chapas de carbeto de tungstênio, olho do Ender |
 | **Porta do Reator** ×2 | carcaça, Cabo Atômico, funil |
-| **Sintetizador** | ouro, ametista, redstone, mesa de trabalho |
-| **Discos** 16K / 64K / 256K / 1M átomos | ametista e redstone + ferro / ouro / diamante / casco de shulker |
+| **Discos** 16K / 64K / 256K / 1M átomos | 16K: ferro, ametista, redstone · 64K: aço · 256K: inox + diamante · 1M: liga de titânio + olho do Ender (os três com circuito) |
+| **Fio de Cobre** ×6 | 3 lingotes de cobre |
+| **Placa de Circuito** ×2 | fio de cobre, redstone, pepitas de ouro, wafer de silício (feito na Forja) |
 
 Os discos guardam os elementos no próprio item, então você pode tirá-los do Drive e levá-los para outra base.
 O Drive tem 10 slots, e os discos inseridos aparecem no bloco, cada um com a cor do seu nível.
@@ -164,6 +170,56 @@ Clique com o botão direito segurando um disco para abrir a **partição**: uma 
 elementos aquele disco aceita (só elementos já descobertos) e, para cada um, um limite opcional de átomos.
 Sem nenhum elemento marcado, o disco aceita tudo. Na hora de guardar, os elementos vão primeiro para os discos
 particionados para eles, depois para discos que já têm aquele elemento e por fim para qualquer disco livre.
+
+## Metais, ligas e minérios
+
+### Forja de Ligas
+
+Escolha uma receita na grade e a forja tira os elementos da rede (mais energia) e produz o lingote, repetindo enquanto
+houver elementos, energia e espaço na saída. Aceita chips de velocidade e eficiência. Cada receita gasta exatamente a
+composição do lingote (o aço é Fe₈C₁), então atomizar uma liga devolve o que ela custou.
+
+| Liga | Composição | Tier |
+|---|---|---|
+| Aço | Fe₈ C₁ | 1 |
+| Bronze | Cu₇ Sn₂ | 1 |
+| Latão | Cu₆ Zn₃ | 1 |
+| Aço Inoxidável | Fe₆ Cr₂ Ni₁ | 2 |
+| Duralumínio | Al₇ Cu₁ Mg₁ | 2 |
+| Invar | Fe₆ Ni₃ | 2 |
+| Liga de Titânio | Ti₇ Al₁ V₁ | 3 |
+| Carbeto de Tungstênio | W₅ C₄ | 3 |
+| Superliga | Ni₅ Cr₂ Co₁ Ti₁ | 4 |
+
+A forja também produz os metais puros (estanho, zinco, chumbo, níquel, cobalto, titânio e tungstênio) a partir dos
+elementos e o wafer de silício (Si₉). As receitas ficam em `data/<namespace>/atomcraft/alloys/*.json`, então um
+datapack pode adicionar, trocar ou remover receitas:
+
+```json
+{ "result": "atomcraft:steel_ingot", "count": 1, "elements": { "Fe": 8, "C": 1 }, "energy": 4000, "ticks": 100, "order": 10 }
+```
+
+Todo metal e liga tem lingote, chapa (2 lingotes → 2 chapas) e um conjunto de construção: bloco, laje, escada e muro
+(também no cortador de pedras). Todos entram nas tags comuns (`c:ingots/steel`, `c:plates/steel`...), então servem nas
+receitas de outros mods e vice-versa.
+
+### Minérios
+
+| Minério | Minério bruto dá | Ferramenta | Altura (y) | Funde em |
+|---|---|---|---|---|
+| Estanho | Sn₉ | pedra | -16 a 112 | lingote de estanho |
+| Zinco | Zn₉ | pedra | -16 a 80 | lingote de zinco |
+| Chumbo | Pb₉ | pedra | -32 a 64 | lingote de chumbo |
+| Lítio | Li₆ Al₁ Si₂ | pedra | -16 a 64 | — (atomize) |
+| Níquel | Ni₉ | ferro | -48 a 48 | lingote de níquel |
+| Cromo | Cr₆ Fe₃ | ferro | -48 a 32 | — (atomize) |
+| Cobalto | Co₉ | ferro | -64 a 24 | lingote de cobalto |
+| Titânio | Ti₈ V₁ | ferro | -64 a 16 | lingote de titânio |
+| Tungstênio | W₉ | diamante | -64 a -8 | lingote de tungstênio |
+
+Todos têm variante de deepslate e são gerados em todo o Overworld. Tamanho e frequência ficam em
+`data/atomcraft/worldgen/`, e cada um entra no mundo por um arquivo em `data/atomcraft/neoforge/biome_modifier/`
+(um datapack pode substituí-lo para desligar um minério, por exemplo quando outro mod já gera estanho).
 
 ## Energia
 
@@ -284,6 +340,7 @@ O `.jar` fica disponível em **Actions → Artifacts**.
 - [x] Descoberta dos elementos
 - [x] Botão de ligar/desligar, aba de dono e upgrades (velocidade e eficiência)
 - [x] Sintetizador e schematics no loot do mundo
+- [x] Ligas, Forja de Ligas, minérios novos e blocos de construção
 - [ ] Suporte a fluidos (tanques e fluid pipes)
 - [ ] Texturas e modelos definitivos
 - [ ] Integração com JEI/EMI (mostrar fórmula e custo)

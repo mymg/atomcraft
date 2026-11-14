@@ -1,0 +1,12 @@
+{
+  "result": "atomcraft:stainless_steel_ingot",
+  "count": 1,
+  "elements": {
+    "Fe": 6,
+    "Cr": 2,
+    "Ni": 1
+  },
+  "energy": 12000,
+  "ticks": 160,
+  "order": 40
+}

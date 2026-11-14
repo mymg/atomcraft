@@ -1,0 +1,10 @@
+{
+  "result": "atomcraft:tin_ingot",
+  "count": 1,
+  "elements": {
+    "Sn": 9
+  },
+  "energy": 2000,
+  "ticks": 60,
+  "order": 100
+}

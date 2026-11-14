@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "atomcraft:block/cobalt_slab"
+    },
+    "type=top": {
+      "model": "atomcraft:block/cobalt_slab_top"
+    },
+    "type=double": {
+      "model": "atomcraft:block/cobalt_block"
+    }
+  }
+}

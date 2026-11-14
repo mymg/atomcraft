@@ -62,6 +62,8 @@ public final class ModBlocks {
     public static final DeferredBlock<ReactorPortBlock> REACTOR_PORT = BLOCKS.registerBlock("reactor_port",
             ReactorPortBlock::new, ModBlocks::machine);
     public static final DeferredBlock<SynthesizerBlock> SYNTHESIZER = BLOCKS.registerBlock("synthesizer", SynthesizerBlock::new, ModBlocks::machine);
+    public static final DeferredBlock<com.atomcraft.block.AlloyForgeBlock> ALLOY_FORGE =
+            BLOCKS.registerBlock("alloy_forge", com.atomcraft.block.AlloyForgeBlock::new, ModBlocks::machine);
     public static final DeferredBlock<TerminalBlock> TERMINAL = BLOCKS.registerBlock("terminal", TerminalBlock::new, ModBlocks::machine);
     public static final DeferredBlock<CableBlock> CABLE = BLOCKS.registerBlock("atomic_cable", CableBlock::new,
             properties -> properties.mapColor(MapColor.METAL).strength(0.5f).sound(SoundType.METAL).noOcclusion());

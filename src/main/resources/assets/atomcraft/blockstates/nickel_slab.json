@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "atomcraft:block/nickel_slab"
+    },
+    "type=top": {
+      "model": "atomcraft:block/nickel_slab_top"
+    },
+    "type=double": {
+      "model": "atomcraft:block/nickel_block"
+    }
+  }
+}

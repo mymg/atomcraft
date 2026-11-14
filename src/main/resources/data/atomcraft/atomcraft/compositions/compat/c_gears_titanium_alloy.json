@@ -1,0 +1,9 @@
+{
+  "tag": "c:gears/titanium_alloy",
+  "elements": {
+    "Ti": 28,
+    "Al": 4,
+    "V": 4
+  },
+  "rarity": "rare"
+}

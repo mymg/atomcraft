@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": "atomcraft:zinc_ingot"
+  },
+  "result": {
+    "id": "atomcraft:zinc_block",
+    "count": 1
+  }
+}

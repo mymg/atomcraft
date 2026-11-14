@@ -1,0 +1,12 @@
+{
+  "result": "atomcraft:titanium_alloy_ingot",
+  "count": 1,
+  "elements": {
+    "Ti": 7,
+    "Al": 1,
+    "V": 1
+  },
+  "energy": 40000,
+  "ticks": 240,
+  "order": 70
+}

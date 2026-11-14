@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###"
+  ],
+  "key": {
+    "#": "atomcraft:invar_block"
+  },
+  "result": {
+    "id": "atomcraft:invar_slab",
+    "count": 6
+  }
+}
