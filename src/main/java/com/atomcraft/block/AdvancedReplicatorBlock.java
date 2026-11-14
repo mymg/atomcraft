@@ -1,6 +1,6 @@
 package com.atomcraft.block;
 
-import com.atomcraft.block.entity.AdvancedReplicatorBlockEntity;
+import com.atomcraft.block.entity.ReplicatorBlockEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -23,6 +23,6 @@ public class AdvancedReplicatorBlock extends TallMachineBlock {
 
     @Override
     protected BlockEntity createMachine(BlockPos pos, BlockState state) {
-        return new AdvancedReplicatorBlockEntity(pos, state);
+        return new ReplicatorBlockEntity(pos, state);
     }
 }
