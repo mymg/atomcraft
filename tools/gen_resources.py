@@ -229,9 +229,20 @@ for tag, formula, rarity in COMPAT:
     w(f"data/atomcraft/atomcraft/compositions/compat/{tag.replace(':', '_').replace('/', '_')}.json", entry)
 
 # ---------- Blocos ----------
-MACHINES = ["atomizer", "analyzer", "replicator", "drive", "terminal", "combustion_generator", "carbon_generator", "fusion_reactor", "synthesizer", "alloy_forge"]
+MACHINES = ["atomizer", "analyzer", "replicator", "advanced_replicator", "drive", "terminal", "combustion_generator", "carbon_generator", "fusion_reactor", "synthesizer", "alloy_forge", "quantum_replicator"]
 GENERATORS = ["combustion_generator", "carbon_generator"]
 for b in MACHINES:
+    if b == "quantum_replicator":
+        # Controlador do multibloco: a frente acende quando a estrutura forma
+        w(f"assets/atomcraft/blockstates/{b}.json", {"variants": {
+            f"facing={d},formed={str(f).lower()}": ({"model": f"atomcraft:block/{b}" + ("_on" if f else "")} | ({"y": y} if y else {}))
+            for d, y in (("north", 0), ("east", 90), ("south", 180), ("west", 270)) for f in (False, True)}})
+        for suffix in ("", "_on"):
+            w(f"assets/atomcraft/models/block/{b}{suffix}.json", {"parent": "minecraft:block/orientable", "textures": {
+                "top": "atomcraft:block/quantum_casing", "front": f"atomcraft:block/{b}_front{suffix}",
+                "side": "atomcraft:block/quantum_casing", "particle": "atomcraft:block/quantum_casing"}})
+        w(f"assets/atomcraft/items/{b}.json", {"model": {"type": "minecraft:model", "model": f"atomcraft:block/{b}"}})
+        continue
     if b in GENERATORS:
         # Como a fornalha: "lit" troca a frente para <gerador>_front_on. Lados e topo comuns aos dois.
         w(f"assets/atomcraft/blockstates/{b}.json", {"variants": {
@@ -252,7 +263,8 @@ for b in MACHINES:
     w(f"assets/atomcraft/items/{b}.json", {"model": {"type": "minecraft:model", "model": f"atomcraft:block/{b}"}})
 
 # Peças do Reator de Fusão (cubos simples; somem quando o reator forma)
-REACTOR_PARTS = ["reactor_casing", "reactor_glass", "magnetic_coil", "central_solenoid", "reactor_port"]
+REACTOR_PARTS = ["reactor_casing", "reactor_glass", "magnetic_coil", "central_solenoid", "reactor_port",
+                 "quantum_casing", "quantum_glass", "quantum_core"]
 for b in REACTOR_PARTS:
     w(f"assets/atomcraft/blockstates/{b}.json", {"variants": {"": {"model": f"atomcraft:block/{b}"}}})
     model = {"parent": "minecraft:block/cube_all", "textures": {"all": f"atomcraft:block/{b}"}}
@@ -263,6 +275,8 @@ for b in REACTOR_PARTS:
                                "faces": {f: {"uv": [0, 0, 16, 16], "texture": "#all"} for f in ("north", "east", "south", "west", "up", "down")}}]}
     if b == "reactor_glass":
         model["render_type"] = "minecraft:cutout"
+    if b == "quantum_glass":
+        model["render_type"] = "minecraft:translucent"
     w(f"assets/atomcraft/models/block/{b}.json", model)
     w(f"assets/atomcraft/items/{b}.json", {"model": {"type": "minecraft:model", "model": f"atomcraft:block/{b}"}})
 
@@ -365,7 +379,27 @@ if os.path.exists(DRIVE_MODEL):
 # Máquinas de 2 blocos animadas (GeckoLib): o item também usa o modelo animado.
 # models/item/<máquina>.json só define os tamanhos ("display") em cada lugar (inventário,
 # mão, chão, moldura), calculados pela altura do modelo. Ajuste à vontade no Blockbench (aba Display).
-TALL_MACHINES = ["analyzer", "atomizer", "replicator"]
+TALL_MACHINES = ["analyzer", "atomizer", "replicator", "advanced_replicator"]
+# Replicador Avançado sem modelo próprio: usa uma cópia do modelo/animações do Replicador com a textura
+# em outro tom. Substitua os arquivos advanced_replicator.* pelos seus quando quiser.
+GECKO = os.path.join(R, "assets/atomcraft/geckolib")
+for kind, ext in (("models", "geo.json"), ("animations", "animation.json")):
+    src, dst = os.path.join(GECKO, kind, "block", f"replicator.{ext}"), os.path.join(GECKO, kind, "block", f"advanced_replicator.{ext}")
+    if os.path.exists(src) and (not os.path.exists(dst) or FORCE):
+        open(dst, "w").write(open(src).read())
+ADV_TEX = os.path.join(R, "assets/atomcraft/textures/block/advanced_replicator.png")
+REP_TEX = os.path.join(R, "assets/atomcraft/textures/block/replicator.png")
+if os.path.exists(REP_TEX) and (not os.path.exists(ADV_TEX) or FORCE):
+    import colorsys
+    img = Image.open(REP_TEX).convert("RGBA"); px = img.load()
+    for yy in range(img.height):
+        for xx in range(img.width):
+            r, g, b2, a = px[xx, yy]
+            h, l, s2 = colorsys.rgb_to_hls(r / 255, g / 255, b2 / 255)
+            if s2 > 0.25:  # só as partes coloridas mudam de tom (laranja → violeta)
+                r, g, b2 = (int(v * 255) for v in colorsys.hls_to_rgb((h + 0.72) % 1.0, l, s2))
+            px[xx, yy] = (r, g, b2, a)
+    img.save(ADV_TEX)
 for b in TALL_MACHINES:
     geo = os.path.join(R, f"assets/atomcraft/geckolib/models/block/{b}.geo.json")
     if not os.path.exists(geo):
@@ -435,6 +469,11 @@ def plate(m): return f"atomcraft:{m}_plate"
 CIRCUIT, WIRE = "atomcraft:circuit_board", "atomcraft:copper_wire"
 shaped("alloy_forge", ["IAI", "CFC", "IRI"], {"I": IRON, "A": AME, "C": "minecraft:copper_ingot", "F": "minecraft:blast_furnace", "R": RED}, "atomcraft:alloy_forge")
 shaped("analyzer", ["PCP", "AAA", "PRP"], {"P": plate("steel"), "C": CIRCUIT, "A": AME, "R": RED}, "atomcraft:analyzer")
+shaped("advanced_replicator", ["PCP", "DRD", "PCP"], {"P": plate("stainless_steel"), "C": CIRCUIT, "D": "minecraft:diamond", "R": "atomcraft:replicator"}, "atomcraft:advanced_replicator")
+shaped("quantum_replicator", ["SCS", "EAE", "SCS"], {"S": plate("superalloy"), "C": CIRCUIT, "E": "minecraft:echo_shard", "A": "atomcraft:advanced_replicator"}, "atomcraft:quantum_replicator")
+shaped("quantum_casing", ["TDT", "DRD", "TDT"], {"T": plate("titanium_alloy"), "D": plate("duralumin"), "R": RED}, "atomcraft:quantum_casing", 8)
+shaped("quantum_glass", ["CGC", "GAG", "CGC"], {"C": "atomcraft:quantum_casing", "G": "minecraft:glass", "A": AME}, "atomcraft:quantum_glass", 4)
+shaped("quantum_core", ["TCT", "ENE", "TCT"], {"T": plate("tungsten_carbide"), "C": CIRCUIT, "E": "minecraft:echo_shard", "N": "minecraft:nether_star"}, "atomcraft:quantum_core")
 shaped("replicator", ["PCP", "ERE", "PDP"], {"P": plate("steel"), "C": CIRCUIT, "E": "minecraft:ender_pearl", "R": "minecraft:redstone_block", "D": "minecraft:diamond"}, "atomcraft:replicator")
 shaped("drive", ["IRI", "ICI", "IAI"], {"I": IRON, "R": RED, "C": "minecraft:chest", "A": AME}, "atomcraft:drive")
 shaped("terminal", ["IGI", "ARA", "III"], {"I": IRON, "G": "minecraft:glass", "A": AME, "R": RED}, "atomcraft:terminal")
@@ -708,6 +747,29 @@ ELEMENTS = [("hydrogen", "Hydrogen", "Hidrogênio"), ("helium", "Helium", "Héli
 common = {
     "block.atomcraft.atomizer": ("Atomizer", "Atomizador"),
     "block.atomcraft.alloy_forge": ("Alloy Forge", "Forja de Ligas"),
+    "block.atomcraft.advanced_replicator": ("Advanced Replicator", "Replicador Avançado"),
+    "block.atomcraft.quantum_replicator": ("Quantum Replicator", "Replicador Quântico"),
+    "block.atomcraft.quantum_casing": ("Quantum Casing", "Carcaça Quântica"),
+    "block.atomcraft.quantum_glass": ("Quantum Glass", "Vidro Quântico"),
+    "block.atomcraft.quantum_core": ("Quantum Core", "Núcleo Quântico"),
+    "replicator_tier.atomcraft.basic": ("Atomic (basic)", "Atômico (básico)"),
+    "replicator_tier.atomcraft.advanced": ("Advanced", "Avançado"),
+    "replicator_tier.atomcraft.quantum": ("Quantum", "Quântico"),
+    "gui.atomcraft.complexity": ("Complexity", "Complexidade"),
+    "gui.atomcraft.complexity_max": ("Up to %s elements", "Até %s elementos"),
+    "gui.atomcraft.complexity_unlimited": ("Any element count", "Sem limite"),
+    "gui.atomcraft.exotics_yes": ("Exotics: yes", "Exóticos: sim"),
+    "gui.atomcraft.exotics_no": ("Exotics: no", "Exóticos: não"),
+    "gui.atomcraft.complexity_researched": ("Can replicate:", "Pode replicar:"),
+    "gui.atomcraft.quantum_incomplete": ("Structure incomplete", "Estrutura incompleta"),
+    "gui.atomcraft.quantum_hint": ("3×3×3 behind it", "3×3×3 atrás dele"),
+    "message.atomcraft.too_complex": ("Too complex: %s elements (max %s here)", "Complexo demais: %s elementos (máx. %s aqui)"),
+    "message.atomcraft.needs_exotics": ("Has exotic elements: needs a better replicator", "Tem elementos exóticos: precisa de um replicador melhor"),
+    "status.atomcraft.too_complex": ("Too complex", "Complexo demais"),
+    "atomcraft.configuration.advancedReplicator": ("Advanced Replicator", "Replicador Avançado"),
+    "atomcraft.configuration.quantumReplicator": ("Quantum Replicator", "Replicador Quântico"),
+    "atomcraft.configuration.maxElements": ("Max distinct elements", "Máximo de elementos diferentes"),
+    "atomcraft.configuration.allowExotics": ("Allow exotic elements", "Permitir elementos exóticos"),
     "itemGroup.atomcraft.materials": ("AtomCraft: Materials", "AtomCraft: Materiais"),
     "gui.atomcraft.no_alloy_recipes": ("No recipes loaded", "Nenhuma receita carregada"),
     "gui.atomcraft.select_alloy": ("Pick what to forge", "Escolha o que forjar"),
@@ -886,7 +948,7 @@ def atom(d, c, cx=7.5, cy=7.5):
     d.point((int(cx), int(cy)), fill=(255, 255, 255, 255)); d.point((int(cx) + 1, int(cy) + 1), fill=(255, 255, 255, 255))
 
 COLORS = {"atomizer": (80, 220, 255, 255), "analyzer": (190, 110, 240, 255), "replicator": (255, 170, 60, 255), "drive": (90, 220, 120, 255),
-    "terminal": (39, 201, 181, 255), "synthesizer": (120, 230, 140, 255), "combustion_generator": (255, 120, 30, 255), "carbon_generator": (226, 50, 50, 255), "fusion_reactor": (255, 90, 190, 255), "alloy_forge": (255, 140, 40, 255)}
+    "terminal": (39, 201, 181, 255), "synthesizer": (120, 230, 140, 255), "combustion_generator": (255, 120, 30, 255), "carbon_generator": (226, 50, 50, 255), "fusion_reactor": (255, 90, 190, 255), "alloy_forge": (255, 140, 40, 255), "advanced_replicator": (190, 110, 255, 255)}
 img, d = frame(); d.line([4, 5, 11, 5], fill=(60, 63, 70, 255)); d.line([4, 10, 11, 10], fill=(60, 63, 70, 255)); save(img, "block/machine_side.png")
 for name, c in COLORS.items():
     if name not in GENERATORS:  # os geradores usam generator_top.png / generator_side.png
@@ -1086,6 +1148,25 @@ d.rectangle([1, 3, 14, 12], fill=(30, 110, 60, 255), outline=(14, 56, 30, 255))
 d.rectangle([6, 6, 9, 9], fill=(40, 40, 46, 255)); d.line([(2, 5), (5, 5), (5, 7)], fill=(220, 180, 70, 255))
 d.line([(10, 8), (13, 8)], fill=(220, 180, 70, 255)); d.line([(7, 10), (7, 11), (12, 11)], fill=(220, 180, 70, 255))
 save(img, "item/circuit_board.png")
+
+# Replicador Quântico: carcaça, vidro, núcleo e a frente do controlador (provisórios)
+QV = (190, 110, 255, 255)
+img, d = frame(); d.rectangle([3, 3, 12, 12], outline=(60, 40, 90, 255)); d.rectangle([6, 6, 9, 9], fill=QV)
+for (px_, py_) in ((2, 2), (13, 2), (2, 13), (13, 13)):
+    d.point((px_, py_), fill=QV)
+save(img, "block/quantum_casing.png")
+img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+d.rectangle([0, 0, 15, 15], outline=(78, 82, 92, 255)); d.rectangle([1, 1, 14, 14], outline=(150, 110, 220, 255))
+d.line([(3, 12), (7, 8)], fill=(210, 190, 255, 160)); d.line([(8, 6), (10, 4)], fill=(210, 190, 255, 160))
+save(img, "block/quantum_glass.png")
+img = Image.new("RGBA", (16, 16), (30, 18, 48, 255)); d = ImageDraw.Draw(img)
+d.rectangle([0, 0, 15, 15], outline=(80, 60, 120, 255)); d.ellipse([3, 3, 12, 12], fill=(120, 60, 200, 255))
+d.ellipse([5, 5, 10, 10], fill=(220, 160, 255, 255)); d.point((7, 7), fill=(255, 255, 255, 255))
+save(img, "block/quantum_core.png")
+for suffix, glow in (("", (70, 50, 100, 255)), ("_on", (230, 170, 255, 255))):
+    img, d = frame(); d.rectangle([2, 2, 13, 13], fill=(24, 18, 34, 255))
+    d.ellipse([3, 3, 12, 12], outline=glow); d.ellipse([6, 6, 9, 9], fill=glow)
+    save(img, f"block/quantum_replicator_front{suffix}.png")
 
 print("ok", len(BASE), "itens base,", len(TAGS), "tags vanilla,", len(COMPAT), "tags de compatibilidade,",
       len(kept), "arquivos de aparência preservados")

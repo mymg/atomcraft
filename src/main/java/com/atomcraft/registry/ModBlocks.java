@@ -38,6 +38,21 @@ public final class ModBlocks {
             properties -> machine(properties).noOcclusion());
     public static final DeferredBlock<ReplicatorBlock> REPLICATOR = BLOCKS.registerBlock("replicator", ReplicatorBlock::new,
             properties -> machine(properties).noOcclusion());
+    public static final DeferredBlock<com.atomcraft.block.AdvancedReplicatorBlock> ADVANCED_REPLICATOR = BLOCKS.registerBlock("advanced_replicator",
+            com.atomcraft.block.AdvancedReplicatorBlock::new, properties -> machine(properties).noOcclusion());
+    // Replicador Quântico (multibloco 3×3×3)
+    public static final DeferredBlock<com.atomcraft.block.QuantumReplicatorBlock> QUANTUM_REPLICATOR = BLOCKS.registerBlock("quantum_replicator",
+            com.atomcraft.block.QuantumReplicatorBlock::new,
+            properties -> machine(properties).lightLevel(state -> state.getValue(com.atomcraft.block.QuantumReplicatorBlock.FORMED) ? 12 : 0));
+    public static final DeferredBlock<com.atomcraft.block.QuantumPartBlock> QUANTUM_CASING = BLOCKS.registerBlock("quantum_casing",
+            properties -> new com.atomcraft.block.QuantumPartBlock(com.atomcraft.replication.QuantumPart.CASING, properties), ModBlocks::machine);
+    public static final DeferredBlock<com.atomcraft.block.QuantumPartBlock> QUANTUM_GLASS = BLOCKS.registerBlock("quantum_glass",
+            properties -> new com.atomcraft.block.QuantumPartBlock(com.atomcraft.replication.QuantumPart.GLASS, properties),
+            properties -> machine(properties).sound(SoundType.GLASS).noOcclusion()
+                    .isViewBlocking((state, level, pos) -> false).isSuffocating((state, level, pos) -> false));
+    public static final DeferredBlock<com.atomcraft.block.QuantumPartBlock> QUANTUM_CORE = BLOCKS.registerBlock("quantum_core",
+            properties -> new com.atomcraft.block.QuantumPartBlock(com.atomcraft.replication.QuantumPart.CORE, properties),
+            properties -> machine(properties).lightLevel(state -> 10));
     public static final DeferredBlock<DriveBlock> DRIVE = BLOCKS.registerBlock("drive", DriveBlock::new,
             properties -> machine(properties).noOcclusion());
     public static final DeferredBlock<CombustionGeneratorBlock> COMBUSTION_GENERATOR =

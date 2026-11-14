@@ -36,7 +36,7 @@ final class ClientShowcase {
 
     private static void onTick(ClientTickEvent.Post event) {
         Screen screen = Minecraft.getInstance().gui.screen();
-        if (screen == null && screensSeen >= 10 && !machinesCaptured) {
+        if (screen == null && screensSeen >= 11 && !machinesCaptured) {
             // Depois das interfaces, o servidor fecha o menu e posiciona a câmera nas máquinas e depois no reator.
             idleTicks++;
             if (idleTicks == 100 && !worldCaptured) {
@@ -61,12 +61,17 @@ final class ClientShowcase {
             boolean fusion = screen instanceof GeneratorScreen && machine.getMenu().getType() == com.atomcraft.registry.ModMenus.FUSION_REACTOR.get();
             machine.showcasePanel(screen instanceof AtomizerScreen || screen instanceof SynthesizerScreen || fusion
                     ? MachineScreen.SidePanel.UPGRADES
-                    : screen instanceof AnalyzerScreen ? MachineScreen.SidePanel.INFO : MachineScreen.SidePanel.NONE);
+                    : screen instanceof AnalyzerScreen ? MachineScreen.SidePanel.INFO
+                    : screen instanceof ReplicatorScreen ? MachineScreen.SidePanel.EXTRA : MachineScreen.SidePanel.NONE);
             return;
         }
         if (++ticks == 25) {
             var key = BuiltInRegistries.MENU.getKey(((MachineScreen<?>) screen).getMenu().getType());
             String name = key == null ? "unknown" : key.getPath();
+            if (screen instanceof ReplicatorScreen replicatorScreen
+                    && replicatorScreen.getMenu().tier() != com.atomcraft.replication.ReplicatorTier.BASIC) {
+                name = replicatorScreen.getMenu().tier().name().toLowerCase() + "_replicator";
+            }
             AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture {}", name);
         }
     }

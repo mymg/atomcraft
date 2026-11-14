@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "atomcraft:block/advanced_replicator"
+    },
+    "facing=east": {
+      "model": "atomcraft:block/advanced_replicator",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "atomcraft:block/advanced_replicator",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "atomcraft:block/advanced_replicator",
+      "y": 270
+    }
+  }
+}

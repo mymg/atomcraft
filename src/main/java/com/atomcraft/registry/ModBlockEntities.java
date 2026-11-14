@@ -27,6 +27,10 @@ public final class ModBlockEntities {
             BLOCK_ENTITIES.register("analyzer", () -> new BlockEntityType<>(AnalyzerBlockEntity::new, ModBlocks.ANALYZER.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ReplicatorBlockEntity>> REPLICATOR =
             BLOCK_ENTITIES.register("replicator", () -> new BlockEntityType<>(ReplicatorBlockEntity::new, ModBlocks.REPLICATOR.get()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ReplicatorBlockEntity>> ADVANCED_REPLICATOR =
+            BLOCK_ENTITIES.register("advanced_replicator", () -> new BlockEntityType<>(ReplicatorBlockEntity::new, ModBlocks.ADVANCED_REPLICATOR.get()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ReplicatorBlockEntity>> QUANTUM_REPLICATOR =
+            BLOCK_ENTITIES.register("quantum_replicator", () -> new BlockEntityType<>(ReplicatorBlockEntity::new, ModBlocks.QUANTUM_REPLICATOR.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<DriveBlockEntity>> DRIVE =
             BLOCK_ENTITIES.register("drive", () -> new BlockEntityType<>(DriveBlockEntity::new, ModBlocks.DRIVE.get()));
 

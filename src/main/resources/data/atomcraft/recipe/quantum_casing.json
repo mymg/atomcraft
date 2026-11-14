@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "TDT",
+    "DRD",
+    "TDT"
+  ],
+  "key": {
+    "T": "atomcraft:titanium_alloy_plate",
+    "D": "atomcraft:duralumin_plate",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "atomcraft:quantum_casing",
+    "count": 8
+  }
+}

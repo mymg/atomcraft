@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SCS",
+    "EAE",
+    "SCS"
+  ],
+  "key": {
+    "S": "atomcraft:superalloy_plate",
+    "C": "atomcraft:circuit_board",
+    "E": "minecraft:echo_shard",
+    "A": "atomcraft:advanced_replicator"
+  },
+  "result": {
+    "id": "atomcraft:quantum_replicator",
+    "count": 1
+  }
+}

@@ -16,7 +16,8 @@ public enum MachineStatus {
     NOTHING_TO_RESEARCH(0xFF707070),
     NO_FUEL(0xFFB06000),
     DISABLED(0xFFB03030),
-    INCOMPLETE(0xFFB06000);
+    INCOMPLETE(0xFFB06000),
+    TOO_COMPLEX(0xFFB03030);
 
     private static final MachineStatus[] VALUES = values();
 

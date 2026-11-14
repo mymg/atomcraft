@@ -175,6 +175,65 @@ final class SelfTest {
         generators(level, failures);
         controlsAndSynthesis(server, level, failures);
         materials(server, level, failures);
+        replicatorTiers(level, failures);
+    }
+
+    /** Complexidade: cada nível de replicador só aceita itens até certo número de elementos (e exóticos). */
+    private static void replicatorTiers(ServerLevel level, List<String> failures) {
+        var basic = com.atomcraft.replication.ReplicatorTier.BASIC;
+        var advanced = com.atomcraft.replication.ReplicatorTier.ADVANCED;
+        var quantum = com.atomcraft.replication.ReplicatorTier.QUANTUM;
+        var iron = com.atomcraft.chemistry.AtomicValues.get(Items.IRON_INGOT, false).composition();
+        var gunpowder = com.atomcraft.chemistry.AtomicValues.get(Items.GUNPOWDER, false).composition();
+        var redstone = com.atomcraft.chemistry.AtomicValues.get(Items.REDSTONE, false).composition();
+        var milk = com.atomcraft.chemistry.AtomicValues.get(Items.MILK_BUCKET, false).composition();
+        check(failures, basic.maxElements() == 4 && advanced.maxElements() == 6 && quantum.maxElements() == -1, "limites padrão 4 / 6 / sem limite");
+        check(failures, basic.refusal(iron) == null, "básico replica barra de ferro");
+        check(failures, basic.refusal(gunpowder) != null, "básico recusa pólvora (" + gunpowder.elements().size() + " elementos)");
+        check(failures, basic.refusal(redstone) != null, "básico recusa redstone (exótico)");
+        check(failures, advanced.refusal(gunpowder) == null && advanced.refusal(redstone) == null, "avançado aceita pólvora e redstone");
+        check(failures, advanced.refusal(milk) != null, "avançado recusa balde de leite (" + milk.elements().size() + " elementos)");
+        check(failures, quantum.refusal(milk) == null, "quântico aceita tudo");
+
+        // Pedido complexo demais no básico: espera com o aviso, sem consumir nada
+        BlockPos pos = new BlockPos(0, 120, 84);
+        level.getChunk(pos);
+        place(level, pos, ModBlocks.REPLICATOR.get());
+        var replicator = (ReplicatorBlockEntity) level.getBlockEntity(pos);
+        replicator.energy().set(replicator.energy().getCapacityAsInt());
+        replicator.startJob(TESTER, Items.GUNPOWDER, 1);
+        replicator.tick();
+        check(failures, replicator.status() == MachineStatus.TOO_COMPLEX, "básico fica em 'complexo demais' (" + replicator.status() + ")");
+        replicator.cancelJob();
+
+        place(level, pos.east(3), ModBlocks.ADVANCED_REPLICATOR.get());
+        var adv = (ReplicatorBlockEntity) level.getBlockEntity(pos.east(3));
+        check(failures, adv != null && adv.tier() == advanced && adv.getType() == com.atomcraft.registry.ModBlockEntities.ADVANCED_REPLICATOR.get(),
+                "Replicador Avançado tem o nível certo");
+
+        // Quântico: sem estrutura fica incompleto; montada, forma
+        BlockPos controller = new BlockPos(10, 120, 84);
+        level.getChunk(controller);
+        level.setBlock(controller, ModBlocks.QUANTUM_REPLICATOR.get().defaultBlockState()
+                .setValue(com.atomcraft.block.MachineBlock.FACING, net.minecraft.core.Direction.NORTH), Block.UPDATE_ALL);
+        var quantumBe = (ReplicatorBlockEntity) level.getBlockEntity(controller);
+        quantumBe.tick();
+        check(failures, quantumBe.status() == MachineStatus.INCOMPLETE && !quantumBe.isFormed(), "quântico sem estrutura fica incompleto");
+        for (var slot : com.atomcraft.replication.QuantumStructure.blueprint(controller, net.minecraft.core.Direction.NORTH)) {
+            var block = switch (slot.part()) {
+                case CASING -> ModBlocks.QUANTUM_CASING.get();
+                case GLASS -> ModBlocks.QUANTUM_GLASS.get();
+                case CORE -> ModBlocks.QUANTUM_CORE.get();
+                case CONTROLLER -> null;
+            };
+            if (block != null) level.setBlock(slot.pos(), block.defaultBlockState(), Block.UPDATE_ALL);
+        }
+        check(failures, quantumBe.checkStructure() && quantumBe.isFormed()
+                && level.getBlockState(controller).getValue(com.atomcraft.block.QuantumReplicatorBlock.FORMED), "quântico forma com a estrutura 3×3×3");
+        quantumBe.tick();
+        check(failures, quantumBe.status() == MachineStatus.IDLE, "quântico formado fica pronto (" + quantumBe.status() + ")");
+        level.setBlock(controller.south(), Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+        check(failures, !quantumBe.checkStructure(), "quântico desforma sem o núcleo");
     }
 
     /** Materiais: elementos novos, receitas da forja sem criar/destruir matéria, Forja de Ligas e minérios no mundo. */

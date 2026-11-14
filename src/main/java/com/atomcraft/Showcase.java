@@ -175,6 +175,25 @@ final class Showcase {
         synthesizer.select(ModItems.SPEED_UPGRADE.get());
 
         // Forja de Ligas fazendo aço, com alguns materiais de exemplo no inventário
+        // Replicador Quântico montado (3×3×3), a oeste
+        BlockPos quantum = base.offset(-6, 0, 3);
+        level.setBlock(quantum, ModBlocks.QUANTUM_REPLICATOR.get().defaultBlockState()
+                .setValue(com.atomcraft.block.MachineBlock.FACING, net.minecraft.core.Direction.WEST), Block.UPDATE_ALL);
+        for (var slot : com.atomcraft.replication.QuantumStructure.blueprint(quantum, net.minecraft.core.Direction.WEST)) {
+            var part = switch (slot.part()) {
+                case CASING -> ModBlocks.QUANTUM_CASING.get();
+                case GLASS -> ModBlocks.QUANTUM_GLASS.get();
+                case CORE -> ModBlocks.QUANTUM_CORE.get();
+                case CONTROLLER -> null;
+            };
+            if (part != null) level.setBlock(slot.pos(), part.defaultBlockState(), Block.UPDATE_ALL);
+        }
+        if (level.getBlockEntity(quantum) instanceof ReplicatorBlockEntity quantumBe) {
+            quantumBe.setOwner(player);
+            quantumBe.energy().set(1_500_000);
+            quantumBe.checkStructure();
+        }
+
         level.setBlock(base.south(4), ModBlocks.ALLOY_FORGE.get().defaultBlockState(), Block.UPDATE_ALL);
         if (level.getBlockEntity(base.south(4)) instanceof com.atomcraft.block.entity.AlloyForgeBlockEntity forge) {
             forge.setOwner(player);
@@ -220,12 +239,13 @@ final class Showcase {
             case 1520 -> base.south(3);
             case 1720 -> base.south(2).west();
             case 1920 -> base.south(4);
+            case 2120 -> base.offset(-6, 0, 3);
             default -> null;
         };
         if (target != null && level.getBlockEntity(target) instanceof MenuProvider provider) {
             player.openMenu(provider);
         }
-        if (ticks == 2160) {
+        if (ticks == 2360) {
             // Visão das máquinas de 2 blocos (Replicador, Drive, Atomizador e Analisador animados)
             player.closeContainer();
             player.getAbilities().mayfly = true;
@@ -240,14 +260,14 @@ final class Showcase {
                 }
             }
         }
-        if (ticks > 2160 && ticks < 2500 && ticks % 20 == 0) {
+        if (ticks > 2360 && ticks < 2700 && ticks % 20 == 0) {
             // Mantém a câmera no lugar (mobs/slimes podem empurrar o jogador)
             machinesView(player);
         }
-        if (ticks == 2500) {
+        if (ticks == 2700) {
             // Visão do reator formado no mundo
             player.connection.teleport(base.getX() - 3.5, base.getY() + 4, base.getZ() + 0.5, -90f, 18f);
         }
-        if (ticks == 3100) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
+        if (ticks == 3300) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
     }
 }
