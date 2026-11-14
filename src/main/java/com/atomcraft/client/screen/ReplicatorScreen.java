@@ -45,9 +45,14 @@ public class ReplicatorScreen extends MachineScreen<ReplicatorMenu> {
     private static final int ROW_Y = 137;
     private static final int MAX_BADGES = 5;
 
-    private record Button(int x, int y, int w, int h, Supplier<String> label, Runnable action, BooleanSupplier active) {
+    private record Button(int x, int y, int w, int h, Supplier<String> label, Runnable action, BooleanSupplier active,
+                          BooleanSupplier visible) {
+        Button(int x, int y, int w, int h, Supplier<String> label, Runnable action, BooleanSupplier active) {
+            this(x, y, w, h, label, action, active, () -> true);
+        }
+
         boolean contains(double mx, double my) {
-            return mx >= x && mx < x + w && my >= y && my < y + h;
+            return visible.getAsBoolean() && mx >= x && mx < x + w && my >= y && my < y + h;
         }
     }
 
@@ -118,9 +123,66 @@ public class ReplicatorScreen extends MachineScreen<ReplicatorMenu> {
         }
 
         buttons.add(new Button(leftPos + 186, topPos + 152, 62, 12,
-                () -> Component.translatable("gui.atomcraft.replicate").getString(), this::replicate, () -> selected != null));
+                () -> Component.translatable("gui.atomcraft.replicate").getString(), this::replicate,
+                () -> selected != null && menu.formed() && refusal(selected) == null));
+        // Replicador Quântico sem a estrutura completa: botão da prévia (partículas onde falta peça)
+        buttons.add(new Button(leftPos + INFO_X + 5, topPos + INFO_Y + 62, 92, 12,
+                () -> Component.translatable(com.atomcraft.client.FusionPreview.isShowing(menu.pos())
+                        ? "gui.atomcraft.hide_structure" : "gui.atomcraft.show_structure").getString(),
+                () -> com.atomcraft.client.FusionPreview.toggle(menu.pos()), () -> true, this::incomplete));
         buttons.add(new Button(leftPos + 186, topPos + 166, 62, 12,
                 () -> Component.translatable("gui.atomcraft.cancel").getString(), this::cancel, () -> menu.target() != null));
+    }
+
+    /** Replicador Quântico com a estrutura incompleta. */
+    private boolean incomplete() {
+        return !menu.formed();
+    }
+
+    /** Motivo para este replicador não aceitar o item (complexo demais / exóticos), ou null. */
+    private @Nullable Component refusal(Item item) {
+        AtomicValue value = AtomicValues.get(item, true);
+        return value == null ? null : menu.refusal(value.composition());
+    }
+
+    @Override
+    protected @Nullable Component extraTab() {
+        return Component.translatable("gui.atomcraft.complexity");
+    }
+
+    @Override
+    protected String[] extraTabIcon() {
+        return new String[]{"...#.#...", "..#####..", ".##.#.##.", "#########", "#########", ".##.#.##.", "..#####..", "...#.#..."};
+    }
+
+    @Override
+    protected int extraPanelHeight() {
+        return 102;
+    }
+
+    /** Aba "Complexidade": o que este replicador aceita e quantos dos itens pesquisados ele consegue fazer. */
+    @Override
+    protected void extractExtraPanel(GuiGraphicsExtractor graphics, int x, int y) {
+        int w = com.atomcraft.menu.BaseMenu.PANEL_W - 16;
+        graphics.text(font, Component.translatable("gui.atomcraft.complexity"), x, y, TechGui.TEXT_TEAL, false);
+        graphics.text(font, font.plainSubstrByWidth(Component.translatable(menu.tier().translationKey()).getString(), w), x, y + 12,
+                TechGui.TEXT_LIGHT, false);
+        int max = menu.maxElements();
+        graphics.text(font, Component.translatable("gui.atomcraft.complexity_elements"), x, y + 26, TechGui.TEXT_DIM, false);
+        Component limit = max < 0 ? Component.translatable("gui.atomcraft.complexity_unlimited")
+                : Component.translatable("gui.atomcraft.complexity_max", max);
+        graphics.text(font, font.plainSubstrByWidth(limit.getString(), w), x, y + 37, TechGui.TEXT_LIGHT, false);
+        graphics.text(font, font.plainSubstrByWidth(Component.translatable(menu.allowsExotics()
+                ? "gui.atomcraft.exotics_yes" : "gui.atomcraft.exotics_no").getString(), w), x, y + 51,
+                menu.allowsExotics() ? TechGui.TEXT_GOOD : TechGui.TEXT_DIM, false);
+        int total = 0, ok = 0;
+        for (Item item : ClientState.research().keySet()) {
+            if (!ClientState.isResearched(item)) continue;
+            total++;
+            if (refusal(item) == null) ok++;
+        }
+        graphics.text(font, Component.translatable("gui.atomcraft.complexity_researched"), x, y + 65, TechGui.TEXT_DIM, false);
+        graphics.text(font, ok + " / " + total, x, y + 76, ok == total ? TechGui.TEXT_GOOD : TechGui.TEXT_LIGHT, false);
     }
 
     private int quantityValue() {
@@ -200,6 +262,12 @@ public class ReplicatorScreen extends MachineScreen<ReplicatorMenu> {
                     Item item = library.get(index);
                     if (item == selected) graphics.fill(x, y, x + 16, y + 16, TechGui.SELECTED);
                     graphics.item(new ItemStack(item), x, y);
+                    if (refusal(item) != null) {
+                        // Complexo demais para este replicador: escurece e marca com um cadeado
+                        graphics.fill(x, y, x + 16, y + 16, 0xB0101418);
+                        graphics.fill(x + 10, y + 1, x + 15, y + 6, 0xFFB03030);
+                        graphics.fill(x + 11, y + 2, x + 14, y + 3, 0xFF101418);
+                    }
                 }
             }
         }
@@ -221,6 +289,7 @@ public class ReplicatorScreen extends MachineScreen<ReplicatorMenu> {
         // Botões e campo de quantidade
         TechGui.field(graphics, quantity.getX() - 1, quantity.getY() - 1, quantity.getWidth() + 2, quantity.getHeight() + 2);
         for (Button button : buttons) {
+            if (!button.visible().getAsBoolean()) continue;
             boolean active = button.active().getAsBoolean();
             TechGui.button(graphics, font, button.x(), button.y(), button.w(), button.h(), button.label().get(),
                     button.contains(mouseX, mouseY), active);
@@ -229,6 +298,32 @@ public class ReplicatorScreen extends MachineScreen<ReplicatorMenu> {
 
     private void extractInfo(GuiGraphicsExtractor graphics) {
         int x = leftPos + INFO_X + 5, y = topPos + INFO_Y + 5;
+        if (incomplete()) {
+            extractIncomplete(graphics, x, y);
+        } else {
+            extractSelected(graphics, x, y);
+        }
+        extractProduction(graphics, x);
+    }
+
+    /** Replicador Quântico sem a estrutura completa: o que falta (o botão da prévia fica embaixo). */
+    private void extractIncomplete(GuiGraphicsExtractor graphics, int x, int y) {
+        var level = Minecraft.getInstance().level;
+        var state = level == null ? null : level.getBlockState(menu.pos());
+        graphics.text(font, Component.translatable("gui.atomcraft.quantum_incomplete"), x, y, TechGui.TEXT_BAD, false);
+        if (state == null || !(state.getBlock() instanceof com.atomcraft.block.QuantumReplicatorBlock)) return;
+        var missing = com.atomcraft.replication.QuantumStructure.check(level, menu.pos(),
+                state.getValue(com.atomcraft.block.MachineBlock.FACING)).missingCounts();
+        int line = y + 13;
+        for (var entry : missing.entrySet()) {
+            String text = entry.getValue() + "× " + Component.translatable(entry.getKey().translationKey()).getString();
+            graphics.text(font, font.plainSubstrByWidth(text, 92), x, line, TechGui.TEXT_LIGHT, false);
+            line += 10;
+        }
+        graphics.text(font, Component.translatable("gui.atomcraft.quantum_hint"), x, y + 46, TechGui.TEXT_DIM, false);
+    }
+
+    private void extractSelected(GuiGraphicsExtractor graphics, int x, int y) {
         TechGui.slot(graphics, x, y);
         if (selected == null) {
             graphics.text(font, Component.translatable("gui.atomcraft.select_item"), x + 20, y + 4, TechGui.TEXT_DIM, false);
@@ -266,12 +361,19 @@ public class ReplicatorScreen extends MachineScreen<ReplicatorMenu> {
                         x, y + 46, TechGui.TEXT_TEAL, false);
                 graphics.text(font, Component.translatable("gui.atomcraft.time", GuiUtil.formatDuration(ticksTotal)),
                         x, y + 55, TechGui.TEXT_TEAL, false);
-                long available = ClientState.maxFromNetwork(value.composition());
-                graphics.text(font, Component.translatable("gui.atomcraft.available", GuiUtil.formatAmount(available)),
-                        x, y + 64, available > 0 ? TechGui.TEXT_GOOD : TechGui.TEXT_BAD, false);
+                Component refusal = menu.refusal(value.composition());
+                if (refusal != null) {
+                    graphics.text(font, font.plainSubstrByWidth(refusal.getString(), 92), x, y + 64, TechGui.TEXT_BAD, false);
+                } else {
+                    long available = ClientState.maxFromNetwork(value.composition());
+                    graphics.text(font, Component.translatable("gui.atomcraft.available", GuiUtil.formatAmount(available)),
+                            x, y + 64, available > 0 ? TechGui.TEXT_GOOD : TechGui.TEXT_BAD, false);
+                }
             }
         }
+    }
 
+    private void extractProduction(GuiGraphicsExtractor graphics, int x) {
         // Produção atual
         int jy = topPos + INFO_Y + 82;
         graphics.fill(x, jy - 3, x + 92, jy - 2, TechGui.GLASS_EDGE_DIM);
@@ -290,7 +392,12 @@ public class ReplicatorScreen extends MachineScreen<ReplicatorMenu> {
     protected void extractTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         Item hovered = itemAt(mouseX, mouseY);
         if (hovered != null) {
-            graphics.setTooltipForNextFrame(font, new ItemStack(hovered), mouseX, mouseY);
+            Component refusal = refusal(hovered);
+            if (refusal != null) {
+                tooltip(graphics, mouseX, mouseY, new ItemStack(hovered).getHoverName(), refusal.copy().withStyle(net.minecraft.ChatFormatting.RED));
+            } else {
+                graphics.setTooltipForNextFrame(font, new ItemStack(hovered), mouseX, mouseY);
+            }
             return;
         }
         if (hovering(mouseX, mouseY, ENERGY_X, ENERGY_Y, ENERGY_W, ENERGY_H)) {

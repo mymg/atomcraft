@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PCP",
+    "DRD",
+    "PCP"
+  ],
+  "key": {
+    "P": "atomcraft:stainless_steel_plate",
+    "C": "atomcraft:circuit_board",
+    "D": "minecraft:diamond",
+    "R": "atomcraft:replicator"
+  },
+  "result": {
+    "id": "atomcraft:advanced_replicator",
+    "count": 1
+  }
+}

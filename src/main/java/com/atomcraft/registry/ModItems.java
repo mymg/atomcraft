@@ -29,6 +29,15 @@ public final class ModItems {
             properties -> new TallMachineItem(ModBlocks.ANALYZER.get(), properties, "analyzer"), Item.Properties::useBlockDescriptionPrefix);
     public static final DeferredItem<TallMachineItem> REPLICATOR = ITEMS.registerItem("replicator",
             properties -> new TallMachineItem(ModBlocks.REPLICATOR.get(), properties, "replicator"), Item.Properties::useBlockDescriptionPrefix);
+    public static final DeferredItem<TallMachineItem> ADVANCED_REPLICATOR = ITEMS.registerItem("advanced_replicator",
+            properties -> new TallMachineItem(ModBlocks.ADVANCED_REPLICATOR.get(), properties, "advanced_replicator"),
+            properties -> properties.useBlockDescriptionPrefix().rarity(Rarity.UNCOMMON));
+    public static final DeferredItem<BlockItem> QUANTUM_REPLICATOR = ITEMS.registerSimpleBlockItem(ModBlocks.QUANTUM_REPLICATOR,
+            properties -> properties.rarity(Rarity.EPIC));
+    public static final DeferredItem<BlockItem> QUANTUM_CASING = ITEMS.registerSimpleBlockItem(ModBlocks.QUANTUM_CASING);
+    public static final DeferredItem<BlockItem> QUANTUM_GLASS = ITEMS.registerSimpleBlockItem(ModBlocks.QUANTUM_GLASS);
+    public static final DeferredItem<BlockItem> QUANTUM_CORE = ITEMS.registerSimpleBlockItem(ModBlocks.QUANTUM_CORE,
+            properties -> properties.rarity(Rarity.RARE));
     public static final DeferredItem<BlockItem> DRIVE = ITEMS.registerSimpleBlockItem(ModBlocks.DRIVE);
     public static final DeferredItem<BlockItem> CABLE = ITEMS.registerSimpleBlockItem(ModBlocks.CABLE);
     public static final DeferredItem<BlockItem> ALLOY_FORGE = ITEMS.registerSimpleBlockItem(ModBlocks.ALLOY_FORGE);

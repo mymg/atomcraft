@@ -19,6 +19,11 @@ public final class ModCreativeTab {
                 output.accept(ModItems.ATOMIZER.get());
                 output.accept(ModItems.ANALYZER.get());
                 output.accept(ModItems.REPLICATOR.get());
+                output.accept(ModItems.ADVANCED_REPLICATOR.get());
+                output.accept(ModItems.QUANTUM_REPLICATOR.get());
+                output.accept(ModItems.QUANTUM_CASING.get());
+                output.accept(ModItems.QUANTUM_GLASS.get());
+                output.accept(ModItems.QUANTUM_CORE.get());
                 output.accept(ModItems.DRIVE.get());
                 output.accept(ModItems.CABLE.get());
                 output.accept(ModItems.TERMINAL.get());

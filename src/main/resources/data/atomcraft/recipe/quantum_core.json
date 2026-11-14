@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "TCT",
+    "ENE",
+    "TCT"
+  ],
+  "key": {
+    "T": "atomcraft:tungsten_carbide_plate",
+    "C": "atomcraft:circuit_board",
+    "E": "minecraft:echo_shard",
+    "N": "minecraft:nether_star"
+  },
+  "result": {
+    "id": "atomcraft:quantum_core",
+    "count": 1
+  }
+}

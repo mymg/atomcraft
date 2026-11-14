@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "CGC",
+    "GAG",
+    "CGC"
+  ],
+  "key": {
+    "C": "atomcraft:quantum_casing",
+    "G": "minecraft:glass",
+    "A": "minecraft:amethyst_shard"
+  },
+  "result": {
+    "id": "atomcraft:quantum_glass",
+    "count": 4
+  }
+}

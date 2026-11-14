@@ -149,6 +149,11 @@ O resto pede ligas e circuitos, numa progressão aço → inox/invar → liga de
 | **Forja de Ligas** | ferro, ametista, cobre, alto-forno, redstone |
 | **Analisador** | chapas de aço, placa de circuito, ametista, redstone |
 | **Replicador Atômico** | chapas de aço, placa de circuito, pérolas do Ender, bloco de redstone, diamante |
+| **Replicador Avançado** | chapas de aço inox, placas de circuito, diamantes, Replicador Atômico |
+| **Replicador Quântico** (controlador) | chapas de superliga, placas de circuito, fragmentos de eco, Replicador Avançado |
+| **Carcaça Quântica** ×8 | chapas de liga de titânio, chapas de duralumínio, redstone |
+| **Vidro Quântico** ×4 | carcaça quântica, vidro, ametista |
+| **Núcleo Quântico** | chapas de carbeto de tungstênio, placas de circuito, fragmentos de eco, estrela do Nether |
 | **Sintetizador** | ouro, placas de circuito, redstone, mesa de trabalho, chapas de latão |
 | **Gerador de Carbono** | chapas de aço, ametista, Gerador de Combustão, alto-forno |
 | **Reator de Fusão** (controlador) | chapas de superliga, placas de circuito, cristais do End, estrela do Nether |
@@ -170,6 +175,35 @@ Clique com o botão direito segurando um disco para abrir a **partição**: uma 
 elementos aquele disco aceita (só elementos já descobertos) e, para cada um, um limite opcional de átomos.
 Sem nenhum elemento marcado, o disco aceita tudo. Na hora de guardar, os elementos vão primeiro para os discos
 particionados para eles, depois para discos que já têm aquele elemento e por fim para qualquer disco livre.
+
+## Complexidade e níveis de replicador
+
+Cada replicador só faz itens até certa **complexidade**: quantos elementos diferentes a composição tem e se há
+elementos exóticos (Rs, Lm, En...).
+
+| Replicador | Elementos diferentes | Exóticos |
+|---|---|---|
+| Atômico | até 4 | não |
+| Avançado | até 6 | sim |
+| Quântico (multibloco) | sem limite | sim |
+
+Na biblioteca do replicador, os itens que ele não consegue fazer aparecem escurecidos com um cadeado, e o motivo
+aparece no tooltip e nos detalhes ("Complexo demais: 6 elementos (máx. 4 aqui)"). A aba lateral **Complexidade**
+mostra os limites daquele replicador e quantos dos seus itens pesquisados ele consegue fazer.
+
+Os limites ficam na configuração (`config/atomcraft-common.toml`), seções `replicator`, `advancedReplicator` e
+`quantumReplicator`: `maxElements` (-1 = sem limite) e `allowExotics`.
+
+### Replicador Quântico (multibloco 3×3×3)
+
+O controlador fica no centro de uma face; a estrutura fica atrás dele:
+
+- camada de baixo e de cima: 9 **Carcaças Quânticas** cada;
+- camada do meio: carcaças nos 4 cantos, **Vidro Quântico** nas duas laterais e no fundo (ou carcaça), o
+  **Núcleo Quântico** no centro e o controlador na frente.
+
+O controlador é quem conecta na rede e recebe energia. Com a estrutura incompleta, a interface lista as peças que
+faltam e o botão **Mostrar estrutura** marca com partículas onde cada uma vai.
 
 ## Metais, ligas e minérios
 
@@ -341,6 +375,7 @@ O `.jar` fica disponível em **Actions → Artifacts**.
 - [x] Botão de ligar/desligar, aba de dono e upgrades (velocidade e eficiência)
 - [x] Sintetizador e schematics no loot do mundo
 - [x] Ligas, Forja de Ligas, minérios novos e blocos de construção
+- [x] Complexidade e níveis de replicador (Avançado e Quântico)
 - [ ] Suporte a fluidos (tanques e fluid pipes)
 - [ ] Texturas e modelos definitivos
 - [ ] Integração com JEI/EMI (mostrar fórmula e custo)

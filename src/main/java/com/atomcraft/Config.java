@@ -27,6 +27,39 @@ public final class Config {
             .comment("Máximo de FE recebido por tick")
             .defineInRange("maxEnergyInput", 50_000, 1, Integer.MAX_VALUE);
 
+    // Complexidade: quantos elementos diferentes um item pode ter para cada nível de replicador (-1 = sem limite)
+    public static final ModConfigSpec.IntValue REPLICATOR_MAX_ELEMENTS = BUILDER
+            .comment("Replicador Atômico: máximo de elementos diferentes no item (-1 = sem limite)")
+            .defineInRange("maxElements", 4, -1, 128);
+
+    public static final ModConfigSpec.BooleanValue REPLICATOR_EXOTICS = BUILDER
+            .comment("Replicador Atômico: pode replicar itens com elementos exóticos (Rs, Lm, En...)")
+            .define("allowExotics", false);
+
+    static {
+        BUILDER.pop().push("advancedReplicator");
+    }
+
+    public static final ModConfigSpec.IntValue ADVANCED_MAX_ELEMENTS = BUILDER
+            .comment("Replicador Avançado: máximo de elementos diferentes no item (-1 = sem limite)")
+            .defineInRange("maxElements", 6, -1, 128);
+
+    public static final ModConfigSpec.BooleanValue ADVANCED_EXOTICS = BUILDER
+            .comment("Replicador Avançado: pode replicar itens com elementos exóticos")
+            .define("allowExotics", true);
+
+    static {
+        BUILDER.pop().push("quantumReplicator");
+    }
+
+    public static final ModConfigSpec.IntValue QUANTUM_MAX_ELEMENTS = BUILDER
+            .comment("Replicador Quântico: máximo de elementos diferentes no item (-1 = sem limite)")
+            .defineInRange("maxElements", -1, -1, 128);
+
+    public static final ModConfigSpec.BooleanValue QUANTUM_EXOTICS = BUILDER
+            .comment("Replicador Quântico: pode replicar itens com elementos exóticos")
+            .define("allowExotics", true);
+
     static {
         BUILDER.pop().push("atomizer");
     }

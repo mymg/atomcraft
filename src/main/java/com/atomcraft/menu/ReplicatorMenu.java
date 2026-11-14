@@ -53,7 +53,33 @@ public class ReplicatorMenu extends BaseMenu {
 
     @Override
     protected Block block() {
-        return ModBlocks.REPLICATOR.get();
+        return switch (tier()) {
+            case BASIC -> ModBlocks.REPLICATOR.get();
+            case ADVANCED -> ModBlocks.ADVANCED_REPLICATOR.get();
+            case QUANTUM -> ModBlocks.QUANTUM_REPLICATOR.get();
+        };
+    }
+
+    public com.atomcraft.replication.ReplicatorTier tier() {
+        return com.atomcraft.replication.ReplicatorTier.byId(data.get(ReplicatorBlockEntity.DATA_TIER));
+    }
+
+    /** Máximo de elementos diferentes que este replicador aceita (-1 = sem limite), como o servidor configurou. */
+    public int maxElements() {
+        return data.get(ReplicatorBlockEntity.DATA_MAX_ELEMENTS) - 1;
+    }
+
+    public boolean allowsExotics() {
+        return data.get(ReplicatorBlockEntity.DATA_EXOTICS) != 0;
+    }
+
+    public boolean formed() {
+        return data.get(ReplicatorBlockEntity.DATA_FORMED) != 0;
+    }
+
+    /** Motivo para não replicar este item aqui, ou null. */
+    public net.minecraft.network.chat.@Nullable Component refusal(com.atomcraft.chemistry.Composition composition) {
+        return com.atomcraft.replication.ReplicatorTier.refusal(composition, maxElements(), allowsExotics());
     }
 
     public float progress() {

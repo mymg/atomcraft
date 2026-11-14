@@ -9,6 +9,7 @@ import com.atomcraft.network.MachineTogglePayload;
 import com.atomcraft.upgrade.UpgradeChipItem;
 import com.atomcraft.upgrade.UpgradeType;
 import com.atomcraft.upgrade.Upgrades;
+import org.jspecify.annotations.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -37,9 +38,9 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
 
     // ----- Abas laterais (ligar/desligar, informações, upgrades) -----
 
-    public enum SidePanel { NONE, INFO, UPGRADES }
+    public enum SidePanel { NONE, INFO, UPGRADES, EXTRA }
 
-    private static final int TAB_SIZE = 20, TAB_POWER = 0, TAB_INFO = 1, TAB_UPGRADES = 2;
+    private static final int TAB_SIZE = 20, TAB_POWER = 0, TAB_INFO = 1, TAB_UPGRADES = 2, TAB_EXTRA = 3;
     private static final String[] ICON_POWER = {
             "....#....", ".#..#..#.", "#...#...#", "#...#...#", "#.......#", "#.......#", ".#.....#.", "..#####.."};
     private static final String[] ICON_INFO = {
@@ -79,8 +80,31 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
     }
 
     private SidePanel openPanel() {
-        return menu.hasMachineControls() ? sidePanel : SidePanel.NONE;
+        if (!menu.hasMachineControls() || (sidePanel == SidePanel.EXTRA && extraTab() == null)) return SidePanel.NONE;
+        return sidePanel;
     }
+
+    private int tabCount() {
+        return extraTab() == null ? 3 : 4;
+    }
+
+    /** Aba extra opcional desta máquina (título), ou null. */
+    protected @Nullable Component extraTab() {
+        return null;
+    }
+
+    /** Ícone 9×8 da aba extra ('#' = pixel aceso). */
+    protected String[] extraTabIcon() {
+        return ICON_INFO;
+    }
+
+    /** Altura do painel da aba extra. */
+    protected int extraPanelHeight() {
+        return 56;
+    }
+
+    /** Conteúdo do painel da aba extra; (x, y) é o canto de dentro do painel. */
+    protected void extractExtraPanel(GuiGraphicsExtractor graphics, int x, int y) {}
 
     private int tabX() {
         return leftPos + imageWidth - 3;
@@ -99,13 +123,14 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
     }
 
     private int panelHeight() {
+        if (openPanel() == SidePanel.EXTRA) return extraPanelHeight();
         if (openPanel() != SidePanel.UPGRADES) return 56;
         return menu.usesModules() ? 118 : 74;
     }
 
     private int tabAt(double mouseX, double mouseY) {
         if (!menu.hasMachineControls()) return -1;
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < tabCount(); i++) {
             if (mouseX >= tabX() && mouseX < tabX() + TAB_SIZE + 2 && mouseY >= tabY(i) && mouseY < tabY(i) + TAB_SIZE) return i;
         }
         return -1;
@@ -118,15 +143,16 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
 
     private void extractSideTabs(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         int hovered = tabAt(mouseX, mouseY);
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < tabCount(); i++) {
             int x = tabX(), y = tabY(i);
-            boolean selected = (i == TAB_INFO && sidePanel == SidePanel.INFO) || (i == TAB_UPGRADES && sidePanel == SidePanel.UPGRADES);
+            boolean selected = (i == TAB_INFO && sidePanel == SidePanel.INFO) || (i == TAB_UPGRADES && sidePanel == SidePanel.UPGRADES)
+                    || (i == TAB_EXTRA && sidePanel == SidePanel.EXTRA);
             int w = TAB_SIZE + 2;
             graphics.fill(x, y, x + w, y + TAB_SIZE, TechGui.OUT);
             graphics.fill(x, y + 1, x + w - 1, y + TAB_SIZE - 1, selected ? TechGui.SELECTED : hovered == i ? TechGui.METAL_LIGHT : TechGui.METAL);
             graphics.fill(x, y + 1, x + w - 1, y + 2, TechGui.METAL_HI);
             graphics.fill(x + w - 2, y + 1, x + w - 1, y + TAB_SIZE - 1, TechGui.METAL_SHADOW);
-            String[] icon = i == TAB_POWER ? ICON_POWER : i == TAB_INFO ? ICON_INFO : ICON_UPGRADES;
+            String[] icon = i == TAB_POWER ? ICON_POWER : i == TAB_INFO ? ICON_INFO : i == TAB_UPGRADES ? ICON_UPGRADES : extraTabIcon();
             int color = i == TAB_POWER ? (menu.isEnabled() ? TechGui.TEXT_GOOD : TechGui.ENERGY) : TechGui.TEXT_TEAL;
             pixelIcon(graphics, x + 7, y + 6, icon, color);
         }
@@ -174,6 +200,7 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
                 graphics.text(font, Component.translatable("gui.atomcraft.upgrade_speed", speed), x, y + 40, TechGui.TEXT_LIGHT, false);
                 graphics.text(font, Component.translatable("gui.atomcraft.upgrade_efficiency", efficiency), x, y + 51, TechGui.TEXT_LIGHT, false);
             }
+            case EXTRA -> extractExtraPanel(graphics, x, y);
             default -> {}
         }
     }
@@ -186,6 +213,7 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
             switch (tab) {
                 case TAB_POWER -> ClientPacketDistributor.sendToServer(new MachineTogglePayload(menu.pos()));
                 case TAB_INFO -> sidePanel = sidePanel == SidePanel.INFO ? SidePanel.NONE : SidePanel.INFO;
+                case TAB_EXTRA -> sidePanel = sidePanel == SidePanel.EXTRA ? SidePanel.NONE : SidePanel.EXTRA;
                 default -> sidePanel = sidePanel == SidePanel.UPGRADES ? SidePanel.NONE : SidePanel.UPGRADES;
             }
             menu.setUpgradesVisible(sidePanel == SidePanel.UPGRADES);
@@ -233,6 +261,10 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
             case TAB_POWER -> tooltip(graphics, mouseX, mouseY, Component.translatable(menu.isEnabled()
                     ? "gui.atomcraft.power_on" : "gui.atomcraft.power_off"), Component.translatable("gui.atomcraft.power_hint"));
             case TAB_INFO -> tooltip(graphics, mouseX, mouseY, Component.translatable("gui.atomcraft.info"));
+            case TAB_EXTRA -> {
+                Component title = extraTab();
+                if (title != null) tooltip(graphics, mouseX, mouseY, title);
+            }
             case TAB_UPGRADES -> tooltip(graphics, mouseX, mouseY,
                     Component.translatable(menu.usesModules() ? "gui.atomcraft.modules" : "gui.atomcraft.upgrades"),
                     Component.translatable(menu.usesModules() ? "gui.atomcraft.modules_hint" : "gui.atomcraft.upgrades_hint"));

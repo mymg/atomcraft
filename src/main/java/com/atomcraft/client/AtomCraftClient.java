@@ -57,6 +57,7 @@ public class AtomCraftClient {
         event.registerBlockEntityRenderer(ModBlockEntities.ANALYZER.get(), AnalyzerRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.ATOMIZER.get(), context -> new TallMachineRenderer<>(context, "atomizer"));
         event.registerBlockEntityRenderer(ModBlockEntities.REPLICATOR.get(), context -> new TallMachineRenderer<>(context, "replicator"));
+        event.registerBlockEntityRenderer(ModBlockEntities.ADVANCED_REPLICATOR.get(), context -> new TallMachineRenderer<>(context, "advanced_replicator"));
         event.registerBlockEntityRenderer(ModBlockEntities.DRIVE.get(), DriveRenderer::new);
     }
 

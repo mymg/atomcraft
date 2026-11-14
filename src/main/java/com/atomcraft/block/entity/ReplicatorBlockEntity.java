@@ -58,7 +58,7 @@ public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyR
     public static final int MAX_REQUEST = 9999;
     public static final int DATA_PROGRESS = 0, DATA_STATUS = 1, DATA_ENERGY_LO = 2, DATA_ENERGY_HI = 3,
             DATA_CAPACITY_LO = 4, DATA_CAPACITY_HI = 5, DATA_TARGET_LO = 6, DATA_TARGET_HI = 7,
-            DATA_REMAINING = 8, DATA_COUNT = 9;
+            DATA_REMAINING = 8, DATA_TIER = 9, DATA_MAX_ELEMENTS = 10, DATA_EXOTICS = 11, DATA_FORMED = 12, DATA_COUNT = 13;
 
     private final SimpleEnergyHandler energy = new SimpleEnergyHandler(
             Config.REPLICATOR_CAPACITY.get(), Config.REPLICATOR_MAX_INPUT.get(), 0) {
@@ -78,6 +78,9 @@ public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyR
     private int maxProgress;
     private long energyNeeded;
     private long energyUsed;
+    /** Replicador Quântico: estrutura montada (verificada a cada segundo; os outros níveis estão sempre "formados"). */
+    private boolean formed;
+    private int structureTimer;
 
     private final ContainerData data = new ContainerData() {
         @Override
@@ -95,6 +98,10 @@ public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyR
                 case DATA_TARGET_LO -> targetId & 0xFFFF;
                 case DATA_TARGET_HI -> (targetId >>> 16) & 0xFFFF;
                 case DATA_REMAINING -> remaining;
+                case DATA_TIER -> tier().ordinal();
+                case DATA_MAX_ELEMENTS -> tier().maxElements() + 1; // 0 = sem limite
+                case DATA_EXOTICS -> tier().allowsExotics() ? 1 : 0;
+                case DATA_FORMED -> isFormed() ? 1 : 0;
                 default -> 0;
             };
         }
@@ -109,7 +116,35 @@ public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyR
     };
 
     public ReplicatorBlockEntity(BlockPos pos, BlockState state) {
-        super(ModBlockEntities.REPLICATOR.get(), pos, state);
+        super(typeFor(state), pos, state);
+    }
+
+    private static net.minecraft.world.level.block.entity.BlockEntityType<ReplicatorBlockEntity> typeFor(BlockState state) {
+        if (state.getBlock() instanceof com.atomcraft.block.QuantumReplicatorBlock) return ModBlockEntities.QUANTUM_REPLICATOR.get();
+        if (state.getBlock() instanceof com.atomcraft.block.AdvancedReplicatorBlock) return ModBlockEntities.ADVANCED_REPLICATOR.get();
+        return ModBlockEntities.REPLICATOR.get();
+    }
+
+    /** Nível pelo bloco: Replicador Atômico, Avançado ou Quântico. */
+    public com.atomcraft.replication.ReplicatorTier tier() {
+        var block = getBlockState().getBlock();
+        if (block instanceof com.atomcraft.block.QuantumReplicatorBlock) return com.atomcraft.replication.ReplicatorTier.QUANTUM;
+        if (block instanceof com.atomcraft.block.AdvancedReplicatorBlock) return com.atomcraft.replication.ReplicatorTier.ADVANCED;
+        return com.atomcraft.replication.ReplicatorTier.BASIC;
+    }
+
+    public boolean isFormed() {
+        return tier() != com.atomcraft.replication.ReplicatorTier.QUANTUM || formed;
+    }
+
+    /** Verifica a estrutura do Replicador Quântico e atualiza o bloco (luz da frente). */
+    public boolean checkStructure() {
+        if (level == null || tier() != com.atomcraft.replication.ReplicatorTier.QUANTUM) return true;
+        BlockState state = getBlockState();
+        formed = com.atomcraft.replication.QuantumStructure.check(level, worldPosition,
+                state.getValue(com.atomcraft.block.MachineBlock.FACING)).formed();
+        setStateFlag(com.atomcraft.block.QuantumReplicatorBlock.FORMED, formed);
+        return formed;
     }
 
     public FilteredItemHandler output() {
@@ -135,6 +170,12 @@ public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyR
         if (!ResearchData.get(level.getServer()).isResearched(player.getUUID(), item)) {
             player.sendSystemMessage(Component.translatable("message.atomcraft.not_researched",
                     new ItemStack(item).getHoverName()).withStyle(ChatFormatting.RED));
+            return;
+        }
+        AtomicValue value = AtomicValues.get(item, false);
+        Component refusal = value == null ? null : tier().refusal(value.composition());
+        if (refusal != null) {
+            player.sendSystemMessage(refusal.copy().withStyle(ChatFormatting.RED));
             return;
         }
         startJob(player.getUUID(), item, amount);
@@ -172,6 +213,11 @@ public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyR
     @Override
     public void serverTick() {
         if (level == null || level.getServer() == null) return;
+        if (tier() == com.atomcraft.replication.ReplicatorTier.QUANTUM && structureTimer++ % 20 == 0) checkStructure();
+        if (!isFormed()) {
+            status = MachineStatus.INCOMPLETE;
+            return;
+        }
         if (target == null) {
             status = MachineStatus.IDLE;
             return;
@@ -179,6 +225,11 @@ public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyR
         AtomicValue value = AtomicValues.get(target, false);
         if (value == null) {
             cancelJob();
+            return;
+        }
+        if (!reserved && tier().refusal(value.composition()) != null) {
+            // Pedido feito antes de mudar a configuração (ou de trocar o bloco): fica esperando.
+            status = MachineStatus.TOO_COMPLEX;
             return;
         }
 
@@ -270,7 +321,11 @@ public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyR
 
     @Override
     public Component getDisplayName() {
-        return Component.translatable("block.atomcraft.replicator");
+        return switch (tier()) {
+            case BASIC -> Component.translatable("block.atomcraft.replicator");
+            case ADVANCED -> Component.translatable("block.atomcraft.advanced_replicator");
+            case QUANTUM -> Component.translatable("block.atomcraft.quantum_replicator");
+        };
     }
 
     @Override

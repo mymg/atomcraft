@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "atomcraft:item/advanced_replicator",
+    "model": {
+      "type": "geckolib:geckolib"
+    }
+  }
+}

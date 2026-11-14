@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "atomcraft:block/quantum_casing",
+    "front": "atomcraft:block/quantum_replicator_front_on",
+    "side": "atomcraft:block/quantum_casing",
+    "particle": "atomcraft:block/quantum_casing"
+  }
+}
