@@ -157,7 +157,7 @@ public class ReplicatorScreen extends MachineScreen<ReplicatorMenu> {
 
     @Override
     protected int extraPanelHeight() {
-        return 92;
+        return 102;
     }
 
     /** Aba "Complexidade": o que este replicador aceita e quantos dos itens pesquisados ele consegue fazer. */
@@ -168,11 +168,12 @@ public class ReplicatorScreen extends MachineScreen<ReplicatorMenu> {
         graphics.text(font, font.plainSubstrByWidth(Component.translatable(menu.tier().translationKey()).getString(), w), x, y + 12,
                 TechGui.TEXT_LIGHT, false);
         int max = menu.maxElements();
+        graphics.text(font, Component.translatable("gui.atomcraft.complexity_elements"), x, y + 26, TechGui.TEXT_DIM, false);
         Component limit = max < 0 ? Component.translatable("gui.atomcraft.complexity_unlimited")
                 : Component.translatable("gui.atomcraft.complexity_max", max);
-        graphics.text(font, font.plainSubstrByWidth(limit.getString(), w), x, y + 26, TechGui.TEXT_LIGHT, false);
+        graphics.text(font, font.plainSubstrByWidth(limit.getString(), w), x, y + 37, TechGui.TEXT_LIGHT, false);
         graphics.text(font, font.plainSubstrByWidth(Component.translatable(menu.allowsExotics()
-                ? "gui.atomcraft.exotics_yes" : "gui.atomcraft.exotics_no").getString(), w), x, y + 37,
+                ? "gui.atomcraft.exotics_yes" : "gui.atomcraft.exotics_no").getString(), w), x, y + 51,
                 menu.allowsExotics() ? TechGui.TEXT_GOOD : TechGui.TEXT_DIM, false);
         int total = 0, ok = 0;
         for (Item item : ClientState.research().keySet()) {
@@ -180,8 +181,8 @@ public class ReplicatorScreen extends MachineScreen<ReplicatorMenu> {
             total++;
             if (refusal(item) == null) ok++;
         }
-        graphics.text(font, Component.translatable("gui.atomcraft.complexity_researched"), x, y + 51, TechGui.TEXT_DIM, false);
-        graphics.text(font, ok + " / " + total, x, y + 62, ok == total ? TechGui.TEXT_GOOD : TechGui.TEXT_LIGHT, false);
+        graphics.text(font, Component.translatable("gui.atomcraft.complexity_researched"), x, y + 65, TechGui.TEXT_DIM, false);
+        graphics.text(font, ok + " / " + total, x, y + 76, ok == total ? TechGui.TEXT_GOOD : TechGui.TEXT_LIGHT, false);
     }
 
     private int quantityValue() {
