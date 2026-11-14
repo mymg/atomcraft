@@ -224,19 +224,27 @@ final class SelfTest {
             check(failures, placed.get(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.PLACED_FEATURE,
                     AtomCraft.id("ore_" + ore.id()))).isPresent(), "feature do minério " + ore.id() + " registrada");
         }
-        int found = 0;
-        var tin = com.atomcraft.material.ModMaterials.ORES.get(com.atomcraft.material.OreType.TIN).get();
-        var deepTin = com.atomcraft.material.ModMaterials.DEEPSLATE_ORES.get(com.atomcraft.material.OreType.TIN).get();
-        for (int cx = -3; cx <= 3 && found == 0; cx++) {
-            for (int cz = -3; cz <= 3 && found == 0; cz++) {
-                var chunk = level.getChunk(cx, cz);
-                for (int x = 0; x < 16 && found == 0; x++) for (int z = 0; z < 16 && found == 0; z++) for (int y = -16; y < 112; y++) {
-                    var state = chunk.getBlockState(new BlockPos(cx * 16 + x, y, cz * 16 + z));
-                    if (state.is(tin) || state.is(deepTin)) { found++; break; }
-                }
-            }
+        // O mundo do teste é plano (sem minérios): coloca o veio à mão num cubo de pedra.
+        var configured = server.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.CONFIGURED_FEATURE)
+                .get(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.CONFIGURED_FEATURE, AtomCraft.id("ore_tin")));
+        var modifiers = server.registryAccess().lookupOrThrow(net.neoforged.neoforge.registries.NeoForgeRegistries.Keys.BIOME_MODIFIERS);
+        check(failures, modifiers.get(net.minecraft.resources.ResourceKey.create(net.neoforged.neoforge.registries.NeoForgeRegistries.Keys.BIOME_MODIFIERS,
+                AtomCraft.id("ore_tin"))).isPresent(), "biome modifier do estanho carregado");
+        BlockPos center = new BlockPos(200, 100, 200);
+        for (BlockPos p : BlockPos.betweenClosed(center.offset(-6, -6, -6), center.offset(6, 6, 6))) {
+            level.getChunk(p);
+            level.setBlock(p, net.minecraft.world.level.block.Blocks.STONE.defaultBlockState(), Block.UPDATE_CLIENTS);
         }
-        check(failures, found > 0, "minério de estanho gerado no mundo");
+        var random = net.minecraft.util.RandomSource.create(42);
+        if (configured.isPresent()) {
+            for (int i = 0; i < 8; i++) configured.get().value().place(level, level.getChunkSource().getGenerator(), random, center);
+        }
+        var tin = com.atomcraft.material.ModMaterials.ORES.get(com.atomcraft.material.OreType.TIN).get();
+        int found = 0;
+        for (BlockPos p : BlockPos.betweenClosed(center.offset(-8, -8, -8), center.offset(8, 8, 8))) {
+            if (level.getBlockState(p).is(tin)) found++;
+        }
+        check(failures, found > 0, "veio de estanho gerado na pedra (" + found + " blocos)");
     }
 
     /** Botão de ligar/desligar, chips de upgrade, Sintetizador e loot das schematics. */
