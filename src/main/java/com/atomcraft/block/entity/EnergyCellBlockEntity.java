@@ -79,7 +79,7 @@ public class EnergyCellBlockEntity extends MachineBlockEntity implements EnergyR
                 case DATA_TIER -> tier.ordinal();
                 case DATA_FORMED -> isFormed() ? 1 : 0;
                 case DATA_PORTS_IN -> (int) ports.stream().filter(p -> !portIsOutput(p)).count();
-                case DATA_PORTS_OUT -> (int) ports.stream().filter(this::portIsOutput).count();
+                case DATA_PORTS_OUT -> (int) ports.stream().filter(p -> portIsOutput(p)).count();
                 default -> 0;
             };
         }
