@@ -18,10 +18,11 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
 /**
- * Porta da Matriz de Energia: por ela a energia entra (azul) ou sai (laranja) da matriz.
+ * Porta da Matriz de Energia: por ela a energia entra (azul) ou sai (laranja) da matriz, e o
+ * Cabo Atômico ligado a ela põe a matriz na rede.
  * Agachado + clique com a mão vazia alterna entre entrada e saída; clique normal abre a matriz.
  */
-public class MatrixPortBlock extends MatrixPartBlock implements EntityBlock {
+public class MatrixPortBlock extends MatrixPartBlock implements EntityBlock, com.atomcraft.storage.NetworkNode {
 
     public static final BooleanProperty OUTPUT = BooleanProperty.create("output");
 

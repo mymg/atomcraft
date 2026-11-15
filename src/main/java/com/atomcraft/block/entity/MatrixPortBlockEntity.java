@@ -12,7 +12,7 @@ import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import org.jspecify.annotations.Nullable;
 
 /** Porta da Matriz de Energia: expõe a energia do controlador (só entrada ou só saída) para os vizinhos. */
-public class MatrixPortBlockEntity extends BlockEntity {
+public class MatrixPortBlockEntity extends BlockEntity implements com.atomcraft.storage.NetworkLink {
 
     private @Nullable BlockPos controllerPos;
 
@@ -39,6 +39,12 @@ public class MatrixPortBlockEntity extends BlockEntity {
             return matrix;
         }
         return null;
+    }
+
+    @Override
+    public java.util.Collection<BlockPos> linkedNodes() {
+        EnergyCellBlockEntity matrix = controller();
+        return matrix == null ? java.util.List.of() : java.util.List.of(matrix.getBlockPos());
     }
 
     /** Capability de energia: entrada ou saída conforme o modo da porta. */

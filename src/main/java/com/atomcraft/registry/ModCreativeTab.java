@@ -24,6 +24,7 @@ public final class ModCreativeTab {
                 output.accept(ModItems.QUANTUM_CASING.get());
                 output.accept(ModItems.QUANTUM_GLASS.get());
                 output.accept(ModItems.QUANTUM_CORE.get());
+                output.accept(ModItems.QUANTUM_PORT.get());
                 output.accept(ModItems.DRIVE.get());
                 output.accept(ModItems.CABLE.get());
                 output.accept(ModItems.TERMINAL.get());

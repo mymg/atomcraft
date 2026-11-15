@@ -62,6 +62,12 @@ public final class ElementNetwork {
             var blockEntity = level.getBlockEntity(pos);
             if (blockEntity instanceof DriveBlockEntity drive) drives.add(drive);
             if (blockEntity instanceof EnergyReceiver receiver) receivers.add(receiver);
+            if (blockEntity instanceof NetworkLink link) {
+                // Portas de multiblocos ↔ controlador
+                for (BlockPos linked : link.linkedNodes()) {
+                    if (visited.size() < MAX_NODES && level.isLoaded(linked) && visited.add(linked.immutable())) queue.add(linked.immutable());
+                }
+            }
             for (Direction direction : Direction.values()) {
                 BlockPos next = pos.relative(direction);
                 if (visited.contains(next) || visited.size() >= MAX_NODES || !level.isLoaded(next)) continue;

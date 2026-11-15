@@ -48,7 +48,7 @@ import java.util.UUID;
  * e a raridade do item. Os itens prontos vão para o buffer de saída, de onde
  * hoppers e pipes podem retirá-los.
  */
-public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyReceiver, GeoBlockEntity {
+public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyReceiver, GeoBlockEntity, com.atomcraft.storage.NetworkLink {
 
     private static final RawAnimation IDLE = RawAnimation.begin().thenLoop("idle");
     private static final RawAnimation WORKING = RawAnimation.begin().thenLoop("working");
@@ -81,6 +81,8 @@ public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyR
     /** Replicador Quântico: estrutura montada (verificada a cada segundo; os outros níveis estão sempre "formados"). */
     private boolean formed;
     private int structureTimer;
+    /** Portas Quânticas da estrutura (ligam o multibloco à rede, energia e itens). */
+    private final java.util.List<BlockPos> ports = new java.util.ArrayList<>();
 
     private final ContainerData data = new ContainerData() {
         @Override
@@ -141,10 +143,30 @@ public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyR
     public boolean checkStructure() {
         if (level == null || tier() != com.atomcraft.replication.ReplicatorTier.QUANTUM) return true;
         BlockState state = getBlockState();
-        formed = com.atomcraft.replication.QuantumStructure.check(level, worldPosition,
-                state.getValue(com.atomcraft.block.MachineBlock.FACING)).formed();
+        var result = com.atomcraft.replication.QuantumStructure.check(level, worldPosition,
+                state.getValue(com.atomcraft.block.MachineBlock.FACING));
+        boolean changed = result.formed() != formed || !ports.equals(result.ports());
+        formed = result.formed();
+        ports.clear();
+        ports.addAll(result.ports());
+        for (BlockPos pos : ports) {
+            if (level.getBlockEntity(pos) instanceof QuantumPortBlockEntity port) port.setController(worldPosition);
+        }
         setStateFlag(com.atomcraft.block.QuantumReplicatorBlock.FORMED, formed);
+        if (changed) {
+            invalidateNetwork();
+            for (BlockPos pos : ports) level.invalidateCapabilities(pos);
+        }
         return formed;
+    }
+
+    public java.util.List<BlockPos> ports() {
+        return ports;
+    }
+
+    @Override
+    public java.util.Collection<BlockPos> linkedNodes() {
+        return formed ? java.util.List.copyOf(ports) : java.util.List.of();
     }
 
     public FilteredItemHandler output() {

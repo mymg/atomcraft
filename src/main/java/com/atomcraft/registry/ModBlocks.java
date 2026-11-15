@@ -74,6 +74,8 @@ public final class ModBlocks {
             properties -> machine(properties).lightLevel(state -> 8));
     public static final DeferredBlock<com.atomcraft.block.MatrixPortBlock> MATRIX_PORT = BLOCKS.registerBlock("matrix_port",
             com.atomcraft.block.MatrixPortBlock::new, ModBlocks::machine);
+    public static final DeferredBlock<com.atomcraft.block.QuantumPortBlock> QUANTUM_PORT = BLOCKS.registerBlock("quantum_port",
+            com.atomcraft.block.QuantumPortBlock::new, ModBlocks::machine);
     public static final DeferredBlock<DriveBlock> DRIVE = BLOCKS.registerBlock("drive", DriveBlock::new,
             properties -> machine(properties).noOcclusion());
     public static final DeferredBlock<CombustionGeneratorBlock> COMBUSTION_GENERATOR =

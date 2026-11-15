@@ -45,7 +45,7 @@ import java.util.List;
  * Matriz: a energia entra e sai pelas Portas da Matriz (modo de cada porta) e pela rede.
  * Ao quebrar, a energia fica guardada no item.
  */
-public class EnergyCellBlockEntity extends MachineBlockEntity implements EnergyReceiver, EnergyBuffer {
+public class EnergyCellBlockEntity extends MachineBlockEntity implements EnergyReceiver, EnergyBuffer, com.atomcraft.storage.NetworkLink {
 
     public static final int DATA_ENERGY_LO = 0, DATA_ENERGY_HI = 1, DATA_CAPACITY_LO = 2, DATA_CAPACITY_HI = 3,
             DATA_IN_LO = 4, DATA_IN_HI = 5, DATA_OUT_LO = 6, DATA_OUT_HI = 7, DATA_TIER = 8, DATA_FORMED = 9,
@@ -152,6 +152,11 @@ public class EnergyCellBlockEntity extends MachineBlockEntity implements EnergyR
         return ports;
     }
 
+    @Override
+    public java.util.Collection<BlockPos> linkedNodes() {
+        return tier == CellTier.MATRIX && formed ? List.copyOf(ports) : List.of();
+    }
+
     private boolean portIsOutput(BlockPos pos) {
         return level != null && level.getBlockEntity(pos) instanceof MatrixPortBlockEntity port && port.isOutput();
     }
@@ -187,6 +192,7 @@ public class EnergyCellBlockEntity extends MachineBlockEntity implements EnergyR
         }
         setStateFlag(EnergyMatrixBlock.FORMED, formed);
         if (changed) {
+            invalidateNetwork();
             level.invalidateCapabilities(worldPosition);
             for (BlockPos pos : result.ports()) level.invalidateCapabilities(pos);
         }

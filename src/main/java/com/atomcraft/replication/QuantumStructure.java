@@ -22,6 +22,7 @@ import java.util.Map;
  * <pre>
  * 'C' carcaça quântica   'G' vidro quântico (ou carcaça)   'X' núcleo quântico   'K' controlador
  * </pre>
+ * Portas Quânticas podem ocupar qualquer posição de carcaça ou vidro.
  * Camada de baixo e de cima: só carcaça. Camada do meio: carcaça nos cantos, vidro nas
  * laterais e no fundo, núcleo no centro e o controlador na frente.
  */
@@ -36,7 +37,7 @@ public final class QuantumStructure {
 
     public record Slot(BlockPos pos, QuantumPart part) {}
 
-    public record Result(boolean formed, List<Slot> missing) {
+    public record Result(boolean formed, List<Slot> missing, List<BlockPos> ports) {
         public Map<QuantumPart, Integer> missingCounts() {
             Map<QuantumPart, Integer> counts = new EnumMap<>(QuantumPart.class);
             for (Slot slot : missing) counts.merge(slot.part(), 1, Integer::sum);
@@ -68,6 +69,8 @@ public final class QuantumStructure {
 
     private static boolean accepts(char c, @Nullable QuantumPart actual) {
         if (actual == null) return false;
+        // Portas Quânticas podem ficar no lugar de qualquer carcaça ou vidro
+        if (actual == QuantumPart.PORT) return c == 'C' || c == 'G';
         if (c == 'G') return actual == QuantumPart.GLASS || actual == QuantumPart.CASING;
         return actual == expected(c);
     }
@@ -88,6 +91,7 @@ public final class QuantumStructure {
 
     public static Result check(BlockGetter level, BlockPos controller, Direction facing) {
         List<Slot> missing = new ArrayList<>();
+        List<BlockPos> ports = new ArrayList<>();
         for (int y = 0; y < SIZE; y++) {
             for (int z = 0; z < SIZE; z++) {
                 for (int x = 0; x < SIZE; x++) {
@@ -95,10 +99,12 @@ public final class QuantumStructure {
                     QuantumPart want = expected(c);
                     if (want == null) continue;
                     BlockPos pos = toWorld(controller, facing, x, y, z);
-                    if (!accepts(c, partOf(level.getBlockState(pos)))) missing.add(new Slot(pos, want));
+                    QuantumPart actual = partOf(level.getBlockState(pos));
+                    if (!accepts(c, actual)) missing.add(new Slot(pos, want));
+                    else if (actual == QuantumPart.PORT) ports.add(pos);
                 }
             }
         }
-        return new Result(missing.isEmpty(), missing);
+        return new Result(missing.isEmpty(), missing, ports);
     }
 }

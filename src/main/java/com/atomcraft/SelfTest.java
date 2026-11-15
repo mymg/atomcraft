@@ -249,6 +249,9 @@ final class SelfTest {
             check(failures, inHandler != null && inHandler.insert(10_000, transaction) == 10_000, "porta de entrada recebe energia");
             transaction.commit();
         }
+        level.setBlock(inPort.north(), ModBlocks.DRIVE.get().defaultBlockState(), Block.UPDATE_ALL);
+        check(failures, com.atomcraft.storage.ElementNetwork.scan(level, inPort.north()).receivers().contains(matrix),
+                "Cabo/Drive ligado à Porta da Matriz alcança o controlador");
         matrix.tick();
         check(failures, receiver.energy().getAmountAsInt() > 0, "porta de saída alimenta a célula vizinha (" + receiver.energy().getAmountAsInt() + ")");
         level.setBlock(controller.south(), Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
@@ -301,10 +304,22 @@ final class SelfTest {
                 case CASING -> ModBlocks.QUANTUM_CASING.get();
                 case GLASS -> ModBlocks.QUANTUM_GLASS.get();
                 case CORE -> ModBlocks.QUANTUM_CORE.get();
-                case CONTROLLER -> null;
+                case CONTROLLER, PORT -> null;
             };
             if (block != null) level.setBlock(slot.pos(), block.defaultBlockState(), Block.UPDATE_ALL);
         }
+        // Porta Quântica no lugar de uma carcaça, com um Drive encostado: a rede chega ao controlador
+        BlockPos qPort = com.atomcraft.replication.QuantumStructure.toWorld(controller, net.minecraft.core.Direction.NORTH, 0, 0, 0);
+        level.setBlock(qPort, ModBlocks.QUANTUM_PORT.get().defaultBlockState(), Block.UPDATE_ALL);
+        level.setBlock(qPort.north(), ModBlocks.DRIVE.get().defaultBlockState(), Block.UPDATE_ALL);
+        ((DriveBlockEntity) level.getBlockEntity(qPort.north())).disks().set(0, ItemResource.of(ModItems.DISK_64K.get()), 1);
+        check(failures, quantumBe.checkStructure() && quantumBe.ports().size() == 1, "quântico forma com uma Porta Quântica");
+        check(failures, com.atomcraft.storage.ElementNetwork.scan(level, qPort.north()).receivers().contains(quantumBe),
+                "rede do Drive chega ao Replicador Quântico pela porta");
+        check(failures, quantumBe.network().hasStorage(), "Replicador Quântico vê o Drive (elementos) pela porta");
+        check(failures, level.getCapability(net.neoforged.neoforge.capabilities.Capabilities.Energy.BLOCK, qPort, net.minecraft.core.Direction.NORTH) != null
+                && level.getCapability(net.neoforged.neoforge.capabilities.Capabilities.Item.BLOCK, qPort, net.minecraft.core.Direction.NORTH) != null,
+                "Porta Quântica expõe energia e itens");
         check(failures, quantumBe.checkStructure() && quantumBe.isFormed()
                 && level.getBlockState(controller).getValue(com.atomcraft.block.QuantumReplicatorBlock.FORMED), "quântico forma com a estrutura 3×3×3");
         quantumBe.tick();
@@ -541,7 +556,7 @@ final class SelfTest {
                 case GLASS -> ModBlocks.REACTOR_GLASS.get();
                 case COIL -> ModBlocks.MAGNETIC_COIL.get();
                 case SOLENOID -> ModBlocks.CENTRAL_SOLENOID.get();
-                case CONTROLLER -> null;
+                case CONTROLLER, PORT -> null;
                 default -> Blocks.AIR;
             };
             if (block != null) level.setBlock(slot.pos(), block.defaultBlockState(), Block.UPDATE_ALL);
