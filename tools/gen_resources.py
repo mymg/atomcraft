@@ -726,6 +726,58 @@ w("data/minecraft/tags/block/needs_stone_tool.json", {"values": [f"atomcraft:{b}
                                                       + [f"atomcraft:{m[0]}_{s}" for m in MATERIALS if m[6] < 2 for s in ("block", "slab", "stairs", "wall")]})
 w("data/minecraft/tags/block/needs_diamond_tool.json", {"values": [f"atomcraft:{b}" for b in TOOL_TAGS["diamond"]]})
 
+# ---------- Armazenamento de energia: células e Matriz de Energia ----------
+CELLS = {"basic_energy_cell": (220, 70, 60), "advanced_energy_cell": (240, 170, 50), "elite_energy_cell": (70, 210, 230)}
+for b in CELLS:
+    w(f"assets/atomcraft/blockstates/{b}.json", {"variants": {
+        f"facing={d}": ({"model": f"atomcraft:block/{b}"} | ({"y": y} if y else {}))
+        for d, y in (("north", 0), ("east", 90), ("south", 180), ("west", 270))}})
+    w(f"assets/atomcraft/models/block/{b}.json", {"parent": "minecraft:block/orientable", "textures": {
+        "top": f"atomcraft:block/{b}_top", "front": f"atomcraft:block/{b}_front",
+        "side": f"atomcraft:block/{b}_side", "particle": f"atomcraft:block/{b}_side"}})
+    w(f"assets/atomcraft/items/{b}.json", {"model": {"type": "minecraft:model", "model": f"atomcraft:block/{b}"}})
+b = "energy_matrix"
+w(f"assets/atomcraft/blockstates/{b}.json", {"variants": {
+    f"facing={d},formed={str(f).lower()}": ({"model": f"atomcraft:block/{b}" + ("_on" if f else "")} | ({"y": y} if y else {}))
+    for d, y in (("north", 0), ("east", 90), ("south", 180), ("west", 270)) for f in (False, True)}})
+for suffix in ("", "_on"):
+    w(f"assets/atomcraft/models/block/{b}{suffix}.json", {"parent": "minecraft:block/orientable", "textures": {
+        "top": "atomcraft:block/matrix_casing", "front": f"atomcraft:block/{b}_front{suffix}",
+        "side": "atomcraft:block/matrix_casing", "particle": "atomcraft:block/matrix_casing"}})
+w(f"assets/atomcraft/items/{b}.json", {"model": {"type": "minecraft:model", "model": f"atomcraft:block/{b}"}})
+for part in ("matrix_casing", "matrix_glass", "matrix_core"):
+    w(f"assets/atomcraft/blockstates/{part}.json", {"variants": {"": {"model": f"atomcraft:block/{part}"}}})
+    model = {"parent": "minecraft:block/cube_all", "textures": {"all": f"atomcraft:block/{part}"}}
+    if part == "matrix_glass":
+        model["render_type"] = "minecraft:translucent"
+    w(f"assets/atomcraft/models/block/{part}.json", model)
+    w(f"assets/atomcraft/items/{part}.json", {"model": {"type": "minecraft:model", "model": f"atomcraft:block/{part}"}})
+w("assets/atomcraft/blockstates/matrix_port.json", {"variants": {
+    "output=false": {"model": "atomcraft:block/matrix_port"}, "output=true": {"model": "atomcraft:block/matrix_port_output"}}})
+w("assets/atomcraft/models/block/matrix_port.json", {"parent": "minecraft:block/cube_all", "textures": {"all": "atomcraft:block/matrix_port_input"}})
+w("assets/atomcraft/models/block/matrix_port_output.json", {"parent": "minecraft:block/cube_all", "textures": {"all": "atomcraft:block/matrix_port_output"}})
+w("assets/atomcraft/items/matrix_port.json", {"model": {"type": "minecraft:model", "model": "atomcraft:block/matrix_port"}})
+ENERGY_BLOCKS = list(CELLS) + ["energy_matrix", "matrix_casing", "matrix_glass", "matrix_core", "matrix_port"]
+for b in ENERGY_BLOCKS:
+    entry = {"type": "minecraft:item", "name": f"atomcraft:{b}"}
+    if b in CELLS or b == "energy_matrix":
+        # A energia fica guardada no item
+        entry["functions"] = [{"function": "minecraft:copy_components", "source": "block_entity", "include": ["atomcraft:stored_energy"]}]
+    w(f"data/atomcraft/loot_table/blocks/{b}.json", {"type": "minecraft:block", "pools": [{"rolls": 1, "bonus_rolls": 0,
+        "entries": [entry], "conditions": [{"condition": "minecraft:survives_explosion"}]}]})
+def pl(m): return f"atomcraft:{m}_plate"
+shaped("basic_energy_cell", ["LWL", "RBR", "LWL"], {"L": pl("lead"), "W": WIRE, "R": RED, "B": "minecraft:redstone_block"}, "atomcraft:basic_energy_cell")
+shaped("advanced_energy_cell", ["CLC", "EBE", "CLC"], {"C": pl("cobalt"), "L": "atomcraft:raw_lithium", "E": CIRCUIT, "B": "atomcraft:basic_energy_cell"}, "atomcraft:advanced_energy_cell")
+shaped("elite_energy_cell", ["SGS", "EBE", "SGS"], {"S": pl("stainless_steel"), "G": "minecraft:coal_block", "E": CIRCUIT, "B": "atomcraft:advanced_energy_cell"}, "atomcraft:elite_energy_cell")
+shaped("energy_matrix", ["SCS", "EXE", "SCS"], {"S": pl("superalloy"), "C": CIRCUIT, "E": "atomcraft:elite_energy_cell", "X": "minecraft:end_crystal"}, "atomcraft:energy_matrix")
+shaped("matrix_casing", ["SIS", "IRI", "SIS"], {"S": pl("stainless_steel"), "I": pl("invar"), "R": RED}, "atomcraft:matrix_casing", 8)
+shaped("matrix_glass", ["CGC", "G G", "CGC"], {"C": "atomcraft:matrix_casing", "G": "minecraft:glass"}, "atomcraft:matrix_glass", 4)
+shaped("matrix_core", ["SLS", "CEC", "SLS"], {"S": pl("superalloy"), "L": "atomcraft:raw_lithium", "C": CIRCUIT, "E": "atomcraft:elite_energy_cell"}, "atomcraft:matrix_core")
+shaped("matrix_port", ["CWC", "WBW", "CWC"], {"C": "atomcraft:matrix_casing", "W": WIRE, "B": "minecraft:redstone_block"}, "atomcraft:matrix_port", 2)
+w("data/minecraft/tags/block/mineable/pickaxe.json", {"values": [f"atomcraft:{b}" for b in MACHINES + ["atomic_cable"] + REACTOR_PARTS + MATERIAL_BLOCKS + ORE_BLOCKS + ENERGY_BLOCKS]})
+w("data/minecraft/tags/block/needs_iron_tool.json", {"values": [f"atomcraft:{b}" for b in MACHINES + REACTOR_PARTS + TOOL_TAGS["iron"] + ENERGY_BLOCKS]
+                                                     + [f"atomcraft:{m[0]}_{s_}" for m in MATERIALS if m[6] >= 2 for s_ in ("block", "slab", "stairs", "wall")]})
+
 # ---------- Traduções ----------
 MODULE_NAMES = {"containment": ("Magnetic Containment", "Confinamento Magnético"), "injector": ("Fuel Injector", "Injetor de Combustível"),
                 "recycler": ("Hydrogen Recycler", "Reciclador de Hidrogênio"), "ignition": ("Plasma Ignition", "Ignição a Plasma")}
@@ -748,6 +800,40 @@ common = {
     "block.atomcraft.atomizer": ("Atomizer", "Atomizador"),
     "block.atomcraft.alloy_forge": ("Alloy Forge", "Forja de Ligas"),
     "block.atomcraft.advanced_replicator": ("Advanced Replicator", "Replicador Avançado"),
+    "block.atomcraft.basic_energy_cell": ("Basic Energy Cell", "Célula de Energia Básica"),
+    "block.atomcraft.advanced_energy_cell": ("Advanced Energy Cell", "Célula de Energia Avançada"),
+    "block.atomcraft.elite_energy_cell": ("Elite Energy Cell", "Célula de Energia Elite"),
+    "block.atomcraft.energy_matrix": ("Energy Matrix", "Matriz de Energia"),
+    "block.atomcraft.matrix_casing": ("Matrix Casing", "Carcaça da Matriz"),
+    "block.atomcraft.matrix_glass": ("Matrix Glass", "Vidro da Matriz"),
+    "block.atomcraft.matrix_core": ("Matrix Core", "Núcleo da Matriz"),
+    "block.atomcraft.matrix_port": ("Matrix Port", "Porta da Matriz"),
+    "gui.atomcraft.stored": ("Stored", "Armazenado"),
+    "gui.atomcraft.sides": ("Sides", "Lados"),
+    "gui.atomcraft.sides_hint": ("Click: change", "Clique: muda"),
+    "gui.atomcraft.sides_click": ("Left click: next · Right click: back", "Esquerdo: próximo · Direito: volta"),
+    "gui.atomcraft.structure_ok": ("Structure OK", "Estrutura completa"),
+    "gui.atomcraft.ports": ("Ports", "Portas"),
+    "gui.atomcraft.port_hint_1": ("Sneak+click", "Agachar+clique"),
+    "gui.atomcraft.port_hint_2": ("on a port", "na porta muda"),
+    "side_mode.atomcraft.input": ("Input", "Entrada"),
+    "side_mode.atomcraft.output": ("Output", "Saída"),
+    "side_mode.atomcraft.both": ("Input and output", "Entrada e saída"),
+    "side_mode.atomcraft.none": ("Off", "Desligado"),
+    "cell_side.atomcraft.front": ("Front", "Frente"),
+    "cell_side.atomcraft.back": ("Back", "Trás"),
+    "cell_side.atomcraft.left": ("Left", "Esquerda"),
+    "cell_side.atomcraft.right": ("Right", "Direita"),
+    "cell_side.atomcraft.top": ("Top", "Topo"),
+    "cell_side.atomcraft.bottom": ("Bottom", "Base"),
+    "cell_side.atomcraft.front.short": ("F", "F"), "cell_side.atomcraft.back.short": ("B", "T"),
+    "cell_side.atomcraft.left.short": ("L", "E"), "cell_side.atomcraft.right.short": ("R", "D"),
+    "cell_side.atomcraft.top.short": ("U", "C"), "cell_side.atomcraft.bottom.short": ("D", "B"),
+    "tooltip.atomcraft.stored_energy": ("Energy: %s / %s FE", "Energia: %s / %s FE"),
+    "tooltip.atomcraft.energy_rate": ("Transfer: %s FE/t", "Transferência: %s FE/t"),
+    "message.atomcraft.port_input": ("Matrix port: input", "Porta da Matriz: entrada"),
+    "message.atomcraft.port_output": ("Matrix port: output", "Porta da Matriz: saída"),
+    "atomcraft.configuration.energyCells": ("Energy Cells", "Células de Energia"),
     "block.atomcraft.quantum_replicator": ("Quantum Replicator", "Replicador Quântico"),
     "block.atomcraft.quantum_casing": ("Quantum Casing", "Carcaça Quântica"),
     "block.atomcraft.quantum_glass": ("Quantum Glass", "Vidro Quântico"),
@@ -1168,6 +1254,43 @@ for suffix, glow in (("", (70, 50, 100, 255)), ("_on", (230, 170, 255, 255))):
     img, d = frame(); d.rectangle([2, 2, 13, 13], fill=(24, 18, 34, 255))
     d.ellipse([3, 3, 12, 12], outline=glow); d.ellipse([6, 6, 9, 9], fill=glow)
     save(img, f"block/quantum_replicator_front{suffix}.png")
+
+# Células de energia e Matriz (provisórias)
+for name, c in CELLS.items():
+    cc = c + (255,)
+    img, d = frame(); d.rectangle([3, 2, 12, 13], fill=(24, 26, 32, 255))
+    for i in range(4):
+        d.rectangle([5, 10 - i * 2, 10, 10 - i * 2], fill=cc)
+    d.rectangle([6, 1, 9, 2], fill=(150, 156, 168, 255)); save(img, f"block/{name}_side.png")
+    img, d = frame(); d.rectangle([2, 2, 13, 13], fill=(24, 26, 32, 255)); d.rectangle([4, 4, 11, 11], outline=cc)
+    d.polygon([(8, 4), (5, 8), (8, 8), (7, 11), (10, 7), (7, 7)], fill=cc); save(img, f"block/{name}_front.png")
+    img, d = frame(); d.ellipse([4, 4, 11, 11], fill=(24, 26, 32, 255), outline=cc); d.rectangle([7, 6, 8, 9], fill=cc)
+    save(img, f"block/{name}_top.png")
+MC = (255, 211, 74, 255)
+img, d = frame(); d.rectangle([3, 3, 12, 12], outline=(60, 64, 72, 255))
+for (px_, py_) in ((2, 2), (13, 2), (2, 13), (13, 13)):
+    d.point((px_, py_), fill=MC)
+save(img, "block/matrix_casing.png")
+img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+d.rectangle([0, 0, 15, 15], outline=(78, 82, 92, 255)); d.rectangle([1, 1, 14, 14], outline=(200, 170, 80, 255))
+d.line([(3, 12), (7, 8)], fill=(255, 240, 190, 150)); d.line([(8, 6), (10, 4)], fill=(255, 240, 190, 150))
+save(img, "block/matrix_glass.png")
+img = Image.new("RGBA", (16, 16), (40, 32, 12, 255)); d = ImageDraw.Draw(img)
+d.rectangle([0, 0, 15, 15], outline=(120, 100, 40, 255))
+for i in range(5):
+    d.rectangle([3, 3 + i * 2, 12, 3 + i * 2], fill=MC if i % 2 == 0 else (200, 150, 40, 255))
+save(img, "block/matrix_core.png")
+for mode, c in (("input", (58, 143, 224, 255)), ("output", (224, 138, 46, 255))):
+    img, d = frame(); d.rectangle([3, 3, 12, 12], fill=(24, 26, 32, 255), outline=c)
+    if mode == "input":
+        d.polygon([(8, 11), (4, 6), (12, 6)], fill=c)
+    else:
+        d.polygon([(8, 4), (4, 9), (12, 9)], fill=c)
+    save(img, f"block/matrix_port_{mode}.png")
+for suffix, glow in (("", (90, 80, 40, 255)), ("_on", MC)):
+    img, d = frame(); d.rectangle([2, 2, 13, 13], fill=(24, 22, 16, 255))
+    d.rectangle([4, 4, 11, 11], outline=glow); d.polygon([(8, 4), (5, 8), (8, 8), (7, 11), (10, 7), (7, 7)], fill=glow)
+    save(img, f"block/energy_matrix_front{suffix}.png")
 
 print("ok", len(BASE), "itens base,", len(TAGS), "tags vanilla,", len(COMPAT), "tags de compatibilidade,",
       len(kept), "arquivos de aparência preservados")

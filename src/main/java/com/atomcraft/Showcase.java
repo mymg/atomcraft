@@ -194,6 +194,37 @@ final class Showcase {
             quantumBe.checkStructure();
         }
 
+        // Célula de Energia Avançada ligada à rede (os geradores a enchem)
+        level.setBlock(base.south(5), ModBlocks.ADVANCED_ENERGY_CELL.get().defaultBlockState(), Block.UPDATE_ALL);
+        if (level.getBlockEntity(base.south(5)) instanceof com.atomcraft.block.entity.EnergyCellBlockEntity cell) {
+            cell.setOwner(player);
+            cell.energy().set(5_200_000);
+            cell.setSide(com.atomcraft.energy.CellSide.TOP, com.atomcraft.energy.SideMode.BOTH);
+            cell.setSide(com.atomcraft.energy.CellSide.BOTTOM, com.atomcraft.energy.SideMode.NONE);
+        }
+        // Matriz de Energia montada (3×5×3), a noroeste
+        BlockPos matrixPos = base.offset(-6, 1, -3);
+        level.setBlock(matrixPos, ModBlocks.ENERGY_MATRIX.get().defaultBlockState()
+                .setValue(com.atomcraft.block.MachineBlock.FACING, net.minecraft.core.Direction.WEST), Block.UPDATE_ALL);
+        BlockPos portIn = com.atomcraft.energy.MatrixStructure.toWorld(matrixPos, net.minecraft.core.Direction.WEST, 0, 1, 0);
+        BlockPos portOut = com.atomcraft.energy.MatrixStructure.toWorld(matrixPos, net.minecraft.core.Direction.WEST, 2, 1, 0);
+        for (var slot : com.atomcraft.energy.MatrixStructure.blueprint(matrixPos, net.minecraft.core.Direction.WEST)) {
+            var part = switch (slot.part()) {
+                case CASING -> ModBlocks.MATRIX_CASING.get();
+                case GLASS -> ModBlocks.MATRIX_GLASS.get();
+                case CORE -> ModBlocks.MATRIX_CORE.get();
+                default -> null;
+            };
+            if (slot.pos().equals(portIn) || slot.pos().equals(portOut)) part = ModBlocks.MATRIX_PORT.get();
+            if (part != null) level.setBlock(slot.pos(), part.defaultBlockState(), Block.UPDATE_ALL);
+        }
+        level.setBlock(portOut, level.getBlockState(portOut).setValue(com.atomcraft.block.MatrixPortBlock.OUTPUT, true), Block.UPDATE_ALL);
+        if (level.getBlockEntity(matrixPos) instanceof com.atomcraft.block.entity.EnergyCellBlockEntity matrix) {
+            matrix.setOwner(player);
+            matrix.energy().set(312_000_000);
+            matrix.checkStructure();
+        }
+
         level.setBlock(base.south(4), ModBlocks.ALLOY_FORGE.get().defaultBlockState(), Block.UPDATE_ALL);
         if (level.getBlockEntity(base.south(4)) instanceof com.atomcraft.block.entity.AlloyForgeBlockEntity forge) {
             forge.setOwner(player);
@@ -240,12 +271,14 @@ final class Showcase {
             case 1720 -> base.south(2).west();
             case 1920 -> base.south(4);
             case 2120 -> base.offset(-6, 0, 3);
+            case 2320 -> base.south(5);
+            case 2520 -> base.offset(-6, 1, -3);
             default -> null;
         };
         if (target != null && level.getBlockEntity(target) instanceof MenuProvider provider) {
             player.openMenu(provider);
         }
-        if (ticks == 2360) {
+        if (ticks == 2760) {
             // Visão das máquinas de 2 blocos (Replicador, Drive, Atomizador e Analisador animados)
             player.closeContainer();
             player.getAbilities().mayfly = true;
@@ -260,14 +293,14 @@ final class Showcase {
                 }
             }
         }
-        if (ticks > 2360 && ticks < 2700 && ticks % 20 == 0) {
+        if (ticks > 2760 && ticks < 3100 && ticks % 20 == 0) {
             // Mantém a câmera no lugar (mobs/slimes podem empurrar o jogador)
             machinesView(player);
         }
-        if (ticks == 2700) {
+        if (ticks == 3100) {
             // Visão do reator formado no mundo
             player.connection.teleport(base.getX() - 3.5, base.getY() + 4, base.getZ() + 0.5, -90f, 18f);
         }
-        if (ticks == 3300) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
+        if (ticks == 3700) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
     }
 }

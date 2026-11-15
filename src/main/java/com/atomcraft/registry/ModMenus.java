@@ -42,5 +42,8 @@ public final class ModMenus {
     public static final DeferredHolder<MenuType<?>, MenuType<com.atomcraft.menu.AlloyForgeMenu>> ALLOY_FORGE =
             MENUS.register("alloy_forge", () -> IMenuTypeExtension.create(com.atomcraft.menu.AlloyForgeMenu::client));
 
+    public static final DeferredHolder<MenuType<?>, MenuType<com.atomcraft.menu.EnergyCellMenu>> ENERGY_CELL =
+            MENUS.register("energy_cell", () -> IMenuTypeExtension.create(com.atomcraft.menu.EnergyCellMenu::client));
+
     private ModMenus() {}
 }

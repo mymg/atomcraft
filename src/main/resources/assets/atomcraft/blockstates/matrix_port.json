@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "output=false": {
+      "model": "atomcraft:block/matrix_port"
+    },
+    "output=true": {
+      "model": "atomcraft:block/matrix_port_output"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SCS",
+    "EXE",
+    "SCS"
+  ],
+  "key": {
+    "S": "atomcraft:superalloy_plate",
+    "C": "atomcraft:circuit_board",
+    "E": "atomcraft:elite_energy_cell",
+    "X": "minecraft:end_crystal"
+  },
+  "result": {
+    "id": "atomcraft:energy_matrix",
+    "count": 1
+  }
+}

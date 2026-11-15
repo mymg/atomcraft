@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SGS",
+    "EBE",
+    "SGS"
+  ],
+  "key": {
+    "S": "atomcraft:stainless_steel_plate",
+    "G": "minecraft:coal_block",
+    "E": "atomcraft:circuit_board",
+    "B": "atomcraft:advanced_energy_cell"
+  },
+  "result": {
+    "id": "atomcraft:elite_energy_cell",
+    "count": 1
+  }
+}

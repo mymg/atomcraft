@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "CLC",
+    "EBE",
+    "CLC"
+  ],
+  "key": {
+    "C": "atomcraft:cobalt_plate",
+    "L": "atomcraft:raw_lithium",
+    "E": "atomcraft:circuit_board",
+    "B": "atomcraft:basic_energy_cell"
+  },
+  "result": {
+    "id": "atomcraft:advanced_energy_cell",
+    "count": 1
+  }
+}

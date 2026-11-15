@@ -27,6 +27,15 @@ public final class ModBlockEntities {
             BLOCK_ENTITIES.register("analyzer", () -> new BlockEntityType<>(AnalyzerBlockEntity::new, ModBlocks.ANALYZER.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ReplicatorBlockEntity>> REPLICATOR =
             BLOCK_ENTITIES.register("replicator", () -> new BlockEntityType<>(ReplicatorBlockEntity::new, ModBlocks.REPLICATOR.get()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.atomcraft.block.entity.EnergyCellBlockEntity>> ENERGY_CELL =
+            BLOCK_ENTITIES.register("energy_cell", () -> new BlockEntityType<>(com.atomcraft.block.entity.EnergyCellBlockEntity::new,
+                    ModBlocks.BASIC_ENERGY_CELL.get(), ModBlocks.ADVANCED_ENERGY_CELL.get(), ModBlocks.ELITE_ENERGY_CELL.get()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.atomcraft.block.entity.EnergyCellBlockEntity>> ENERGY_MATRIX =
+            BLOCK_ENTITIES.register("energy_matrix", () -> new BlockEntityType<>(com.atomcraft.block.entity.EnergyCellBlockEntity::new,
+                    ModBlocks.ENERGY_MATRIX.get()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.atomcraft.block.entity.MatrixPortBlockEntity>> MATRIX_PORT =
+            BLOCK_ENTITIES.register("matrix_port", () -> new BlockEntityType<>(com.atomcraft.block.entity.MatrixPortBlockEntity::new,
+                    ModBlocks.MATRIX_PORT.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ReplicatorBlockEntity>> ADVANCED_REPLICATOR =
             BLOCK_ENTITIES.register("advanced_replicator", () -> new BlockEntityType<>(ReplicatorBlockEntity::new, ModBlocks.ADVANCED_REPLICATOR.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ReplicatorBlockEntity>> QUANTUM_REPLICATOR =

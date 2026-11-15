@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "CGC",
+    "G G",
+    "CGC"
+  ],
+  "key": {
+    "C": "atomcraft:matrix_casing",
+    "G": "minecraft:glass"
+  },
+  "result": {
+    "id": "atomcraft:matrix_glass",
+    "count": 4
+  }
+}

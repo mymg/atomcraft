@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "atomcraft:block/matrix_casing",
+    "front": "atomcraft:block/energy_matrix_front_on",
+    "side": "atomcraft:block/matrix_casing",
+    "particle": "atomcraft:block/matrix_casing"
+  }
+}

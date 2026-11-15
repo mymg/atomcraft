@@ -80,12 +80,17 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
     }
 
     private SidePanel openPanel() {
-        if (!menu.hasMachineControls() || (sidePanel == SidePanel.EXTRA && extraTab() == null)) return SidePanel.NONE;
+        if (!menu.hasMachineControls() || (sidePanel == SidePanel.EXTRA && extraTab() == null)
+                || (sidePanel == SidePanel.UPGRADES && !menu.hasUpgradeTab())) return SidePanel.NONE;
         return sidePanel;
     }
 
-    private int tabCount() {
-        return extraTab() == null ? 3 : 4;
+    /** Abas visíveis, de cima para baixo (TAB_POWER, TAB_INFO, TAB_UPGRADES, TAB_EXTRA). */
+    private int[] tabs() {
+        java.util.List<Integer> ids = new java.util.ArrayList<>(java.util.List.of(TAB_POWER, TAB_INFO));
+        if (menu.hasUpgradeTab()) ids.add(TAB_UPGRADES);
+        if (extraTab() != null) ids.add(TAB_EXTRA);
+        return ids.stream().mapToInt(Integer::intValue).toArray();
     }
 
     /** Aba extra opcional desta máquina (título), ou null. */
@@ -130,8 +135,9 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
 
     private int tabAt(double mouseX, double mouseY) {
         if (!menu.hasMachineControls()) return -1;
-        for (int i = 0; i < tabCount(); i++) {
-            if (mouseX >= tabX() && mouseX < tabX() + TAB_SIZE + 2 && mouseY >= tabY(i) && mouseY < tabY(i) + TAB_SIZE) return i;
+        int[] tabs = tabs();
+        for (int i = 0; i < tabs.length; i++) {
+            if (mouseX >= tabX() && mouseX < tabX() + TAB_SIZE + 2 && mouseY >= tabY(i) && mouseY < tabY(i) + TAB_SIZE) return tabs[i];
         }
         return -1;
     }
@@ -143,8 +149,10 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
 
     private void extractSideTabs(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         int hovered = tabAt(mouseX, mouseY);
-        for (int i = 0; i < tabCount(); i++) {
-            int x = tabX(), y = tabY(i);
+        int[] tabs = tabs();
+        for (int index = 0; index < tabs.length; index++) {
+            int i = tabs[index];
+            int x = tabX(), y = tabY(index);
             boolean selected = (i == TAB_INFO && sidePanel == SidePanel.INFO) || (i == TAB_UPGRADES && sidePanel == SidePanel.UPGRADES)
                     || (i == TAB_EXTRA && sidePanel == SidePanel.EXTRA);
             int w = TAB_SIZE + 2;

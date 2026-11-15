@@ -23,5 +23,11 @@ public final class ModComponents {
             COMPONENTS.registerComponentType("disk_partition",
                     builder -> builder.persistent(DiskPartition.CODEC).networkSynchronized(DiskPartition.STREAM_CODEC));
 
+    /** Energia guardada numa Célula de Energia (ou Matriz) quebrada. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> STORED_ENERGY =
+            COMPONENTS.registerComponentType("stored_energy",
+                    builder -> builder.persistent(com.mojang.serialization.Codec.INT)
+                            .networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.VAR_INT));
+
     private ModComponents() {}
 }

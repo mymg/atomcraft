@@ -2,6 +2,7 @@ package com.atomcraft;
 
 import com.atomcraft.block.entity.AnalyzerBlockEntity;
 import com.atomcraft.block.entity.AtomizerBlockEntity;
+import com.atomcraft.registry.ModComponents;
 import com.atomcraft.block.entity.CarbonGeneratorBlockEntity;
 import com.atomcraft.block.entity.CombustionGeneratorBlockEntity;
 import com.atomcraft.block.entity.FusionReactorBlockEntity;
@@ -176,6 +177,82 @@ final class SelfTest {
         controlsAndSynthesis(server, level, failures);
         materials(server, level, failures);
         replicatorTiers(level, failures);
+        energyStorage(level, failures);
+    }
+
+    /** Células de Energia (lados, rede, item) e Matriz de Energia (estrutura 3×5×3 e portas). */
+    private static void energyStorage(ServerLevel level, List<String> failures) {
+        BlockPos a = new BlockPos(0, 120, 96);
+        level.getChunk(a);
+        place(level, a, ModBlocks.BASIC_ENERGY_CELL.get());
+        place(level, a.north(), ModBlocks.BASIC_ENERGY_CELL.get());
+        var cellA = (com.atomcraft.block.entity.EnergyCellBlockEntity) level.getBlockEntity(a);
+        var cellB = (com.atomcraft.block.entity.EnergyCellBlockEntity) level.getBlockEntity(a.north());
+        int rate = com.atomcraft.energy.CellTier.BASIC.rate();
+        check(failures, cellA.energy().getCapacityAsInt() == com.atomcraft.energy.CellTier.BASIC.capacity(), "célula básica com a capacidade da config");
+        cellA.energy().set(100_000);
+        cellA.tick();
+        check(failures, cellB.energy().getAmountAsInt() == rate && cellA.energy().getAmountAsInt() == 100_000 - rate,
+                "frente da célula envia " + rate + " FE/t para a vizinha (" + cellB.energy().getAmountAsInt() + ")");
+        cellA.setSide(com.atomcraft.energy.CellSide.FRONT, com.atomcraft.energy.SideMode.NONE);
+        check(failures, cellA.handlerFor(net.minecraft.core.Direction.NORTH) == null, "lado desligado não expõe energia");
+        cellA.tick();
+        check(failures, cellB.energy().getAmountAsInt() == rate, "lado desligado não envia");
+        var inputSide = cellA.handlerFor(net.minecraft.core.Direction.SOUTH);
+        try (var transaction = net.neoforged.neoforge.transfer.transaction.Transaction.openRoot()) {
+            check(failures, inputSide != null && inputSide.extract(100, transaction) == 0 && inputSide.insert(100, transaction) == 100,
+                    "lado de entrada só recebe");
+        }
+        check(failures, Integer.valueOf(cellA.energy().getAmountAsInt()).equals(cellA.collectComponents().get(ModComponents.STORED_ENERGY.get())),
+                "energia vai para o item ao quebrar");
+
+        // Pela rede: alimenta as máquinas (não outras células)
+        BlockPos drivePos = a.east(4);
+        place(level, drivePos, ModBlocks.DRIVE.get());
+        place(level, drivePos.east(), ModBlocks.ATOMIZER.get());
+        place(level, drivePos.west(), ModBlocks.BASIC_ENERGY_CELL.get());
+        var netCell = (com.atomcraft.block.entity.EnergyCellBlockEntity) level.getBlockEntity(drivePos.west());
+        var atomizer = (AtomizerBlockEntity) level.getBlockEntity(drivePos.east());
+        netCell.setSide(com.atomcraft.energy.CellSide.FRONT, com.atomcraft.energy.SideMode.INPUT);
+        netCell.energy().set(50_000);
+        int before = atomizer.energy().getAmountAsInt();
+        netCell.tick();
+        check(failures, atomizer.energy().getAmountAsInt() > before, "célula alimenta máquina da rede pelo cabo/drive");
+
+        // Matriz de Energia: estrutura 3×5×3 com uma porta de entrada e uma de saída
+        BlockPos controller = new BlockPos(20, 122, 96);
+        level.getChunk(controller);
+        var facing = net.minecraft.core.Direction.NORTH;
+        level.setBlock(controller, ModBlocks.ENERGY_MATRIX.get().defaultBlockState().setValue(com.atomcraft.block.MachineBlock.FACING, facing), Block.UPDATE_ALL);
+        var matrix = (com.atomcraft.block.entity.EnergyCellBlockEntity) level.getBlockEntity(controller);
+        matrix.tick();
+        check(failures, !matrix.isFormed() && matrix.status() == MachineStatus.INCOMPLETE, "matriz sem estrutura fica incompleta");
+        BlockPos inPort = com.atomcraft.energy.MatrixStructure.toWorld(controller, facing, 0, 1, 0);
+        BlockPos outPort = com.atomcraft.energy.MatrixStructure.toWorld(controller, facing, 2, 1, 0);
+        for (var slot : com.atomcraft.energy.MatrixStructure.blueprint(controller, facing)) {
+            var block = switch (slot.part()) {
+                case CASING -> ModBlocks.MATRIX_CASING.get();
+                case GLASS -> ModBlocks.MATRIX_GLASS.get();
+                case CORE -> ModBlocks.MATRIX_CORE.get();
+                default -> null;
+            };
+            if (slot.pos().equals(inPort) || slot.pos().equals(outPort)) block = ModBlocks.MATRIX_PORT.get();
+            if (block != null) level.setBlock(slot.pos(), block.defaultBlockState(), Block.UPDATE_ALL);
+        }
+        level.setBlock(outPort, level.getBlockState(outPort).setValue(com.atomcraft.block.MatrixPortBlock.OUTPUT, true), Block.UPDATE_ALL);
+        place(level, outPort.north(), ModBlocks.BASIC_ENERGY_CELL.get());
+        var receiver = (com.atomcraft.block.entity.EnergyCellBlockEntity) level.getBlockEntity(outPort.north());
+        check(failures, matrix.checkStructure() && matrix.ports().size() == 2, "matriz forma com 2 portas (" + matrix.ports().size() + ")");
+        check(failures, matrix.energy().getCapacityAsInt() == com.atomcraft.energy.CellTier.MATRIX.capacity(), "matriz com 3 núcleos de capacidade");
+        var inHandler = level.getCapability(net.neoforged.neoforge.capabilities.Capabilities.Energy.BLOCK, inPort, facing);
+        try (var transaction = net.neoforged.neoforge.transfer.transaction.Transaction.openRoot()) {
+            check(failures, inHandler != null && inHandler.insert(10_000, transaction) == 10_000, "porta de entrada recebe energia");
+            transaction.commit();
+        }
+        matrix.tick();
+        check(failures, receiver.energy().getAmountAsInt() > 0, "porta de saída alimenta a célula vizinha (" + receiver.energy().getAmountAsInt() + ")");
+        level.setBlock(controller.south(), Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+        check(failures, !matrix.checkStructure(), "matriz desforma sem um núcleo");
     }
 
     /** Complexidade: cada nível de replicador só aceita itens até certo número de elementos (e exóticos). */

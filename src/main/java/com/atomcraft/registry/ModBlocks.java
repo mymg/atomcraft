@@ -53,6 +53,27 @@ public final class ModBlocks {
     public static final DeferredBlock<com.atomcraft.block.QuantumPartBlock> QUANTUM_CORE = BLOCKS.registerBlock("quantum_core",
             properties -> new com.atomcraft.block.QuantumPartBlock(com.atomcraft.replication.QuantumPart.CORE, properties),
             properties -> machine(properties).lightLevel(state -> 10));
+    // Armazenamento de energia
+    public static final DeferredBlock<com.atomcraft.block.EnergyCellBlock> BASIC_ENERGY_CELL = BLOCKS.registerBlock("basic_energy_cell",
+            properties -> new com.atomcraft.block.EnergyCellBlock(properties, com.atomcraft.energy.CellTier.BASIC), ModBlocks::machine);
+    public static final DeferredBlock<com.atomcraft.block.EnergyCellBlock> ADVANCED_ENERGY_CELL = BLOCKS.registerBlock("advanced_energy_cell",
+            properties -> new com.atomcraft.block.EnergyCellBlock(properties, com.atomcraft.energy.CellTier.ADVANCED), ModBlocks::machine);
+    public static final DeferredBlock<com.atomcraft.block.EnergyCellBlock> ELITE_ENERGY_CELL = BLOCKS.registerBlock("elite_energy_cell",
+            properties -> new com.atomcraft.block.EnergyCellBlock(properties, com.atomcraft.energy.CellTier.ELITE), ModBlocks::machine);
+    public static final DeferredBlock<com.atomcraft.block.EnergyMatrixBlock> ENERGY_MATRIX = BLOCKS.registerBlock("energy_matrix",
+            com.atomcraft.block.EnergyMatrixBlock::new,
+            properties -> machine(properties).lightLevel(state -> state.getValue(com.atomcraft.block.EnergyMatrixBlock.FORMED) ? 10 : 0));
+    public static final DeferredBlock<com.atomcraft.block.MatrixPartBlock> MATRIX_CASING = BLOCKS.registerBlock("matrix_casing",
+            properties -> new com.atomcraft.block.MatrixPartBlock(com.atomcraft.energy.MatrixPart.CASING, properties), ModBlocks::machine);
+    public static final DeferredBlock<com.atomcraft.block.MatrixPartBlock> MATRIX_GLASS = BLOCKS.registerBlock("matrix_glass",
+            properties -> new com.atomcraft.block.MatrixPartBlock(com.atomcraft.energy.MatrixPart.GLASS, properties),
+            properties -> machine(properties).sound(SoundType.GLASS).noOcclusion()
+                    .isViewBlocking((state, level, pos) -> false).isSuffocating((state, level, pos) -> false));
+    public static final DeferredBlock<com.atomcraft.block.MatrixPartBlock> MATRIX_CORE = BLOCKS.registerBlock("matrix_core",
+            properties -> new com.atomcraft.block.MatrixPartBlock(com.atomcraft.energy.MatrixPart.CORE, properties),
+            properties -> machine(properties).lightLevel(state -> 8));
+    public static final DeferredBlock<com.atomcraft.block.MatrixPortBlock> MATRIX_PORT = BLOCKS.registerBlock("matrix_port",
+            com.atomcraft.block.MatrixPortBlock::new, ModBlocks::machine);
     public static final DeferredBlock<DriveBlock> DRIVE = BLOCKS.registerBlock("drive", DriveBlock::new,
             properties -> machine(properties).noOcclusion());
     public static final DeferredBlock<CombustionGeneratorBlock> COMBUSTION_GENERATOR =

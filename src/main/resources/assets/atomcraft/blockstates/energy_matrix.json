@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,formed=false": {
+      "model": "atomcraft:block/energy_matrix"
+    },
+    "facing=north,formed=true": {
+      "model": "atomcraft:block/energy_matrix_on"
+    },
+    "facing=east,formed=false": {
+      "model": "atomcraft:block/energy_matrix",
+      "y": 90
+    },
+    "facing=east,formed=true": {
+      "model": "atomcraft:block/energy_matrix_on",
+      "y": 90
+    },
+    "facing=south,formed=false": {
+      "model": "atomcraft:block/energy_matrix",
+      "y": 180
+    },
+    "facing=south,formed=true": {
+      "model": "atomcraft:block/energy_matrix_on",
+      "y": 180
+    },
+    "facing=west,formed=false": {
+      "model": "atomcraft:block/energy_matrix",
+      "y": 270
+    },
+    "facing=west,formed=true": {
+      "model": "atomcraft:block/energy_matrix_on",
+      "y": 270
+    }
+  }
+}
