@@ -96,7 +96,7 @@ public class EnergyCellScreen extends MachineScreen<EnergyCellMenu> {
                 SideMode mode = menu.side(side);
                 graphics.fill(sx, sy, sx + CELL - 1, sy + CELL - 1, side == hovered ? 0xFFFFFFFF : 0xFF14181E);
                 graphics.fill(sx + 1, sy + 1, sx + CELL - 2, sy + CELL - 2, mode.color());
-                String letter = side.label().getString().substring(0, 1);
+                String letter = Component.translatable("cell_side.atomcraft." + side.name().toLowerCase() + ".short").getString();
                 graphics.text(font, letter, sx + (CELL - 1 - font.width(letter)) / 2 + 1, sy + 4, 0xFFFFFFFF, true);
             }
             graphics.text(font, Component.translatable("gui.atomcraft.sides_hint"), leftPos + 96, topPos + 84, TechGui.TEXT_DIM, false);
