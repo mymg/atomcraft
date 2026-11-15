@@ -14,6 +14,9 @@ public final class ModCapabilities {
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.ANALYZER.get(), (be, side) -> be.automation());
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.REPLICATOR.get(), (be, side) -> be.automation());
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.REPLICATOR.get(), (be, side) -> be.energy());
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.ENERGY_CELL.get(), (be, side) -> be.handlerFor(side));
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.ENERGY_MATRIX.get(), (be, side) -> be.handlerFor(side));
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.MATRIX_PORT.get(), (be, side) -> be.energy());
         for (var type : java.util.List.of(ModBlockEntities.ADVANCED_REPLICATOR.get(), ModBlockEntities.QUANTUM_REPLICATOR.get())) {
             event.registerBlockEntity(Capabilities.Item.BLOCK, type, (be, side) -> be.automation());
             event.registerBlockEntity(Capabilities.Energy.BLOCK, type, (be, side) -> be.energy());

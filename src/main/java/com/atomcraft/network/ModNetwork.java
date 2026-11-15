@@ -34,6 +34,12 @@ public final class ModNetwork {
         registrar.playToServer(ReplicatePayload.TYPE, ReplicatePayload.STREAM_CODEC, ModNetwork::handleReplicate);
         registrar.playToServer(MachineTogglePayload.TYPE, MachineTogglePayload.STREAM_CODEC, ModNetwork::handleToggle);
         registrar.playToServer(SynthesizePayload.TYPE, SynthesizePayload.STREAM_CODEC, ModNetwork::handleSynthesize);
+        registrar.playToServer(SideConfigPayload.TYPE, SideConfigPayload.STREAM_CODEC, (payload, context) -> {
+            if (!(context.player() instanceof ServerPlayer player) || !inReach(player, payload.pos())) return;
+            if (player.level().getBlockEntity(payload.pos()) instanceof com.atomcraft.block.entity.EnergyCellBlockEntity cell) {
+                cell.setSide(com.atomcraft.energy.CellSide.byId(payload.side()), com.atomcraft.energy.SideMode.byId(payload.mode()));
+            }
+        });
         registrar.playToServer(PartitionPayload.TYPE, PartitionPayload.STREAM_CODEC, (payload, context) -> {
             if (!(context.player() instanceof ServerPlayer player)) return;
             ItemStack stack = player.getItemInHand(payload.offhand() ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND);

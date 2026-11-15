@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SLS",
+    "CEC",
+    "SLS"
+  ],
+  "key": {
+    "S": "atomcraft:superalloy_plate",
+    "L": "atomcraft:raw_lithium",
+    "C": "atomcraft:circuit_board",
+    "E": "atomcraft:elite_energy_cell"
+  },
+  "result": {
+    "id": "atomcraft:matrix_core",
+    "count": 1
+  }
+}

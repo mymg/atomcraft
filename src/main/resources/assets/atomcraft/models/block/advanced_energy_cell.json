@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "atomcraft:block/advanced_energy_cell_top",
+    "front": "atomcraft:block/advanced_energy_cell_front",
+    "side": "atomcraft:block/advanced_energy_cell_side",
+    "particle": "atomcraft:block/advanced_energy_cell_side"
+  }
+}

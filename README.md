@@ -266,6 +266,35 @@ encostadas, para qualquer cabo FE de outros mods e para todas as máquinas da re
 | **Carbono** | carbono (C) guardado na rede, 2.000 FE por átomo | 200 FE/t |
 | **Fusão** (multibloco) | 4 H → 1 He a cada ciclo de 10 ticks. Começa frio e aquece até 100% em 5 min; o hélio volta para a rede | 2.000 FE/t sem módulos, até 25.000 FE/t com módulos III |
 
+### Armazenamento: Células de Energia e Matriz
+
+| | Capacidade | FE/t | Receita |
+|---|---|---|---|
+| **Célula de Energia Básica** | 1M FE | 2.000 | chapas de chumbo, fio de cobre, redstone, bloco de redstone |
+| **Célula de Energia Avançada** | 8M FE | 8.000 | chapas de cobalto, lítio bruto, circuitos, Célula Básica |
+| **Célula de Energia Elite** | 64M FE | 32.000 | chapas de inox, blocos de carvão (carbono/grafeno), circuitos, Célula Avançada |
+| **Matriz de Energia** (multibloco 3×5×3) | 3 × 160M = 480M FE | 256.000 por porta | controlador: superliga, circuitos, Células Elite, cristal do End |
+
+**Lados configuráveis.** Na interface da célula, os 6 lados aparecem como um cubo planificado (frente, trás, esquerda,
+direita, topo e base, relativos à frente do bloco). Clique num lado para alternar **entrada → saída → ambos →
+desligado** (botão direito volta). Por padrão a frente envia e os outros lados recebem.
+
+**Na rede.** Ligadas ao Cabo Atômico, as células recebem dos geradores da rede (as máquinas são abastecidas primeiro)
+e alimentam as máquinas da rede; uma célula não manda energia para outra pela rede (só pelos lados, se você configurar).
+O botão de ligar/desligar corta a saída. Ao quebrar, a célula guarda a energia no item (barra e tooltip).
+
+**Matriz de Energia.** O controlador fica no meio da face da frente, na camada do meio; a estrutura fica atrás dele:
+
+- base e topo: 9 **Carcaças da Matriz** cada;
+- nas 3 camadas do meio: carcaça nas 4 arestas, **Vidro da Matriz** no centro de cada face e um **Núcleo da Matriz**
+  no centro (3 núcleos empilhados); o controlador ocupa o centro da face da frente na camada do meio.
+
+**Portas da Matriz** podem ficar no lugar de qualquer carcaça ou vidro. Cada porta é de entrada (azul) ou de saída
+(laranja): agachado + clique com a mão vazia alterna. Clique normal na porta abre a interface da matriz. Com a estrutura
+incompleta, a interface lista o que falta e o botão **Mostrar estrutura** marca as posições com partículas.
+
+Capacidades e taxas ficam na seção `energyCells` da configuração.
+
 ### Reator de Fusão (multibloco 7×7×5)
 
 Um tokamak de formato fixo. Camadas de baixo e de cima: 7×7 com os cantos recortados, de **Carcaça do Reator**,
@@ -376,6 +405,7 @@ O `.jar` fica disponível em **Actions → Artifacts**.
 - [x] Sintetizador e schematics no loot do mundo
 - [x] Ligas, Forja de Ligas, minérios novos e blocos de construção
 - [x] Complexidade e níveis de replicador (Avançado e Quântico)
+- [x] Células de Energia e Matriz de Energia
 - [ ] Suporte a fluidos (tanques e fluid pipes)
 - [ ] Texturas e modelos definitivos
 - [ ] Integração com JEI/EMI (mostrar fórmula e custo)

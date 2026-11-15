@@ -133,6 +133,27 @@ public final class Config {
             .defineInRange("generatorMaxOutput", 20_000, 1, Integer.MAX_VALUE);
 
     static {
+        BUILDER.pop().push("energyCells");
+    }
+
+    public static final ModConfigSpec.IntValue CELL_BASIC_CAPACITY = BUILDER
+            .comment("Célula de Energia Básica: capacidade (FE)").defineInRange("basicCapacity", 1_000_000, 1_000, Integer.MAX_VALUE);
+    public static final ModConfigSpec.IntValue CELL_BASIC_RATE = BUILDER
+            .comment("Célula de Energia Básica: FE por tick (entrada e saída)").defineInRange("basicRate", 2_000, 1, Integer.MAX_VALUE);
+    public static final ModConfigSpec.IntValue CELL_ADVANCED_CAPACITY = BUILDER
+            .comment("Célula de Energia Avançada: capacidade (FE)").defineInRange("advancedCapacity", 8_000_000, 1_000, Integer.MAX_VALUE);
+    public static final ModConfigSpec.IntValue CELL_ADVANCED_RATE = BUILDER
+            .comment("Célula de Energia Avançada: FE por tick").defineInRange("advancedRate", 8_000, 1, Integer.MAX_VALUE);
+    public static final ModConfigSpec.IntValue CELL_ELITE_CAPACITY = BUILDER
+            .comment("Célula de Energia Elite: capacidade (FE)").defineInRange("eliteCapacity", 64_000_000, 1_000, Integer.MAX_VALUE);
+    public static final ModConfigSpec.IntValue CELL_ELITE_RATE = BUILDER
+            .comment("Célula de Energia Elite: FE por tick").defineInRange("eliteRate", 32_000, 1, Integer.MAX_VALUE);
+    public static final ModConfigSpec.IntValue MATRIX_CORE_CAPACITY = BUILDER
+            .comment("Matriz de Energia: capacidade de cada um dos 3 núcleos (FE)").defineInRange("matrixCoreCapacity", 160_000_000, 1_000, 700_000_000);
+    public static final ModConfigSpec.IntValue MATRIX_RATE = BUILDER
+            .comment("Matriz de Energia: FE por tick em cada porta (e pela rede)").defineInRange("matrixRate", 256_000, 1, Integer.MAX_VALUE);
+
+    static {
         BUILDER.pop();
     }
 

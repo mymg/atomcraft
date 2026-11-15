@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "LWL",
+    "RBR",
+    "LWL"
+  ],
+  "key": {
+    "L": "atomcraft:lead_plate",
+    "W": "atomcraft:copper_wire",
+    "R": "minecraft:redstone",
+    "B": "minecraft:redstone_block"
+  },
+  "result": {
+    "id": "atomcraft:basic_energy_cell",
+    "count": 1
+  }
+}

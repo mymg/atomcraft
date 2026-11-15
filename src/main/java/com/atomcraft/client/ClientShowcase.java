@@ -36,7 +36,7 @@ final class ClientShowcase {
 
     private static void onTick(ClientTickEvent.Post event) {
         Screen screen = Minecraft.getInstance().gui.screen();
-        if (screen == null && screensSeen >= 11 && !machinesCaptured) {
+        if (screen == null && screensSeen >= 13 && !machinesCaptured) {
             // Depois das interfaces, o servidor fecha o menu e posiciona a câmera nas máquinas e depois no reator.
             idleTicks++;
             if (idleTicks == 100 && !worldCaptured) {
@@ -68,6 +68,10 @@ final class ClientShowcase {
         if (++ticks == 25) {
             var key = BuiltInRegistries.MENU.getKey(((MachineScreen<?>) screen).getMenu().getType());
             String name = key == null ? "unknown" : key.getPath();
+            if (screen instanceof com.atomcraft.client.screen.EnergyCellScreen cellScreen
+                    && cellScreen.getMenu().tier() == com.atomcraft.energy.CellTier.MATRIX) {
+                name = "energy_matrix";
+            }
             if (screen instanceof ReplicatorScreen replicatorScreen
                     && replicatorScreen.getMenu().tier() != com.atomcraft.replication.ReplicatorTier.BASIC) {
                 name = replicatorScreen.getMenu().tier().name().toLowerCase() + "_replicator";

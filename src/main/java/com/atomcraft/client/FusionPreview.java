@@ -49,6 +49,16 @@ public final class FusionPreview {
         timer = 0;
         ACTIVE.removeIf(pos -> {
             BlockState state = level.getBlockState(pos);
+            if (state.getBlock() instanceof com.atomcraft.block.EnergyMatrixBlock) {
+                // Matriz de Energia: estrutura 3×5×3
+                if (state.getValue(com.atomcraft.block.EnergyMatrixBlock.FORMED)) return true;
+                if (minecraft.player.distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) > 64 * 64) return true;
+                for (var slot : com.atomcraft.energy.MatrixStructure.check(level, pos, state.getValue(MachineBlock.FACING)).missing()) {
+                    BlockPos p = slot.pos();
+                    level.addParticle(new DustParticleOptions(slot.part().color() & 0xFFFFFF, 1.2f), p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5, 0, 0, 0);
+                }
+                return false;
+            }
             if (state.getBlock() instanceof com.atomcraft.block.QuantumReplicatorBlock) {
                 // Replicador Quântico: mesma prévia, com a estrutura 3×3×3
                 if (state.getValue(com.atomcraft.block.QuantumReplicatorBlock.FORMED)) return true;

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SIS",
+    "IRI",
+    "SIS"
+  ],
+  "key": {
+    "S": "atomcraft:stainless_steel_plate",
+    "I": "atomcraft:invar_plate",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "atomcraft:matrix_casing",
+    "count": 8
+  }
+}

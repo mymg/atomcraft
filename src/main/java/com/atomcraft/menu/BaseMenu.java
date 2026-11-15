@@ -43,6 +43,7 @@ public abstract class BaseMenu extends AbstractContainerMenu {
     protected final @Nullable MachineBlockEntity machine;
     private int enabledClient = 1;
     private boolean controls;
+    private boolean upgradeTab = true;
     private boolean upgradesVisible;
     private int upgradeSlotStart = -1;
     private int upgradeSlotCount;
@@ -112,6 +113,16 @@ public abstract class BaseMenu extends AbstractContainerMenu {
 
     public boolean hasMachineControls() {
         return controls;
+    }
+
+    /** Abas de ligar/desligar e de dono, sem a aba de upgrades (máquinas que não usam chips). */
+    protected void addMachineControlsWithoutUpgrades() {
+        controls = true;
+        upgradeTab = false;
+    }
+
+    public boolean hasUpgradeTab() {
+        return upgradeTab;
     }
 
     public boolean isUpgradeSlot(int index) {

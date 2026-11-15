@@ -37,6 +37,15 @@ public final class ModCreativeTab {
                 output.accept(ModItems.REACTOR_PORT.get());
                 output.accept(ModItems.SYNTHESIZER.get());
                 output.accept(ModItems.ALLOY_FORGE.get());
+                for (var cell : java.util.List.of(ModItems.BASIC_ENERGY_CELL, ModItems.ADVANCED_ENERGY_CELL, ModItems.ELITE_ENERGY_CELL)) {
+                    output.accept(cell.get());
+                    output.accept(com.atomcraft.block.EnergyCellItem.full(cell.get()));
+                }
+                output.accept(ModItems.ENERGY_MATRIX.get());
+                output.accept(ModItems.MATRIX_CASING.get());
+                output.accept(ModItems.MATRIX_GLASS.get());
+                output.accept(ModItems.MATRIX_CORE.get());
+                output.accept(ModItems.MATRIX_PORT.get());
                 output.accept(ModItems.SPEED_UPGRADE.get());
                 output.accept(ModItems.EFFICIENCY_UPGRADE.get());
                 output.accept(ModItems.SPEED_UPGRADE_SCHEMATIC.get());

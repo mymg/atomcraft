@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "CWC",
+    "WBW",
+    "CWC"
+  ],
+  "key": {
+    "C": "atomcraft:matrix_casing",
+    "W": "atomcraft:copper_wire",
+    "B": "minecraft:redstone_block"
+  },
+  "result": {
+    "id": "atomcraft:matrix_port",
+    "count": 2
+  }
+}

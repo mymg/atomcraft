@@ -99,8 +99,12 @@ public abstract class GeneratorBlockEntity extends MachineBlockEntity {
         if (available <= 0) return;
 
         List<EnergyHandler> targets = new ArrayList<>();
+        List<EnergyHandler> buffers = new ArrayList<>();
         for (EnergyReceiver receiver : network().receivers()) {
-            if (!receiver.isRemoved()) targets.add(receiver.energy());
+            if (receiver.isRemoved()) continue;
+            // Máquinas primeiro; células de energia só com o que sobrar.
+            if (receiver instanceof com.atomcraft.energy.EnergyBuffer) buffers.add(receiver.energy());
+            else targets.add(receiver.energy());
         }
         for (BlockPos output : energyOutputs()) {
             for (Direction direction : Direction.values()) {
@@ -108,6 +112,7 @@ public abstract class GeneratorBlockEntity extends MachineBlockEntity {
                 if (handler != null && handler != energy && !targets.contains(handler)) targets.add(handler);
             }
         }
+        for (EnergyHandler buffer : buffers) if (!targets.contains(buffer)) targets.add(buffer);
         if (targets.isEmpty()) return;
 
         int remaining = available;

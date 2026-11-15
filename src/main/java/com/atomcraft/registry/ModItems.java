@@ -38,6 +38,22 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> QUANTUM_GLASS = ITEMS.registerSimpleBlockItem(ModBlocks.QUANTUM_GLASS);
     public static final DeferredItem<BlockItem> QUANTUM_CORE = ITEMS.registerSimpleBlockItem(ModBlocks.QUANTUM_CORE,
             properties -> properties.rarity(Rarity.RARE));
+    public static final DeferredItem<com.atomcraft.block.EnergyCellItem> BASIC_ENERGY_CELL = ITEMS.registerItem("basic_energy_cell",
+            properties -> new com.atomcraft.block.EnergyCellItem(ModBlocks.BASIC_ENERGY_CELL.get(), properties), Item.Properties::useBlockDescriptionPrefix);
+    public static final DeferredItem<com.atomcraft.block.EnergyCellItem> ADVANCED_ENERGY_CELL = ITEMS.registerItem("advanced_energy_cell",
+            properties -> new com.atomcraft.block.EnergyCellItem(ModBlocks.ADVANCED_ENERGY_CELL.get(), properties),
+            properties -> properties.useBlockDescriptionPrefix().rarity(Rarity.UNCOMMON));
+    public static final DeferredItem<com.atomcraft.block.EnergyCellItem> ELITE_ENERGY_CELL = ITEMS.registerItem("elite_energy_cell",
+            properties -> new com.atomcraft.block.EnergyCellItem(ModBlocks.ELITE_ENERGY_CELL.get(), properties),
+            properties -> properties.useBlockDescriptionPrefix().rarity(Rarity.RARE));
+    public static final DeferredItem<com.atomcraft.block.EnergyCellItem> ENERGY_MATRIX = ITEMS.registerItem("energy_matrix",
+            properties -> new com.atomcraft.block.EnergyCellItem(ModBlocks.ENERGY_MATRIX.get(), properties),
+            properties -> properties.useBlockDescriptionPrefix().rarity(Rarity.EPIC));
+    public static final DeferredItem<BlockItem> MATRIX_CASING = ITEMS.registerSimpleBlockItem(ModBlocks.MATRIX_CASING);
+    public static final DeferredItem<BlockItem> MATRIX_GLASS = ITEMS.registerSimpleBlockItem(ModBlocks.MATRIX_GLASS);
+    public static final DeferredItem<BlockItem> MATRIX_CORE = ITEMS.registerSimpleBlockItem(ModBlocks.MATRIX_CORE,
+            properties -> properties.rarity(Rarity.RARE));
+    public static final DeferredItem<BlockItem> MATRIX_PORT = ITEMS.registerSimpleBlockItem(ModBlocks.MATRIX_PORT);
     public static final DeferredItem<BlockItem> DRIVE = ITEMS.registerSimpleBlockItem(ModBlocks.DRIVE);
     public static final DeferredItem<BlockItem> CABLE = ITEMS.registerSimpleBlockItem(ModBlocks.CABLE);
     public static final DeferredItem<BlockItem> ALLOY_FORGE = ITEMS.registerSimpleBlockItem(ModBlocks.ALLOY_FORGE);
