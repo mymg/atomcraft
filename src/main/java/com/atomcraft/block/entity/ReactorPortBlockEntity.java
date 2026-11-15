@@ -10,7 +10,7 @@ import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import org.jspecify.annotations.Nullable;
 
 /** Porta do Reator: repassa a energia do controlador para cabos de outros mods. */
-public class ReactorPortBlockEntity extends BlockEntity {
+public class ReactorPortBlockEntity extends BlockEntity implements com.atomcraft.storage.NetworkLink {
 
     private @Nullable BlockPos controller;
 
@@ -21,6 +21,13 @@ public class ReactorPortBlockEntity extends BlockEntity {
     public void setController(@Nullable BlockPos controller) {
         this.controller = controller;
         setChanged();
+    }
+
+    @Override
+    public java.util.Collection<BlockPos> linkedNodes() {
+        if (controller == null || level == null) return java.util.List.of();
+        return level.getBlockEntity(controller) instanceof FusionReactorBlockEntity reactor && reactor.isFormed()
+                ? java.util.List.of(controller) : java.util.List.of();
     }
 
     /** Energia do reator, ou null se a porta não faz parte de um reator formado. */

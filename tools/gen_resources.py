@@ -264,7 +264,7 @@ for b in MACHINES:
 
 # Peças do Reator de Fusão (cubos simples; somem quando o reator forma)
 REACTOR_PARTS = ["reactor_casing", "reactor_glass", "magnetic_coil", "central_solenoid", "reactor_port",
-                 "quantum_casing", "quantum_glass", "quantum_core"]
+                 "quantum_casing", "quantum_glass", "quantum_core", "quantum_port"]
 for b in REACTOR_PARTS:
     w(f"assets/atomcraft/blockstates/{b}.json", {"variants": {"": {"model": f"atomcraft:block/{b}"}}})
     model = {"parent": "minecraft:block/cube_all", "textures": {"all": f"atomcraft:block/{b}"}}
@@ -473,6 +473,7 @@ shaped("advanced_replicator", ["PCP", "DRD", "PCP"], {"P": plate("stainless_stee
 shaped("quantum_replicator", ["SCS", "EAE", "SCS"], {"S": plate("superalloy"), "C": CIRCUIT, "E": "minecraft:echo_shard", "A": "atomcraft:advanced_replicator"}, "atomcraft:quantum_replicator")
 shaped("quantum_casing", ["TDT", "DRD", "TDT"], {"T": plate("titanium_alloy"), "D": plate("duralumin"), "R": RED}, "atomcraft:quantum_casing", 8)
 shaped("quantum_glass", ["CGC", "GAG", "CGC"], {"C": "atomcraft:quantum_casing", "G": "minecraft:glass", "A": AME}, "atomcraft:quantum_glass", 4)
+shaped("quantum_port", ["CWC", "HBH", "CWC"], {"C": "atomcraft:quantum_casing", "W": WIRE, "H": "minecraft:hopper", "B": "atomcraft:atomic_cable"}, "atomcraft:quantum_port", 2)
 shaped("quantum_core", ["TCT", "ENE", "TCT"], {"T": plate("tungsten_carbide"), "C": CIRCUIT, "E": "minecraft:echo_shard", "N": "minecraft:nether_star"}, "atomcraft:quantum_core")
 shaped("replicator", ["PCP", "ERE", "PDP"], {"P": plate("steel"), "C": CIRCUIT, "E": "minecraft:ender_pearl", "R": "minecraft:redstone_block", "D": "minecraft:diamond"}, "atomcraft:replicator")
 shaped("drive", ["IRI", "ICI", "IAI"], {"I": IRON, "R": RED, "C": "minecraft:chest", "A": AME}, "atomcraft:drive")
@@ -838,6 +839,7 @@ common = {
     "block.atomcraft.quantum_casing": ("Quantum Casing", "Carcaça Quântica"),
     "block.atomcraft.quantum_glass": ("Quantum Glass", "Vidro Quântico"),
     "block.atomcraft.quantum_core": ("Quantum Core", "Núcleo Quântico"),
+    "block.atomcraft.quantum_port": ("Quantum Port", "Porta Quântica"),
     "replicator_tier.atomcraft.basic": ("Atomic", "Atômico"),
     "replicator_tier.atomcraft.advanced": ("Advanced", "Avançado"),
     "replicator_tier.atomcraft.quantum": ("Quantum", "Quântico"),
@@ -1291,6 +1293,10 @@ for suffix, glow in (("", (90, 80, 40, 255)), ("_on", MC)):
     img, d = frame(); d.rectangle([2, 2, 13, 13], fill=(24, 22, 16, 255))
     d.rectangle([4, 4, 11, 11], outline=glow); d.polygon([(8, 4), (5, 8), (8, 8), (7, 11), (10, 7), (7, 7)], fill=glow)
     save(img, f"block/energy_matrix_front{suffix}.png")
+
+img, d = frame(); d.rectangle([3, 3, 12, 12], fill=(20, 30, 28, 255), outline=(90, 208, 160, 255))
+d.rectangle([6, 6, 9, 9], fill=(90, 208, 160, 255)); d.line([(3, 8), (5, 8)], fill=(190, 110, 255, 255)); d.line([(10, 8), (12, 8)], fill=(190, 110, 255, 255))
+save(img, "block/quantum_port.png")
 
 print("ok", len(BASE), "itens base,", len(TAGS), "tags vanilla,", len(COMPAT), "tags de compatibilidade,",
       len(kept), "arquivos de aparência preservados")

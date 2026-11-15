@@ -153,6 +153,7 @@ O resto pede ligas e circuitos, numa progressão aço → inox/invar → liga de
 | **Replicador Quântico** (controlador) | chapas de superliga, placas de circuito, fragmentos de eco, Replicador Avançado |
 | **Carcaça Quântica** ×8 | chapas de liga de titânio, chapas de duralumínio, redstone |
 | **Vidro Quântico** ×4 | carcaça quântica, vidro, ametista |
+| **Porta Quântica** ×2 | carcaças quânticas, fio de cobre, funis, Cabo Atômico |
 | **Núcleo Quântico** | chapas de carbeto de tungstênio, placas de circuito, fragmentos de eco, estrela do Nether |
 | **Sintetizador** | ouro, placas de circuito, redstone, mesa de trabalho, chapas de latão |
 | **Gerador de Carbono** | chapas de aço, ametista, Gerador de Combustão, alto-forno |
@@ -202,7 +203,9 @@ O controlador fica no centro de uma face; a estrutura fica atrás dele:
 - camada do meio: carcaças nos 4 cantos, **Vidro Quântico** nas duas laterais e no fundo (ou carcaça), o
   **Núcleo Quântico** no centro e o controlador na frente.
 
-O controlador é quem conecta na rede e recebe energia. Com a estrutura incompleta, a interface lista as peças que
+O controlador conecta na rede e recebe energia; **Portas Quânticas** (no lugar de qualquer carcaça ou vidro) também:
+um Cabo Atômico ligado a uma porta põe o replicador na rede (elementos e energia), e canos de itens retiram os itens
+replicados por ela. Com a estrutura incompleta, a interface lista as peças que
 faltam e o botão **Mostrar estrutura** marca com partículas onde cada uma vai.
 
 ## Metais, ligas e minérios
@@ -289,7 +292,8 @@ O botão de ligar/desligar corta a saída. Ao quebrar, a célula guarda a energi
 - nas 3 camadas do meio: carcaça nas 4 arestas, **Vidro da Matriz** no centro de cada face e um **Núcleo da Matriz**
   no centro (3 núcleos empilhados); o controlador ocupa o centro da face da frente na camada do meio.
 
-**Portas da Matriz** podem ficar no lugar de qualquer carcaça ou vidro. Cada porta é de entrada (azul) ou de saída
+**Portas da Matriz** podem ficar no lugar de qualquer carcaça ou vidro, e o Cabo Atômico ligado a uma porta põe a
+matriz na rede. Cada porta é de entrada (azul) ou de saída
 (laranja): agachado + clique com a mão vazia alterna. Clique normal na porta abre a interface da matriz. Com a estrutura
 incompleta, a interface lista o que falta e o botão **Mostrar estrutura** marca as posições com partículas.
 

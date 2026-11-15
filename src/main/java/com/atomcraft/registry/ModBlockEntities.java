@@ -36,6 +36,9 @@ public final class ModBlockEntities {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.atomcraft.block.entity.MatrixPortBlockEntity>> MATRIX_PORT =
             BLOCK_ENTITIES.register("matrix_port", () -> new BlockEntityType<>(com.atomcraft.block.entity.MatrixPortBlockEntity::new,
                     ModBlocks.MATRIX_PORT.get()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.atomcraft.block.entity.QuantumPortBlockEntity>> QUANTUM_PORT =
+            BLOCK_ENTITIES.register("quantum_port", () -> new BlockEntityType<>(com.atomcraft.block.entity.QuantumPortBlockEntity::new,
+                    ModBlocks.QUANTUM_PORT.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ReplicatorBlockEntity>> ADVANCED_REPLICATOR =
             BLOCK_ENTITIES.register("advanced_replicator", () -> new BlockEntityType<>(ReplicatorBlockEntity::new, ModBlocks.ADVANCED_REPLICATOR.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ReplicatorBlockEntity>> QUANTUM_REPLICATOR =

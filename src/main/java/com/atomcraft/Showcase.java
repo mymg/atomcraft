@@ -184,7 +184,7 @@ final class Showcase {
                 case CASING -> ModBlocks.QUANTUM_CASING.get();
                 case GLASS -> ModBlocks.QUANTUM_GLASS.get();
                 case CORE -> ModBlocks.QUANTUM_CORE.get();
-                case CONTROLLER -> null;
+                case CONTROLLER, PORT -> null;
             };
             if (part != null) level.setBlock(slot.pos(), part.defaultBlockState(), Block.UPDATE_ALL);
         }

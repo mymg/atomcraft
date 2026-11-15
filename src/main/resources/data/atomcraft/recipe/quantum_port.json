@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "CWC",
+    "HBH",
+    "CWC"
+  ],
+  "key": {
+    "C": "atomcraft:quantum_casing",
+    "W": "atomcraft:copper_wire",
+    "H": "minecraft:hopper",
+    "B": "atomcraft:atomic_cable"
+  },
+  "result": {
+    "id": "atomcraft:quantum_port",
+    "count": 2
+  }
+}

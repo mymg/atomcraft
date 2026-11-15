@@ -43,6 +43,7 @@
   "block.atomcraft.quantum_casing": "Quantum Casing",
   "block.atomcraft.quantum_glass": "Quantum Glass",
   "block.atomcraft.quantum_core": "Quantum Core",
+  "block.atomcraft.quantum_port": "Quantum Port",
   "replicator_tier.atomcraft.basic": "Atomic",
   "replicator_tier.atomcraft.advanced": "Advanced",
   "replicator_tier.atomcraft.quantum": "Quantum",

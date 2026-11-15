@@ -45,7 +45,7 @@ public class EnergyCellScreen extends MachineScreen<EnergyCellMenu> {
             case LEFT -> new int[]{0, 1};
             case FRONT -> new int[]{1, 1};
             case RIGHT -> new int[]{2, 1};
-            case BACK -> new int[]{3, 1};
+            case BACK -> new int[]{2, 0};
             case BOTTOM -> new int[]{1, 2};
         };
     }

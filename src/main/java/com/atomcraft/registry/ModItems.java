@@ -54,6 +54,7 @@ public final class ModItems {
     public static final DeferredItem<BlockItem> MATRIX_CORE = ITEMS.registerSimpleBlockItem(ModBlocks.MATRIX_CORE,
             properties -> properties.rarity(Rarity.RARE));
     public static final DeferredItem<BlockItem> MATRIX_PORT = ITEMS.registerSimpleBlockItem(ModBlocks.MATRIX_PORT);
+    public static final DeferredItem<BlockItem> QUANTUM_PORT = ITEMS.registerSimpleBlockItem(ModBlocks.QUANTUM_PORT);
     public static final DeferredItem<BlockItem> DRIVE = ITEMS.registerSimpleBlockItem(ModBlocks.DRIVE);
     public static final DeferredItem<BlockItem> CABLE = ITEMS.registerSimpleBlockItem(ModBlocks.CABLE);
     public static final DeferredItem<BlockItem> ALLOY_FORGE = ITEMS.registerSimpleBlockItem(ModBlocks.ALLOY_FORGE);
