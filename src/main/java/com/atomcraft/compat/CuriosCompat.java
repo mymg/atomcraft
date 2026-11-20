@@ -27,6 +27,8 @@ final class CuriosCompat {
 
     static boolean equip(LivingEntity entity, String slot, ItemStack stack) {
         return CuriosApi.getCuriosInventory(entity).map(inventory -> {
+            // Jogadores falsos (autoteste) não passam pelo login, que é quando o Curios monta os slots.
+            if (inventory.getStacksHandler(slot).isEmpty()) inventory.loadDatapacks();
             if (inventory.getStacksHandler(slot).isEmpty()) return false;
             inventory.setEquippedCurio(slot, 0, stack);
             return true;

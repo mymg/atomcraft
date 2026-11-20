@@ -272,6 +272,7 @@ final class SelfTest {
         check(failures, bench.slots.get(1).getItem().isEmpty() && bench.slots.get(2).getItem().isEmpty(), "tirar o equipamento leva os módulos");
         bench.insertEquipment(legs);
         check(failures, bench.slots.get(1).getItem().getCount() == 2, "módulos voltam ao recolocar o equipamento");
+        legs = legs.copy();
         bench.removed(player);
         check(failures, bench.equipment().isEmpty() && bench.slots.get(1).getItem().isEmpty(), "fechar a bancada esvazia os slots (equipamento devolvido)");
         player.getInventory().clearContent();
@@ -346,7 +347,9 @@ final class SelfTest {
             player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, net.minecraft.world.item.ItemStack.EMPTY);
             var ring = new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.ANALYZER_RING.get());
             boolean equipped = com.atomcraft.compat.Curios.equip(player, "ring", ring);
-            check(failures, equipped && com.atomcraft.equipment.Worn.hasAnalyzer(player), "Curios: Anel Analisador no slot de anel funciona");
+            check(failures, equipped, "Curios: anel equipado no slot de anel");
+            check(failures, com.atomcraft.equipment.Worn.hasAnalyzer(player), "Curios: Anel Analisador no slot de anel funciona ("
+                    + com.atomcraft.compat.Curios.equipped(player).size() + " itens no Curios)");
             boolean back = com.atomcraft.compat.Curios.equip(player, "back", jetpack);
             check(failures, back && com.atomcraft.equipment.Worn.jetpack(player) == jetpack, "Curios: jetpack nas costas funciona");
             com.atomcraft.compat.Curios.equip(player, "ring", net.minecraft.world.item.ItemStack.EMPTY);
