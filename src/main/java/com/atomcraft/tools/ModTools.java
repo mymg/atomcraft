@@ -75,7 +75,7 @@ public final class ModTools {
     public static final List<DeferredItem<? extends Item>> TAB_ORDER = new ArrayList<>();
 
     public static final DeferredBlock<WirelessTransmitterBlock> WIRELESS_TRANSMITTER = ModBlocks.BLOCKS.registerBlock("wireless_transmitter",
-            WirelessTransmitterBlock::new, ModBlocks::machine);
+            WirelessTransmitterBlock::new, p -> ModBlocks.machine(p).noOcclusion());
     public static final DeferredItem<net.minecraft.world.item.BlockItem> WIRELESS_TRANSMITTER_ITEM =
             ModItems.ITEMS.registerSimpleBlockItem(WIRELESS_TRANSMITTER);
     public static final DeferredItem<NetworkCardItem> NETWORK_CARD = ModItems.ITEMS.registerItem("network_card",

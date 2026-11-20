@@ -753,11 +753,16 @@ for part in ("matrix_casing", "matrix_glass", "matrix_core"):
         model["render_type"] = "minecraft:translucent"
     w(f"assets/atomcraft/models/block/{part}.json", model)
     w(f"assets/atomcraft/items/{part}.json", {"model": {"type": "minecraft:model", "model": f"atomcraft:block/{part}"}})
-w("assets/atomcraft/blockstates/matrix_port.json", {"variants": {
-    "output=false": {"model": "atomcraft:block/matrix_port"}, "output=true": {"model": "atomcraft:block/matrix_port_output"}}})
-w("assets/atomcraft/models/block/matrix_port.json", {"parent": "minecraft:block/cube_all", "textures": {"all": "atomcraft:block/matrix_port_input"}})
-w("assets/atomcraft/models/block/matrix_port_output.json", {"parent": "minecraft:block/cube_all", "textures": {"all": "atomcraft:block/matrix_port_output"}})
-w("assets/atomcraft/items/matrix_port.json", {"model": {"type": "minecraft:model", "model": "atomcraft:block/matrix_port"}})
+# Interface da Matriz (bloco matrix_port): modelo do Blockbench energy_matrix_interface, uma textura por modo
+wf("assets/atomcraft/blockstates/matrix_port.json", {"variants": {
+    "mode=both": {"model": "atomcraft:block/energy_matrix_interface"},
+    "mode=input": {"model": "atomcraft:block/energy_matrix_interface_input"},
+    "mode=output": {"model": "atomcraft:block/energy_matrix_interface_output"}}})
+for mode, tex in (("input", "in"), ("output", "out")):
+    wf(f"assets/atomcraft/models/block/energy_matrix_interface_{mode}.json", {"parent": "atomcraft:block/energy_matrix_interface",
+        "textures": {"0": f"atomcraft:block/energy_matrix_interface_{tex}", "particle": f"atomcraft:block/energy_matrix_interface_{tex}"}})
+wf("assets/atomcraft/items/matrix_port.json", {"model": {"type": "minecraft:model", "model": "atomcraft:item/energy_matrix_interface"}})
+wf("assets/atomcraft/geckolib/animations/block/energy_matrix.animation.json", {"format_version": "1.8.0", "animations": {}}) if not os.path.exists(os.path.join(R, "assets/atomcraft/geckolib/animations/block/energy_matrix.animation.json")) else None
 ENERGY_BLOCKS = list(CELLS) + ["energy_matrix", "matrix_casing", "matrix_glass", "matrix_core", "matrix_port"]
 for b in ENERGY_BLOCKS:
     entry = {"type": "minecraft:item", "name": f"atomcraft:{b}"}
@@ -976,15 +981,19 @@ common = {
     "block.atomcraft.matrix_casing": ("Matrix Casing", "Carcaça da Matriz"),
     "block.atomcraft.matrix_glass": ("Matrix Glass", "Vidro da Matriz"),
     "block.atomcraft.matrix_core": ("Matrix Core", "Núcleo da Matriz"),
-    "block.atomcraft.matrix_port": ("Matrix Port", "Porta da Matriz"),
+    "block.atomcraft.matrix_port": ("Energy Matrix Interface", "Interface da Matriz de Energia"),
+    "port_mode.atomcraft.both": ("Input/Output", "Entrada/Saída"),
+    "port_mode.atomcraft.input": ("Input", "Entrada"),
+    "port_mode.atomcraft.output": ("Output", "Saída"),
+    "message.atomcraft.port_mode": ("Interface: %s", "Interface: %s"),
     "gui.atomcraft.stored": ("Stored", "Armazenado"),
     "gui.atomcraft.sides": ("Sides", "Lados"),
     "gui.atomcraft.sides_hint": ("Click: change", "Clique: muda"),
     "gui.atomcraft.sides_click": ("Left click: next · Right click: back", "Esquerdo: próximo · Direito: volta"),
     "gui.atomcraft.structure_ok": ("Structure OK", "Estrutura completa"),
-    "gui.atomcraft.ports": ("Ports", "Portas"),
-    "gui.atomcraft.port_hint_1": ("Sneak+click", "Agachar+clique"),
-    "gui.atomcraft.port_hint_2": ("on a port", "na porta muda"),
+    "gui.atomcraft.ports": ("Interfaces", "Interfaces"),
+    "gui.atomcraft.port_hint_1": ("Sneak+click an", "Agachar+clique na"),
+    "gui.atomcraft.port_hint_2": ("interface: mode", "interface: modo"),
     "side_mode.atomcraft.input": ("Input", "Entrada"),
     "side_mode.atomcraft.output": ("Output", "Saída"),
     "side_mode.atomcraft.both": ("Input and output", "Entrada e saída"),

@@ -18,26 +18,28 @@ import java.util.Map;
  * <p>
  * Coordenadas locais: x 0..2 (esquerda → direita, olhando o controlador de frente),
  * y 0..2 (de baixo para cima) e z 0..2 (da frente para o fundo). O controlador fica
- * no centro da face da frente (1, 1, 0), virado para fora.
+ * no meio da face da frente da camada de baixo (1, 0, 0), virado para fora.
  * <pre>
- * 'C' carcaça quântica   'G' vidro quântico (ou carcaça)   'X' núcleo quântico   'K' controlador
+ * 'C' carcaça   'P' carcaça ou Porta Quântica   'G' vidro quântico (ou carcaça)   'X' núcleo   'K' controlador
  * </pre>
- * Portas Quânticas podem ocupar qualquer posição de carcaça ou vidro.
- * Camada de baixo e de cima: só carcaça. Camada do meio: carcaça nos cantos, vidro nas
- * laterais e no fundo, núcleo no centro e o controlador na frente.
+ * Camada de baixo: carcaça, com Portas Quânticas possíveis só no meio das outras três faces (onde o
+ * modelo tem os conectores). Camada do meio: carcaça nos cantos, vidro no meio das faces e o núcleo no
+ * centro. Camada de cima: só carcaça.
  */
 public final class QuantumStructure {
 
     public static final int SIZE = 3;
-    private static final String[] SOLID = {"CCC", "CCC", "CCC"};
-    private static final String[] MIDDLE = {"CKC", "GXG", "CGC"};
-    private static final String[][] LAYERS = {SOLID, MIDDLE, SOLID};
+    private static final String[] BASE = {"CKC", "PCP", "CPC"};
+    private static final String[] MIDDLE = {"CGC", "GXG", "CGC"};
+    private static final String[] TOP = {"CCC", "CCC", "CCC"};
+    private static final String[][] LAYERS = {BASE, MIDDLE, TOP};
 
     private QuantumStructure() {}
 
     public record Slot(BlockPos pos, QuantumPart part) {}
 
-    public record Result(boolean formed, List<Slot> missing, List<BlockPos> ports) {
+    /** {@code members}: posições ocupadas pelas peças certas (sem o controlador). */
+    public record Result(boolean formed, List<Slot> missing, List<BlockPos> ports, List<BlockPos> members) {
         public Map<QuantumPart, Integer> missingCounts() {
             Map<QuantumPart, Integer> counts = new EnumMap<>(QuantumPart.class);
             for (Slot slot : missing) counts.merge(slot.part(), 1, Integer::sum);
@@ -48,12 +50,12 @@ public final class QuantumStructure {
     /** {@code facing} é para onde o controlador olha (para fora da estrutura). */
     public static BlockPos toWorld(BlockPos controller, Direction facing, int x, int y, int z) {
         Direction right = facing.getCounterClockWise();
-        return controller.relative(right, x - 1).relative(Direction.UP, y - 1).relative(facing.getOpposite(), z);
+        return controller.relative(right, x - 1).relative(Direction.UP, y).relative(facing.getOpposite(), z);
     }
 
     private static @Nullable QuantumPart expected(char c) {
         return switch (c) {
-            case 'C' -> QuantumPart.CASING;
+            case 'C', 'P' -> QuantumPart.CASING;
             case 'G' -> QuantumPart.GLASS;
             case 'X' -> QuantumPart.CORE;
             case 'K' -> QuantumPart.CONTROLLER;
@@ -69,10 +71,28 @@ public final class QuantumStructure {
 
     private static boolean accepts(char c, @Nullable QuantumPart actual) {
         if (actual == null) return false;
-        // Portas Quânticas podem ficar no lugar de qualquer carcaça ou vidro
-        if (actual == QuantumPart.PORT) return c == 'C' || c == 'G';
+        // Portas Quânticas só no meio das faces da camada de baixo
+        if (actual == QuantumPart.PORT) return c == 'P';
         if (c == 'G') return actual == QuantumPart.GLASS || actual == QuantumPart.CASING;
         return actual == expected(c);
+    }
+
+    /** Posições onde pode ir uma Porta Quântica (meio das faces da camada de baixo). */
+    public static List<BlockPos> portSlots(BlockPos controller, Direction facing) {
+        List<BlockPos> slots = new ArrayList<>();
+        for (int z = 0; z < SIZE; z++) {
+            for (int x = 0; x < SIZE; x++) {
+                if (LAYERS[0][z].charAt(x) == 'P') slots.add(toWorld(controller, facing, x, 0, z));
+            }
+        }
+        return slots;
+    }
+
+    /** Caixa da estrutura inteira (para o render). */
+    public static net.minecraft.world.phys.AABB bounds(BlockPos controller, Direction facing) {
+        BlockPos a = toWorld(controller, facing, 0, 0, 0), b = toWorld(controller, facing, SIZE - 1, SIZE - 1, SIZE - 1);
+        return new net.minecraft.world.phys.AABB(Math.min(a.getX(), b.getX()), Math.min(a.getY(), b.getY()), Math.min(a.getZ(), b.getZ()),
+                Math.max(a.getX(), b.getX()) + 1, Math.max(a.getY(), b.getY()) + 1, Math.max(a.getZ(), b.getZ()) + 1);
     }
 
     /** Todas as posições com a peça "ideal" (usado pelos testes e pela vitrine). */
@@ -92,6 +112,7 @@ public final class QuantumStructure {
     public static Result check(BlockGetter level, BlockPos controller, Direction facing) {
         List<Slot> missing = new ArrayList<>();
         List<BlockPos> ports = new ArrayList<>();
+        List<BlockPos> members = new ArrayList<>();
         for (int y = 0; y < SIZE; y++) {
             for (int z = 0; z < SIZE; z++) {
                 for (int x = 0; x < SIZE; x++) {
@@ -100,11 +121,15 @@ public final class QuantumStructure {
                     if (want == null) continue;
                     BlockPos pos = toWorld(controller, facing, x, y, z);
                     QuantumPart actual = partOf(level.getBlockState(pos));
-                    if (!accepts(c, actual)) missing.add(new Slot(pos, want));
-                    else if (actual == QuantumPart.PORT) ports.add(pos);
+                    if (!accepts(c, actual)) {
+                        missing.add(new Slot(pos, want));
+                    } else {
+                        if (actual == QuantumPart.PORT) ports.add(pos);
+                        if (actual != QuantumPart.CONTROLLER) members.add(pos);
+                    }
                 }
             }
         }
-        return new Result(missing.isEmpty(), missing, ports);
+        return new Result(missing.isEmpty(), missing, ports, members);
     }
 }

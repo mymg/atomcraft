@@ -1,10 +1,13 @@
 {
   "variants": {
-    "output=false": {
-      "model": "atomcraft:block/matrix_port"
+    "mode=both": {
+      "model": "atomcraft:block/energy_matrix_interface"
     },
-    "output=true": {
-      "model": "atomcraft:block/matrix_port_output"
+    "mode=input": {
+      "model": "atomcraft:block/energy_matrix_interface_input"
+    },
+    "mode=output": {
+      "model": "atomcraft:block/energy_matrix_interface_output"
     }
   }
 }

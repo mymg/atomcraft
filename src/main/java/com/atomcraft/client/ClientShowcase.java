@@ -1,5 +1,7 @@
 package com.atomcraft.client;
 
+import net.minecraft.core.BlockPos;
+
 import com.atomcraft.AtomCraft;
 import com.atomcraft.client.screen.AnalyzerScreen;
 import com.atomcraft.client.screen.AtomizerScreen;
@@ -43,9 +45,22 @@ final class ClientShowcase {
                 worldCaptured = true;
                 AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture world_drive_analyzer");
             }
-            if (idleTicks == 480) {
+            if (idleTicks == 480) AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture world_fusion_reactor");
+            if (idleTicks == 620) {
+                // Liga a prévia (blocos fantasma) dos controladores incompletos perto da câmera
+                var mc = Minecraft.getInstance();
+                BlockPos center = mc.player.blockPosition();
+                for (BlockPos pos : BlockPos.betweenClosed(center.offset(-20, -6, -20), center.offset(20, 6, 20))) {
+                    var state = mc.level.getBlockState(pos);
+                    if (state.getBlock() instanceof com.atomcraft.block.QuantumReplicatorBlock
+                            && !state.getValue(com.atomcraft.block.QuantumReplicatorBlock.FORMED) && !FusionPreview.isShowing(pos)) {
+                        FusionPreview.toggle(pos.immutable());
+                    }
+                }
+            }
+            if (idleTicks == 720) {
                 machinesCaptured = true;
-                AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture world_fusion_reactor");
+                AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture world_structures");
             }
             return;
         }

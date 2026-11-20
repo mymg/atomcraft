@@ -45,7 +45,20 @@ import java.util.List;
  * Matriz: a energia entra e sai pelas Portas da Matriz (modo de cada porta) e pela rede.
  * Ao quebrar, a energia fica guardada no item.
  */
-public class EnergyCellBlockEntity extends MachineBlockEntity implements EnergyReceiver, EnergyBuffer, com.atomcraft.storage.NetworkLink {
+public class EnergyCellBlockEntity extends MachineBlockEntity implements EnergyReceiver, EnergyBuffer, com.atomcraft.storage.NetworkLink,
+        com.geckolib.animatable.GeoBlockEntity {
+
+    /** A Matriz formada é desenhada pelo GeckoLib (modelo {@code energy_matrix}, sem animações). */
+    private final com.geckolib.animatable.instance.AnimatableInstanceCache geoCache = com.geckolib.util.GeckoLibUtil.createInstanceCache(this);
+
+    @Override
+    public void registerControllers(com.geckolib.animatable.manager.AnimatableManager.ControllerRegistrar controllers) {}
+
+    @Override
+    public com.geckolib.animatable.instance.AnimatableInstanceCache getAnimatableInstanceCache() {
+        return geoCache;
+    }
+
 
     public static final int DATA_ENERGY_LO = 0, DATA_ENERGY_HI = 1, DATA_CAPACITY_LO = 2, DATA_CAPACITY_HI = 3,
             DATA_IN_LO = 4, DATA_IN_HI = 5, DATA_OUT_LO = 6, DATA_OUT_HI = 7, DATA_TIER = 8, DATA_FORMED = 9,
@@ -78,8 +91,8 @@ public class EnergyCellBlockEntity extends MachineBlockEntity implements EnergyR
                 case DATA_OUT_HI -> (avgOut >>> 16) & 0xFFFF;
                 case DATA_TIER -> tier.ordinal();
                 case DATA_FORMED -> isFormed() ? 1 : 0;
-                case DATA_PORTS_IN -> (int) ports.stream().filter(p -> !portIsOutput(p)).count();
-                case DATA_PORTS_OUT -> (int) ports.stream().filter(p -> portIsOutput(p)).count();
+                case DATA_PORTS_IN -> (int) ports.stream().filter(p -> portMode(p).receives()).count();
+                case DATA_PORTS_OUT -> (int) ports.stream().filter(p -> portMode(p).sends()).count();
                 default -> 0;
             };
         }
@@ -157,8 +170,8 @@ public class EnergyCellBlockEntity extends MachineBlockEntity implements EnergyR
         return tier == CellTier.MATRIX && formed ? List.copyOf(ports) : List.of();
     }
 
-    private boolean portIsOutput(BlockPos pos) {
-        return level != null && level.getBlockEntity(pos) instanceof MatrixPortBlockEntity port && port.isOutput();
+    private com.atomcraft.energy.PortMode portMode(BlockPos pos) {
+        return level != null && level.getBlockEntity(pos) instanceof MatrixPortBlockEntity port ? port.mode() : com.atomcraft.energy.PortMode.BOTH;
     }
 
     @Override
@@ -184,13 +197,17 @@ public class EnergyCellBlockEntity extends MachineBlockEntity implements EnergyR
         if (level == null || tier != CellTier.MATRIX) return true;
         MatrixStructure.Result result = MatrixStructure.check(level, worldPosition, facing());
         boolean changed = result.formed() != formed || !ports.equals(result.ports());
+        // Formada, as peças somem e o controlador desenha o modelo grande; as interfaces continuam visíveis.
+        if (formed && !result.formed()) disassemble();
         formed = result.formed();
+        if (formed) com.atomcraft.block.StructurePartBlock.setFormed(level, result.members(), true);
         ports.clear();
         ports.addAll(result.ports());
         for (BlockPos pos : ports) {
             if (level.getBlockEntity(pos) instanceof MatrixPortBlockEntity port) port.setController(worldPosition);
         }
         setStateFlag(EnergyMatrixBlock.FORMED, formed);
+        setStateFlag(EnergyMatrixBlock.CHARGED, energy.getAmountAsInt() > 0);
         if (changed) {
             invalidateNetwork();
             level.invalidateCapabilities(worldPosition);
@@ -199,10 +216,25 @@ public class EnergyCellBlockEntity extends MachineBlockEntity implements EnergyR
         return formed;
     }
 
+    /** Mostra de novo todas as peças do projeto (ao desformar ou quebrar o controlador). */
+    public void disassemble() {
+        if (level == null || level.isClientSide() || tier != CellTier.MATRIX) return;
+        java.util.List<BlockPos> all = new java.util.ArrayList<>();
+        for (var slot : MatrixStructure.blueprint(worldPosition, facing())) all.add(slot.pos());
+        com.atomcraft.block.StructurePartBlock.setFormed(level, all, false);
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        disassemble();
+    }
+
     @Override
     public void serverTick() {
         if (level == null) return;
         if (tier == CellTier.MATRIX && structureTimer++ % 20 == 0) checkStructure();
+        if (tier == CellTier.MATRIX && structureTimer % 10 == 0) setStateFlag(EnergyMatrixBlock.CHARGED, energy.getAmountAsInt() > 0);
         if (!isFormed()) {
             status = MachineStatus.INCOMPLETE;
             return;
@@ -210,7 +242,7 @@ public class EnergyCellBlockEntity extends MachineBlockEntity implements EnergyR
         int sent = 0;
         if (tier == CellTier.MATRIX) {
             for (BlockPos pos : ports) {
-                if (!portIsOutput(pos)) continue;
+                if (!portMode(pos).pushes()) continue;
                 int budget = tier.rate();
                 for (Direction direction : Direction.values()) {
                     BlockPos target = pos.relative(direction);

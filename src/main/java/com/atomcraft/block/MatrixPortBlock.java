@@ -18,22 +18,30 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
 /**
- * Porta da Matriz de Energia: por ela a energia entra (azul) ou sai (laranja) da matriz, e o
- * Cabo Atômico ligado a ela põe a matriz na rede.
- * Agachado + clique com a mão vazia alterna entre entrada e saída; clique normal abre a matriz.
+ * Interface da Matriz de Energia: por ela a energia entra (azul), sai (laranja) ou os dois (vermelho), e o
+ * Cabo Atômico ligado a ela põe a matriz na rede. Só pode ficar no meio das faces da base e do topo.
+ * Agachado + clique com a mão vazia troca o modo; clique normal abre a matriz.
  */
 public class MatrixPortBlock extends MatrixPartBlock implements EntityBlock, com.atomcraft.storage.NetworkNode {
 
-    public static final BooleanProperty OUTPUT = BooleanProperty.create("output");
+    public static final net.minecraft.world.level.block.state.properties.EnumProperty<com.atomcraft.energy.PortMode> MODE =
+            net.minecraft.world.level.block.state.properties.EnumProperty.create("mode", com.atomcraft.energy.PortMode.class);
 
     public MatrixPortBlock(Properties properties) {
         super(MatrixPart.PORT, properties);
-        registerDefaultState(stateDefinition.any().setValue(OUTPUT, false));
+        registerDefaultState(stateDefinition.any().setValue(MODE, com.atomcraft.energy.PortMode.BOTH).setValue(FORMED, false));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(OUTPUT);
+        super.createBlockStateDefinition(builder);
+        builder.add(MODE);
+    }
+
+    /** A interface continua visível com a matriz formada: mostra onde ligar cabos e o modo (cor). */
+    @Override
+    protected boolean hiddenWhenFormed(BlockState state) {
+        return false;
     }
 
     @Override
@@ -45,10 +53,10 @@ public class MatrixPortBlock extends MatrixPartBlock implements EntityBlock, com
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (level.isClientSide()) return InteractionResult.SUCCESS;
         if (player.isShiftKeyDown()) {
-            boolean output = !state.getValue(OUTPUT);
-            level.setBlock(pos, state.setValue(OUTPUT, output), Block.UPDATE_ALL);
+            com.atomcraft.energy.PortMode mode = state.getValue(MODE).next();
+            level.setBlock(pos, state.setValue(MODE, mode), Block.UPDATE_ALL);
             level.invalidateCapabilities(pos);
-            player.sendSystemMessage(Component.translatable(output ? "message.atomcraft.port_output" : "message.atomcraft.port_input"));
+            player.sendOverlayMessage(Component.translatable("message.atomcraft.port_mode", mode.label().copy().withColor(mode.color())));
             return InteractionResult.SUCCESS;
         }
         if (player instanceof ServerPlayer serverPlayer && level.getBlockEntity(pos) instanceof MatrixPortBlockEntity port
