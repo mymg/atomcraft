@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "#",
+    "S",
+    "S"
+  ],
+  "key": {
+    "#": "atomcraft:steel_ingot",
+    "S": "minecraft:stick"
+  },
+  "result": {
+    "id": "atomcraft:steel_shovel",
+    "count": 1
+  }
+}

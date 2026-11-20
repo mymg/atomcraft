@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "###",
+    "# #",
+    "# #"
+  ],
+  "key": {
+    "#": "atomcraft:steel_ingot"
+  },
+  "result": {
+    "id": "atomcraft:steel_leggings",
+    "count": 1
+  }
+}

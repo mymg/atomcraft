@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "##",
+    " S",
+    " S"
+  ],
+  "key": {
+    "#": "atomcraft:titanium_alloy_ingot",
+    "S": "minecraft:stick"
+  },
+  "result": {
+    "id": "atomcraft:titanium_alloy_hoe",
+    "count": 1
+  }
+}

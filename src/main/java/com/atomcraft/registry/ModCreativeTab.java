@@ -69,5 +69,23 @@ public final class ModCreativeTab {
                     com.atomcraft.material.ModMaterials.TAB_ORDER.forEach(item -> output.accept(item.get())))
             .build());
 
+    /** Aba de equipamentos: ferramentas e armaduras de liga, Desintegrador, Transmissor e Cartão de Rede. */
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EQUIPMENT = TABS.register("equipment", () -> CreativeModeTab.builder()
+            .title(Component.translatable("itemGroup.atomcraft.equipment"))
+            .icon(() -> new ItemStack(com.atomcraft.tools.ModTools.DISINTEGRATOR.get()))
+            .withTabsBefore(MATERIALS.getKey())
+            .displayItems((parameters, output) -> {
+                for (var item : com.atomcraft.tools.ModTools.TAB_ORDER) {
+                    if (item.get() instanceof com.atomcraft.tools.AtomicDisintegratorItem) {
+                        ItemStack charged = new ItemStack(item.get());
+                        com.atomcraft.tools.AtomicDisintegratorItem.setEnergy(charged, com.atomcraft.tools.AtomicDisintegratorItem.CAPACITY);
+                        output.accept(charged);
+                    } else {
+                        output.accept(item.get());
+                    }
+                }
+            })
+            .build());
+
     private ModCreativeTab() {}
 }

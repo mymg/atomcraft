@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "#",
+    "#",
+    "S"
+  ],
+  "key": {
+    "#": "atomcraft:steel_ingot",
+    "S": "minecraft:stick"
+  },
+  "result": {
+    "id": "atomcraft:steel_sword",
+    "count": 1
+  }
+}

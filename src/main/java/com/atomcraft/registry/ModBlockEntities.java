@@ -39,6 +39,9 @@ public final class ModBlockEntities {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.atomcraft.block.entity.QuantumPortBlockEntity>> QUANTUM_PORT =
             BLOCK_ENTITIES.register("quantum_port", () -> new BlockEntityType<>(com.atomcraft.block.entity.QuantumPortBlockEntity::new,
                     ModBlocks.QUANTUM_PORT.get()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.atomcraft.block.entity.WirelessTransmitterBlockEntity>> WIRELESS_TRANSMITTER =
+            BLOCK_ENTITIES.register("wireless_transmitter", () -> new BlockEntityType<>(com.atomcraft.block.entity.WirelessTransmitterBlockEntity::new,
+                    com.atomcraft.tools.ModTools.WIRELESS_TRANSMITTER.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ReplicatorBlockEntity>> ADVANCED_REPLICATOR =
             BLOCK_ENTITIES.register("advanced_replicator", () -> new BlockEntityType<>(ReplicatorBlockEntity::new, ModBlocks.ADVANCED_REPLICATOR.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<ReplicatorBlockEntity>> QUANTUM_REPLICATOR =

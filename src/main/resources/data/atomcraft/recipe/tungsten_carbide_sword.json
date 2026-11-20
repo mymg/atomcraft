@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "#",
+    "#",
+    "S"
+  ],
+  "key": {
+    "#": "atomcraft:tungsten_carbide_ingot",
+    "S": "minecraft:stick"
+  },
+  "result": {
+    "id": "atomcraft:tungsten_carbide_sword",
+    "count": 1
+  }
+}

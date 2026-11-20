@@ -36,7 +36,7 @@ final class ClientShowcase {
 
     private static void onTick(ClientTickEvent.Post event) {
         Screen screen = Minecraft.getInstance().gui.screen();
-        if (screen == null && screensSeen >= 13 && !machinesCaptured) {
+        if (screen == null && screensSeen >= 14 && !machinesCaptured) {
             // Depois das interfaces, o servidor fecha o menu e posiciona a câmera nas máquinas e depois no reator.
             idleTicks++;
             if (idleTicks == 100 && !worldCaptured) {

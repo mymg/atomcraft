@@ -208,6 +208,41 @@ um Cabo Atômico ligado a uma porta põe o replicador na rede (elementos e energ
 replicados por ela. Com a estrutura incompleta, a interface lista as peças que
 faltam e o botão **Mostrar estrutura** marca com partículas onde cada uma vai.
 
+## Ferramentas, armaduras e acesso sem fio
+
+### Ferramentas e armaduras de liga
+
+Receitas iguais às do vanilla, trocando o lingote:
+
+| Material | Nível | Durabilidade | Velocidade | Armadura |
+|---|---|---|---|---|
+| Aço | ferro | 500 | 7 | sim (um pouco melhor que ferro) |
+| Liga de Titânio | diamante | 1.800 | 8,5 | sim (entre diamante e netherite) |
+| Carbeto de Tungstênio | netherite | 2.400 | 11 | não (pesado demais) |
+
+### Transmissor Sem Fio e Cartão de Rede
+
+O **Transmissor Sem Fio** é um bloco da rede (ligue-o ao Cabo Atômico) que guarda energia dos geradores e células.
+Agachado + clique nele com um **Cartão de Rede** vincula o cartão ao transmissor e a você. Com o cartão no inventário,
+os equipamentos atômicos usam a rede à distância: energia do transmissor e elementos dos Drives. Só o dono do cartão
+consegue usá-lo. Agachado + clique no ar desfaz o vínculo.
+
+Alcance padrão: 128 blocos, na mesma dimensão. Configurável na seção `wireless` (`range`, -1 = sem limite;
+`crossDimension`).
+
+### Desintegrador Atômico
+
+Quebra rápido qualquer bloco de picareta, machado, pá ou enxada (até nível de netherite), gastando 200 FE por bloco
+da bateria interna (100.000 FE). Com o cartão vinculado, a bateria recarrega sozinha pelo transmissor e os blocos
+quebrados viram elementos direto nos Drives (o que não couber cai normalmente). Agachado + clique alterna entre
+**desintegrar** e **itens normais**.
+
+| | Receita |
+|---|---|
+| **Transmissor Sem Fio** | pérolas do Ender, ametista, circuitos, Cabo Atômico, chapas de aço, bloco de redstone |
+| **Cartão de Rede** | ouro, placa de circuito, fio de cobre, redstone |
+| **Desintegrador Atômico** | chapas de carbeto de tungstênio, diamante, placa de circuito, lingote de liga de titânio |
+
 ## Metais, ligas e minérios
 
 ### Forja de Ligas
@@ -410,6 +445,7 @@ O `.jar` fica disponível em **Actions → Artifacts**.
 - [x] Ligas, Forja de Ligas, minérios novos e blocos de construção
 - [x] Complexidade e níveis de replicador (Avançado e Quântico)
 - [x] Células de Energia e Matriz de Energia
+- [x] Ferramentas/armaduras de liga, Transmissor Sem Fio, Cartão de Rede e Desintegrador Atômico
 - [ ] Suporte a fluidos (tanques e fluid pipes)
 - [ ] Texturas e modelos definitivos
 - [ ] Integração com JEI/EMI (mostrar fórmula e custo)

@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "atomcraft:steel"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "atomcraft:steel"
+      }
+    ]
+  }
+}
