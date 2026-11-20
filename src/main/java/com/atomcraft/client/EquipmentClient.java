@@ -41,6 +41,8 @@ public final class EquipmentClient {
 
     public static final KeyMapping HOVER_KEY = new KeyMapping("key.atomcraft.jetpack_hover", 72 /* H */, KeyMapping.Category.MOVEMENT);
 
+    private static final double SCAN_RANGE = 16.0;
+
     private static int lastState;
     private static boolean analyzer;
 
@@ -104,11 +106,12 @@ public final class EquipmentClient {
         Minecraft mc = Minecraft.getInstance();
         if (!analyzer || mc.player == null || mc.level == null || mc.gui.screen() != null) return;
         Item item = null;
-        HitResult hit = mc.hitResult;
-        if (hit instanceof BlockHitResult block && hit.getType() == HitResult.Type.BLOCK) {
-            item = mc.level.getBlockState(block.getBlockPos()).getBlock().asItem();
-        } else if (hit instanceof EntityHitResult entity && entity.getEntity() instanceof ItemEntity dropped) {
+        // Itens no chão ao alcance normal; blocos até 16 blocos de distância (o anel "escaneia" de longe).
+        if (mc.hitResult instanceof EntityHitResult entity && entity.getEntity() instanceof ItemEntity dropped) {
             item = dropped.getItem().getItem();
+        } else if (mc.player.pick(SCAN_RANGE, 1.0f, false) instanceof BlockHitResult block
+                && block.getType() == HitResult.Type.BLOCK) {
+            item = mc.level.getBlockState(block.getBlockPos()).getBlock().asItem();
         }
         if (item == null || item == Items.AIR) return;
         AtomicValue value = AtomicValues.get(item, true);
