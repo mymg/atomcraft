@@ -38,9 +38,16 @@ import net.minecraft.world.phys.AABB;
 public class FusionReactorRenderer<R extends BlockEntityRenderState & GeoRenderState>
         extends GeoBlockRenderer<FusionReactorBlockEntity, R> {
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    private static final DataTicket<java.util.List<Holograms.Entry>> GHOSTS = DataTicket.create("atomcraft_fusion_ghosts", (Class) java.util.List.class);
+    private static final DataTicket<Long> TIME = DataTicket.create("atomcraft_fusion_time", Long.class);
+
+    private final net.minecraft.client.renderer.item.ItemModelResolver itemModelResolver;
+
     public FusionReactorRenderer(BlockEntityRendererProvider.Context context) {
         super(context, new DefaultedBlockGeoModel<>(AtomCraft.id("fusion_reactor_formed")));
         withRenderLayer(AutoGlowingGeoLayer::new);
+        this.itemModelResolver = context.itemModelResolver();
     }
 
     @Override
@@ -64,7 +71,12 @@ public class FusionReactorRenderer<R extends BlockEntityRenderState & GeoRenderS
     public void captureDefaultRenderState(FusionReactorBlockEntity animatable, @Nullable Void relatedObject, R renderState, float partialTick) {
         super.captureDefaultRenderState(animatable, relatedObject, renderState, partialTick);
         BlockState state = animatable.getBlockState();
-        renderState.addGeckolibData(FORMED, state.hasProperty(FusionReactorBlock.FORMED) && state.getValue(FusionReactorBlock.FORMED));
+        boolean formed = state.hasProperty(FusionReactorBlock.FORMED) && state.getValue(FusionReactorBlock.FORMED);
+        renderState.addGeckolibData(FORMED, formed);
+        if (!formed && animatable.getLevel() != null) {
+            renderState.addGeckolibData(GHOSTS, Holograms.capture(itemModelResolver, animatable.getLevel(), animatable.getBlockPos()));
+            renderState.addGeckolibData(TIME, animatable.getLevel().getGameTime());
+        }
     }
 
     @Override
@@ -72,7 +84,11 @@ public class FusionReactorRenderer<R extends BlockEntityRenderState & GeoRenderS
         // Só desenha o modelo grande com a estrutura formada.
         if (Boolean.TRUE.equals(renderState.getOrDefaultGeckolibData(FORMED, false))) {
             super.submit(renderState, poseStack, renderTasks, cameraRenderState);
+            return;
         }
+        // Montando: blocos fantasma da prévia da estrutura
+        java.util.List<Holograms.Entry> ghosts = renderState.getOrDefaultGeckolibData(GHOSTS, (java.util.List<Holograms.Entry>) null);
+        if (ghosts != null) Holograms.submit(ghosts, poseStack, renderTasks, renderState.getOrDefaultGeckolibData(TIME, (Long) 0L), 0);
     }
 
     @Override

@@ -4,7 +4,7 @@ import com.atomcraft.replication.QuantumPart;
 import net.minecraft.world.level.block.Block;
 
 /** Peça da estrutura do Replicador Quântico (carcaça, vidro ou núcleo). */
-public class QuantumPartBlock extends Block {
+public class QuantumPartBlock extends StructurePartBlock {
 
     private final QuantumPart part;
 

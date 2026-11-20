@@ -1,0 +1,7 @@
+{
+  "parent": "atomcraft:block/energy_matrix_interface",
+  "textures": {
+    "0": "atomcraft:block/energy_matrix_interface_in",
+    "particle": "atomcraft:block/energy_matrix_interface_in"
+  }
+}

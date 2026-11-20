@@ -211,8 +211,8 @@ final class Showcase {
         BlockPos matrixPos = base.offset(-6, 1, -3);
         level.setBlock(matrixPos, ModBlocks.ENERGY_MATRIX.get().defaultBlockState()
                 .setValue(com.atomcraft.block.MachineBlock.FACING, net.minecraft.core.Direction.WEST), Block.UPDATE_ALL);
-        BlockPos portIn = com.atomcraft.energy.MatrixStructure.toWorld(matrixPos, net.minecraft.core.Direction.WEST, 0, 1, 0);
-        BlockPos portOut = com.atomcraft.energy.MatrixStructure.toWorld(matrixPos, net.minecraft.core.Direction.WEST, 2, 1, 0);
+        BlockPos portIn = com.atomcraft.energy.MatrixStructure.toWorld(matrixPos, net.minecraft.core.Direction.WEST, 0, 0, 1);
+        BlockPos portOut = com.atomcraft.energy.MatrixStructure.toWorld(matrixPos, net.minecraft.core.Direction.WEST, 2, 0, 1);
         for (var slot : com.atomcraft.energy.MatrixStructure.blueprint(matrixPos, net.minecraft.core.Direction.WEST)) {
             var part = switch (slot.part()) {
                 case CASING -> ModBlocks.MATRIX_CASING.get();
@@ -223,11 +223,21 @@ final class Showcase {
             if (slot.pos().equals(portIn) || slot.pos().equals(portOut)) part = ModBlocks.MATRIX_PORT.get();
             if (part != null) level.setBlock(slot.pos(), part.defaultBlockState(), Block.UPDATE_ALL);
         }
-        level.setBlock(portOut, level.getBlockState(portOut).setValue(com.atomcraft.block.MatrixPortBlock.OUTPUT, true), Block.UPDATE_ALL);
+        level.setBlock(portOut, level.getBlockState(portOut).setValue(com.atomcraft.block.MatrixPortBlock.MODE, com.atomcraft.energy.PortMode.OUTPUT), Block.UPDATE_ALL);
+        level.setBlock(portIn, level.getBlockState(portIn).setValue(com.atomcraft.block.MatrixPortBlock.MODE, com.atomcraft.energy.PortMode.INPUT), Block.UPDATE_ALL);
         if (level.getBlockEntity(matrixPos) instanceof com.atomcraft.block.entity.EnergyCellBlockEntity matrix) {
             matrix.setOwner(player);
             matrix.energy().set(312_000_000);
             matrix.checkStructure();
+        }
+        // Segundo Replicador Quântico, só começado: a prévia mostra os blocos fantasma do que falta
+        BlockPos quantum2 = base.offset(-6, 0, 0);
+        level.setBlock(quantum2, ModBlocks.QUANTUM_REPLICATOR.get().defaultBlockState()
+                .setValue(com.atomcraft.block.MachineBlock.FACING, net.minecraft.core.Direction.WEST), Block.UPDATE_ALL);
+        int placed = 0;
+        for (var slot : com.atomcraft.replication.QuantumStructure.blueprint(quantum2, net.minecraft.core.Direction.WEST)) {
+            if (slot.part() != com.atomcraft.replication.QuantumPart.CASING || slot.pos().getY() != quantum2.getY() || placed++ >= 5) continue;
+            level.setBlock(slot.pos(), ModBlocks.QUANTUM_CASING.get().defaultBlockState(), Block.UPDATE_ALL);
         }
 
         // Transmissor Sem Fio na rede, com um cartão vinculado e o Desintegrador no inventário
@@ -346,6 +356,11 @@ final class Showcase {
             // Visão do reator formado no mundo
             player.connection.teleport(base.getX() - 3.5, base.getY() + 4, base.getZ() + 0.5, -90f, 18f);
         }
-        if (ticks == 4100) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
+        if (ticks == 3700) player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND, net.minecraft.world.item.ItemStack.EMPTY);
+        if (ticks >= 3700 && ticks < 4100 && ticks % 20 == 0) {
+            // Visão das estruturas: Matriz formada (modelo), Replicador Quântico e um segundo quântico com a prévia
+            player.connection.teleport(base.getX() - 13.5, base.getY() + 3.5, base.getZ() + 0.5, -90f, 12f);
+        }
+        if (ticks == 4300) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
     }
 }

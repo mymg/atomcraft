@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "atomcraft:block/matrix_port"
+    "model": "atomcraft:item/energy_matrix_interface"
   }
 }

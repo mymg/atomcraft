@@ -197,16 +197,17 @@ Os limites ficam na configuração (`config/atomcraft-common.toml`), seções `r
 
 ### Replicador Quântico (multibloco 3×3×3)
 
-O controlador fica no centro de uma face; a estrutura fica atrás dele:
+O controlador fica no meio da face da frente da **camada de baixo**; a estrutura fica atrás dele:
 
-- camada de baixo e de cima: 9 **Carcaças Quânticas** cada;
-- camada do meio: carcaças nos 4 cantos, **Vidro Quântico** nas duas laterais e no fundo (ou carcaça), o
-  **Núcleo Quântico** no centro e o controlador na frente.
+- camada de baixo: **Carcaças Quânticas**; no meio das outras três faces pode ir uma **Porta Quântica**;
+- camada do meio: carcaças nos 4 cantos, **Vidro Quântico** no meio das faces (ou carcaça) e o **Núcleo Quântico**
+  no centro;
+- camada de cima: 9 carcaças.
 
-O controlador conecta na rede e recebe energia; **Portas Quânticas** (no lugar de qualquer carcaça ou vidro) também:
-um Cabo Atômico ligado a uma porta põe o replicador na rede (elementos e energia), e canos de itens retiram os itens
-replicados por ela. Com a estrutura incompleta, a interface lista as peças que
-faltam e o botão **Mostrar estrutura** marca com partículas onde cada uma vai.
+Cabos só ligam no controlador e nas Portas Quânticas (os blocos do meio da camada de baixo). Um Cabo Atômico ligado a
+uma porta põe o replicador na rede (elementos e energia), e canos de itens retiram os itens replicados por ela. Com a
+estrutura incompleta, a interface lista as peças que faltam e o botão **Mostrar estrutura** mostra um holograma de
+cada peça no lugar onde ela vai.
 
 ## Ferramentas, armaduras e acesso sem fio
 
@@ -359,16 +360,18 @@ desligado** (botão direito volta). Por padrão a frente envia e os outros lados
 e alimentam as máquinas da rede; uma célula não manda energia para outra pela rede (só pelos lados, se você configurar).
 O botão de ligar/desligar corta a saída. Ao quebrar, a célula guarda a energia no item (barra e tooltip).
 
-**Matriz de Energia.** O controlador fica no meio da face da frente, na camada do meio; a estrutura fica atrás dele:
+**Matriz de Energia.** O controlador fica no meio da face da frente da **camada de baixo**; a estrutura fica atrás dele:
 
-- base e topo: 9 **Carcaças da Matriz** cada;
+- base e topo: **Carcaças da Matriz**; no meio de cada face (3 na base, 4 no topo) pode ir uma **Interface da Matriz
+  de Energia**;
 - nas 3 camadas do meio: carcaça nas 4 arestas, **Vidro da Matriz** no centro de cada face e um **Núcleo da Matriz**
-  no centro (3 núcleos empilhados); o controlador ocupa o centro da face da frente na camada do meio.
+  no centro (3 núcleos empilhados).
 
-**Portas da Matriz** podem ficar no lugar de qualquer carcaça ou vidro, e o Cabo Atômico ligado a uma porta põe a
-matriz na rede. Cada porta é de entrada (azul) ou de saída
-(laranja): agachado + clique com a mão vazia alterna. Clique normal na porta abre a interface da matriz. Com a estrutura
-incompleta, a interface lista o que falta e o botão **Mostrar estrutura** marca as posições com partículas.
+Cabos só ligam nas Interfaces. Cada interface é de **entrada** (azul), **saída** (laranja, empurra energia para os
+vizinhos) ou **entrada/saída** (vermelha, padrão): agachado + clique com a mão vazia troca. Clique normal abre a matriz.
+Formada, os blocos somem e aparece o modelo da matriz; as interfaces continuam visíveis, e a bobina do centro apaga
+quando a matriz está vazia. Com a estrutura incompleta, a interface lista o que falta e o botão **Mostrar estrutura**
+mostra um holograma de cada peça.
 
 Capacidades e taxas ficam na seção `energyCells` da configuração.
 
@@ -389,7 +392,8 @@ com o **Solenoide Central** no meio. As três camadas do meio:
 
 - **Portas do Reator** podem ficar no lugar de qualquer carcaça. Elas ligam o reator à rede de elementos (hidrogênio
   entra, hélio sai) e entregam energia a cabos de qualquer mod. Continuam visíveis com o reator formado.
-- O botão **Mostrar estrutura** na interface do controlador marca com partículas coloridas onde falta cada peça.
+- O botão **Mostrar estrutura** na interface do controlador mostra um holograma (bloco fantasma) de cada peça que
+  falta, no lugar certo; lugares que precisam ficar vazios aparecem com contorno vermelho.
 - Formado, os blocos somem e aparece o modelo grande do reator (GeckoLib), com o plasma animado.
 - **Módulos** (aba lateral, 4 slots; só o maior nível de cada tipo vale):
 

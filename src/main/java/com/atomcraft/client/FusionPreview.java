@@ -1,27 +1,41 @@
 package com.atomcraft.client;
 
-import com.atomcraft.block.MachineBlock;
+import com.atomcraft.AtomCraft;
+import com.atomcraft.block.EnergyMatrixBlock;
 import com.atomcraft.block.FusionReactorBlock;
+import com.atomcraft.block.MachineBlock;
+import com.atomcraft.block.QuantumReplicatorBlock;
+import com.atomcraft.energy.MatrixStructure;
 import com.atomcraft.fusion.FusionStructure;
+import com.atomcraft.fusion.ReactorPart;
+import com.atomcraft.replication.QuantumStructure;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * Prévia da estrutura do Reator de Fusão (e do Replicador Quântico): partículas coloridas marcam onde falta
- * cada peça (a cor indica o tipo). Some sozinha quando o reator forma.
+ * Prévia (holograma) das estruturas multibloco: Reator de Fusão, Replicador Quântico e Matriz de Energia.
+ * Ligada pelo botão "Mostrar estrutura" da interface do controlador; cada peça que falta aparece como
+ * um bloco fantasma no lugar certo (desenhado pelo renderizador do controlador, ver {@link
+ * com.atomcraft.client.render.Holograms}). Some sozinha quando a estrutura forma.
  */
 public final class FusionPreview {
 
-    private static final Set<BlockPos> ACTIVE = new HashSet<>();
+    /** Peça que falta: o item do bloco a colocar, ou vazio quando o lugar precisa ficar livre. */
+    public record Ghost(BlockPos pos, ItemStack stack) {}
+
+    private static final Map<BlockPos, List<Ghost>> ACTIVE = new HashMap<>();
     private static int timer;
 
     private FusionPreview() {}
@@ -31,11 +45,19 @@ public final class FusionPreview {
     }
 
     public static boolean isShowing(BlockPos controller) {
-        return ACTIVE.contains(controller);
+        return ACTIVE.containsKey(controller);
     }
 
     public static void toggle(BlockPos controller) {
-        if (!ACTIVE.remove(controller)) ACTIVE.add(controller.immutable());
+        if (ACTIVE.remove(controller) == null) {
+            ACTIVE.put(controller.immutable(), List.of());
+            timer = 99;
+        }
+    }
+
+    /** Peças que faltam na estrutura do controlador (vazio se a prévia estiver desligada). */
+    public static List<Ghost> ghosts(BlockPos controller) {
+        return ACTIVE.getOrDefault(controller, List.of());
     }
 
     private static void onTick(ClientTickEvent.Post event) {
@@ -47,37 +69,42 @@ public final class FusionPreview {
         }
         if (ACTIVE.isEmpty() || ++timer < 8) return;
         timer = 0;
-        ACTIVE.removeIf(pos -> {
-            BlockState state = level.getBlockState(pos);
-            if (state.getBlock() instanceof com.atomcraft.block.EnergyMatrixBlock) {
-                // Matriz de Energia: estrutura 3×5×3
-                if (state.getValue(com.atomcraft.block.EnergyMatrixBlock.FORMED)) return true;
-                if (minecraft.player.distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) > 64 * 64) return true;
-                for (var slot : com.atomcraft.energy.MatrixStructure.check(level, pos, state.getValue(MachineBlock.FACING)).missing()) {
-                    BlockPos p = slot.pos();
-                    level.addParticle(new DustParticleOptions(slot.part().color() & 0xFFFFFF, 1.2f), p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5, 0, 0, 0);
-                }
-                return false;
-            }
-            if (state.getBlock() instanceof com.atomcraft.block.QuantumReplicatorBlock) {
-                // Replicador Quântico: mesma prévia, com a estrutura 3×3×3
-                if (state.getValue(com.atomcraft.block.QuantumReplicatorBlock.FORMED)) return true;
-                if (minecraft.player.distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) > 64 * 64) return true;
-                for (var slot : com.atomcraft.replication.QuantumStructure.check(level, pos, state.getValue(MachineBlock.FACING)).missing()) {
-                    BlockPos p = slot.pos();
-                    level.addParticle(new DustParticleOptions(slot.part().color() & 0xFFFFFF, 1.2f), p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5, 0, 0, 0);
-                }
-                return false;
-            }
-            if (!(state.getBlock() instanceof FusionReactorBlock) || state.getValue(FusionReactorBlock.FORMED)) return true;
-            if (minecraft.player.distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) > 64 * 64) return true;
-            Direction facing = state.getValue(MachineBlock.FACING);
+        var iterator = ACTIVE.entrySet().iterator();
+        while (iterator.hasNext()) {
+            var entry = iterator.next();
+            BlockPos pos = entry.getKey();
+            List<Ghost> ghosts = compute(level, pos);
+            if (ghosts == null || minecraft.player.distanceToSqr(pos.getX(), pos.getY(), pos.getZ()) > 64 * 64) iterator.remove();
+            else entry.setValue(ghosts);
+        }
+    }
+
+    /** null quando não há mais estrutura a mostrar (formou ou o controlador sumiu). */
+    private static List<Ghost> compute(Level level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        if (!state.hasProperty(MachineBlock.FACING)) return null;
+        Direction facing = state.getValue(MachineBlock.FACING);
+        List<Ghost> ghosts = new ArrayList<>();
+        if (state.getBlock() instanceof EnergyMatrixBlock) {
+            if (state.getValue(EnergyMatrixBlock.FORMED)) return null;
+            for (var slot : MatrixStructure.check(level, pos, facing).missing()) ghosts.add(new Ghost(slot.pos(), stackFor(slot.part().translationKey())));
+        } else if (state.getBlock() instanceof QuantumReplicatorBlock) {
+            if (state.getValue(QuantumReplicatorBlock.FORMED)) return null;
+            for (var slot : QuantumStructure.check(level, pos, facing).missing()) ghosts.add(new Ghost(slot.pos(), stackFor(slot.part().translationKey())));
+        } else if (state.getBlock() instanceof FusionReactorBlock) {
+            if (state.getValue(FusionReactorBlock.FORMED)) return null;
             for (FusionStructure.Slot slot : FusionStructure.check(level, pos, facing).missing()) {
-                BlockPos p = slot.pos();
-                int color = slot.part().color() & 0xFFFFFF;
-                level.addParticle(new DustParticleOptions(color, 1.2f), p.getX() + 0.5, p.getY() + 0.5, p.getZ() + 0.5, 0, 0, 0);
+                ghosts.add(new Ghost(slot.pos(), slot.part() == ReactorPart.AIR ? ItemStack.EMPTY : stackFor(slot.part().translationKey())));
             }
-            return false;
-        });
+        } else {
+            return null;
+        }
+        return ghosts;
+    }
+
+    private static ItemStack stackFor(String translationKey) {
+        String id = translationKey.substring(translationKey.lastIndexOf('.') + 1);
+        var block = BuiltInRegistries.BLOCK.getValue(AtomCraft.id(id));
+        return new ItemStack(block.asItem());
     }
 }

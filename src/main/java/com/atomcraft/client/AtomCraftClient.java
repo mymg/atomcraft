@@ -60,6 +60,8 @@ public class AtomCraftClient {
         event.registerBlockEntityRenderer(ModBlockEntities.REPLICATOR.get(), context -> new TallMachineRenderer<>(context, "replicator"));
         event.registerBlockEntityRenderer(ModBlockEntities.ADVANCED_REPLICATOR.get(), context -> new TallMachineRenderer<>(context, "advanced_replicator"));
         event.registerBlockEntityRenderer(ModBlockEntities.DRIVE.get(), DriveRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.ENERGY_MATRIX.get(), com.atomcraft.client.render.EnergyMatrixRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.QUANTUM_REPLICATOR.get(), com.atomcraft.client.render.QuantumReplicatorRenderer::new);
     }
 
     private static void registerScreens(RegisterMenuScreensEvent event) {

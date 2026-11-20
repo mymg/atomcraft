@@ -11,7 +11,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.energy.EnergyHandler;
 import org.jspecify.annotations.Nullable;
 
-/** Porta da Matriz de Energia: expõe a energia do controlador (só entrada ou só saída) para os vizinhos. */
+/** Interface da Matriz de Energia: expõe a energia do controlador para os vizinhos (entrada, saída ou os dois). */
 public class MatrixPortBlockEntity extends BlockEntity implements com.atomcraft.storage.NetworkLink {
 
     private @Nullable BlockPos controllerPos;
@@ -20,8 +20,8 @@ public class MatrixPortBlockEntity extends BlockEntity implements com.atomcraft.
         super(ModBlockEntities.MATRIX_PORT.get(), pos, state);
     }
 
-    public boolean isOutput() {
-        return getBlockState().hasProperty(MatrixPortBlock.OUTPUT) && getBlockState().getValue(MatrixPortBlock.OUTPUT);
+    public com.atomcraft.energy.PortMode mode() {
+        return getBlockState().hasProperty(MatrixPortBlock.MODE) ? getBlockState().getValue(MatrixPortBlock.MODE) : com.atomcraft.energy.PortMode.BOTH;
     }
 
     /** O controlador lembra cada porta quando verifica a estrutura. */
@@ -51,8 +51,8 @@ public class MatrixPortBlockEntity extends BlockEntity implements com.atomcraft.
     public @Nullable EnergyHandler energy() {
         EnergyCellBlockEntity matrix = controller();
         if (matrix == null || !matrix.isEnabled()) return null;
-        boolean output = isOutput();
-        return new SidedEnergyHandler(matrix.energy(), !output, output);
+        com.atomcraft.energy.PortMode mode = mode();
+        return new SidedEnergyHandler(matrix.energy(), mode.receives(), mode.sends());
     }
 
     @Override

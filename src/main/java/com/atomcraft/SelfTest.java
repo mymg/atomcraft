@@ -410,8 +410,8 @@ final class SelfTest {
         var matrix = (com.atomcraft.block.entity.EnergyCellBlockEntity) level.getBlockEntity(controller);
         matrix.tick();
         check(failures, !matrix.isFormed() && matrix.status() == MachineStatus.INCOMPLETE, "matriz sem estrutura fica incompleta");
-        BlockPos inPort = com.atomcraft.energy.MatrixStructure.toWorld(controller, facing, 0, 1, 0);
-        BlockPos outPort = com.atomcraft.energy.MatrixStructure.toWorld(controller, facing, 2, 1, 0);
+        BlockPos inPort = com.atomcraft.energy.MatrixStructure.toWorld(controller, facing, 0, 0, 1);
+        BlockPos outPort = com.atomcraft.energy.MatrixStructure.toWorld(controller, facing, 2, 0, 1);
         for (var slot : com.atomcraft.energy.MatrixStructure.blueprint(controller, facing)) {
             var block = switch (slot.part()) {
                 case CASING -> ModBlocks.MATRIX_CASING.get();
@@ -422,23 +422,41 @@ final class SelfTest {
             if (slot.pos().equals(inPort) || slot.pos().equals(outPort)) block = ModBlocks.MATRIX_PORT.get();
             if (block != null) level.setBlock(slot.pos(), block.defaultBlockState(), Block.UPDATE_ALL);
         }
-        level.setBlock(outPort, level.getBlockState(outPort).setValue(com.atomcraft.block.MatrixPortBlock.OUTPUT, true), Block.UPDATE_ALL);
-        place(level, outPort.north(), ModBlocks.BASIC_ENERGY_CELL.get());
-        var receiver = (com.atomcraft.block.entity.EnergyCellBlockEntity) level.getBlockEntity(outPort.north());
+        level.setBlock(outPort, level.getBlockState(outPort).setValue(com.atomcraft.block.MatrixPortBlock.MODE, com.atomcraft.energy.PortMode.OUTPUT), Block.UPDATE_ALL);
+        // Interfaces nas laterais da base: o lado de fora da da esquerda é o leste e o da direita, o oeste (olhando para o norte)
+        place(level, outPort.west(), ModBlocks.BASIC_ENERGY_CELL.get());
+        var receiver = (com.atomcraft.block.entity.EnergyCellBlockEntity) level.getBlockEntity(outPort.west());
         check(failures, matrix.checkStructure() && matrix.ports().size() == 2, "matriz forma com 2 portas (" + matrix.ports().size() + ")");
         check(failures, matrix.energy().getCapacityAsInt() == com.atomcraft.energy.CellTier.MATRIX.capacity(), "matriz com 3 núcleos de capacidade");
-        var inHandler = level.getCapability(net.neoforged.neoforge.capabilities.Capabilities.Energy.BLOCK, inPort, facing);
+        var inHandler = level.getCapability(net.neoforged.neoforge.capabilities.Capabilities.Energy.BLOCK, inPort, net.minecraft.core.Direction.EAST);
         try (var transaction = net.neoforged.neoforge.transfer.transaction.Transaction.openRoot()) {
             check(failures, inHandler != null && inHandler.insert(10_000, transaction) == 10_000, "porta de entrada recebe energia");
             transaction.commit();
         }
-        level.setBlock(inPort.north(), ModBlocks.DRIVE.get().defaultBlockState(), Block.UPDATE_ALL);
-        check(failures, com.atomcraft.storage.ElementNetwork.scan(level, inPort.north()).receivers().contains(matrix),
+        level.setBlock(inPort.east(), ModBlocks.DRIVE.get().defaultBlockState(), Block.UPDATE_ALL);
+        check(failures, com.atomcraft.storage.ElementNetwork.scan(level, inPort.east()).receivers().contains(matrix),
                 "Cabo/Drive ligado à Porta da Matriz alcança o controlador");
         matrix.tick();
         check(failures, receiver.energy().getAmountAsInt() > 0, "porta de saída alimenta a célula vizinha (" + receiver.energy().getAmountAsInt() + ")");
-        level.setBlock(controller.south(), Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+        matrix.energy().set(1_000_000);
+        matrix.checkStructure();
+        check(failures, level.getBlockState(controller.south().above()).getValue(com.atomcraft.block.StructurePartBlock.FORMED),
+                "matriz formada: peças escondidas");
+        check(failures, level.getBlockState(inPort).getRenderShape() == net.minecraft.world.level.block.RenderShape.MODEL, "matriz formada: interfaces visíveis");
+        check(failures, level.getBlockState(controller).getValue(com.atomcraft.block.EnergyMatrixBlock.CHARGED), "matriz com energia: bobina acesa");
+        matrix.energy().set(0);
+        matrix.checkStructure();
+        check(failures, !level.getBlockState(controller).getValue(com.atomcraft.block.EnergyMatrixBlock.CHARGED), "matriz vazia: bobina apagada");
+        level.setBlock(controller.south().above(), Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
         check(failures, !matrix.checkStructure(), "matriz desforma sem um núcleo");
+        check(failures, !level.getBlockState(controller.south()).getValue(com.atomcraft.block.StructurePartBlock.FORMED), "peças reaparecem ao desformar");
+        // Interface fora do lugar (num canto da base) não forma
+        level.setBlock(controller.south().above(), ModBlocks.MATRIX_CORE.get().defaultBlockState(), Block.UPDATE_ALL);
+        BlockPos corner = com.atomcraft.energy.MatrixStructure.toWorld(controller, facing, 0, 0, 0);
+        level.setBlock(corner, ModBlocks.MATRIX_PORT.get().defaultBlockState(), Block.UPDATE_ALL);
+        check(failures, !matrix.checkStructure(), "interface no canto da base não forma a matriz");
+        level.setBlock(corner, ModBlocks.MATRIX_CASING.get().defaultBlockState(), Block.UPDATE_ALL);
+        check(failures, matrix.checkStructure(), "matriz forma de novo");
     }
 
     /** Complexidade: cada nível de replicador só aceita itens até certo número de elementos (e exóticos). */
@@ -492,22 +510,22 @@ final class SelfTest {
             if (block != null) level.setBlock(slot.pos(), block.defaultBlockState(), Block.UPDATE_ALL);
         }
         // Porta Quântica no lugar de uma carcaça, com um Drive encostado: a rede chega ao controlador
-        BlockPos qPort = com.atomcraft.replication.QuantumStructure.toWorld(controller, net.minecraft.core.Direction.NORTH, 0, 0, 0);
+        BlockPos qPort = com.atomcraft.replication.QuantumStructure.toWorld(controller, net.minecraft.core.Direction.NORTH, 0, 0, 1);
         level.setBlock(qPort, ModBlocks.QUANTUM_PORT.get().defaultBlockState(), Block.UPDATE_ALL);
-        level.setBlock(qPort.north(), ModBlocks.DRIVE.get().defaultBlockState(), Block.UPDATE_ALL);
-        ((DriveBlockEntity) level.getBlockEntity(qPort.north())).disks().set(0, ItemResource.of(ModItems.DISK_64K.get()), 1);
+        level.setBlock(qPort.east(), ModBlocks.DRIVE.get().defaultBlockState(), Block.UPDATE_ALL);
+        ((DriveBlockEntity) level.getBlockEntity(qPort.east())).disks().set(0, ItemResource.of(ModItems.DISK_64K.get()), 1);
         check(failures, quantumBe.checkStructure() && quantumBe.ports().size() == 1, "quântico forma com uma Porta Quântica");
-        check(failures, com.atomcraft.storage.ElementNetwork.scan(level, qPort.north()).receivers().contains(quantumBe),
+        check(failures, com.atomcraft.storage.ElementNetwork.scan(level, qPort.east()).receivers().contains(quantumBe),
                 "rede do Drive chega ao Replicador Quântico pela porta");
         check(failures, quantumBe.network().hasStorage(), "Replicador Quântico vê o Drive (elementos) pela porta");
-        check(failures, level.getCapability(net.neoforged.neoforge.capabilities.Capabilities.Energy.BLOCK, qPort, net.minecraft.core.Direction.NORTH) != null
-                && level.getCapability(net.neoforged.neoforge.capabilities.Capabilities.Item.BLOCK, qPort, net.minecraft.core.Direction.NORTH) != null,
+        check(failures, level.getCapability(net.neoforged.neoforge.capabilities.Capabilities.Energy.BLOCK, qPort, net.minecraft.core.Direction.EAST) != null
+                && level.getCapability(net.neoforged.neoforge.capabilities.Capabilities.Item.BLOCK, qPort, net.minecraft.core.Direction.EAST) != null,
                 "Porta Quântica expõe energia e itens");
         check(failures, quantumBe.checkStructure() && quantumBe.isFormed()
                 && level.getBlockState(controller).getValue(com.atomcraft.block.QuantumReplicatorBlock.FORMED), "quântico forma com a estrutura 3×3×3");
         quantumBe.tick();
         check(failures, quantumBe.status() == MachineStatus.IDLE, "quântico formado fica pronto (" + quantumBe.status() + ")");
-        level.setBlock(controller.south(), Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+        level.setBlock(controller.south().above(), Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
         check(failures, !quantumBe.checkStructure(), "quântico desforma sem o núcleo");
     }
 

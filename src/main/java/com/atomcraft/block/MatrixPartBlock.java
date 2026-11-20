@@ -4,7 +4,7 @@ import com.atomcraft.energy.MatrixPart;
 import net.minecraft.world.level.block.Block;
 
 /** Peça da Matriz de Energia (carcaça, vidro, núcleo ou porta). */
-public class MatrixPartBlock extends Block {
+public class MatrixPartBlock extends StructurePartBlock {
 
     private final MatrixPart part;
 
