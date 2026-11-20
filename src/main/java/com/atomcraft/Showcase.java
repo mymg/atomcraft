@@ -249,7 +249,8 @@ final class Showcase {
         for (var armor : com.atomcraft.tools.ModTools.ARMOR) player.getInventory().add(new net.minecraft.world.item.ItemStack(armor.get()));
         // Bancada de Módulos; o Anel Analisador no inventário mostra a composição do bloco mirado nos prints do mundo
         level.setBlock(base.south(7), com.atomcraft.equipment.ModEquipment.MODULE_BENCH.get().defaultBlockState(), Block.UPDATE_ALL);
-        player.getInventory().add(new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.ANALYZER_RING.get()));
+        player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND,
+                new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.ANALYZER_RING.get()));
 
         level.setBlock(base.south(4), ModBlocks.ALLOY_FORGE.get().defaultBlockState(), Block.UPDATE_ALL);
         if (level.getBlockEntity(base.south(4)) instanceof com.atomcraft.block.entity.AlloyForgeBlockEntity forge) {
