@@ -225,6 +225,24 @@ final class Showcase {
             matrix.checkStructure();
         }
 
+        // Transmissor Sem Fio na rede, com um cartão vinculado e o Desintegrador no inventário
+        level.setBlock(base.south(6), com.atomcraft.tools.ModTools.WIRELESS_TRANSMITTER.get().defaultBlockState(), Block.UPDATE_ALL);
+        if (level.getBlockEntity(base.south(6)) instanceof com.atomcraft.block.entity.WirelessTransmitterBlockEntity transmitter) {
+            transmitter.setOwner(player);
+            transmitter.energy().set(640_000);
+        }
+        var card = new net.minecraft.world.item.ItemStack(com.atomcraft.tools.ModTools.NETWORK_CARD.get());
+        card.set(com.atomcraft.registry.ModComponents.WIRELESS_LINK.get(), new com.atomcraft.wireless.WirelessLink(level.dimension(),
+                base.south(6), player.getUUID(), player.getName().getString()));
+        player.getInventory().add(card);
+        var disintegrator = new net.minecraft.world.item.ItemStack(com.atomcraft.tools.ModTools.DISINTEGRATOR.get());
+        com.atomcraft.tools.AtomicDisintegratorItem.setEnergy(disintegrator, 60_000);
+        player.getInventory().add(disintegrator);
+        for (var tier : com.atomcraft.tools.ModTools.Tier.values()) {
+            player.getInventory().add(new net.minecraft.world.item.ItemStack(com.atomcraft.tools.ModTools.PICKAXES.get(tier).get()));
+        }
+        for (var armor : com.atomcraft.tools.ModTools.ARMOR) player.getInventory().add(new net.minecraft.world.item.ItemStack(armor.get()));
+
         level.setBlock(base.south(4), ModBlocks.ALLOY_FORGE.get().defaultBlockState(), Block.UPDATE_ALL);
         if (level.getBlockEntity(base.south(4)) instanceof com.atomcraft.block.entity.AlloyForgeBlockEntity forge) {
             forge.setOwner(player);
@@ -273,12 +291,13 @@ final class Showcase {
             case 2120 -> base.offset(-6, 0, 3);
             case 2320 -> base.south(5);
             case 2520 -> base.offset(-6, 1, -3);
+            case 2720 -> base.south(6);
             default -> null;
         };
         if (target != null && level.getBlockEntity(target) instanceof MenuProvider provider) {
             player.openMenu(provider);
         }
-        if (ticks == 2760) {
+        if (ticks == 2960) {
             // Visão das máquinas de 2 blocos (Replicador, Drive, Atomizador e Analisador animados)
             player.closeContainer();
             player.getAbilities().mayfly = true;
@@ -293,14 +312,14 @@ final class Showcase {
                 }
             }
         }
-        if (ticks > 2760 && ticks < 3100 && ticks % 20 == 0) {
+        if (ticks > 2960 && ticks < 3300 && ticks % 20 == 0) {
             // Mantém a câmera no lugar (mobs/slimes podem empurrar o jogador)
             machinesView(player);
         }
-        if (ticks == 3100) {
+        if (ticks == 3300) {
             // Visão do reator formado no mundo
             player.connection.teleport(base.getX() - 3.5, base.getY() + 4, base.getZ() + 0.5, -90f, 18f);
         }
-        if (ticks == 3700) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
+        if (ticks == 3900) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
     }
 }

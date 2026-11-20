@@ -73,6 +73,7 @@ public class AtomCraftClient {
         event.register(ModMenus.SYNTHESIZER.get(), SynthesizerScreen::new);
         event.register(ModMenus.ALLOY_FORGE.get(), com.atomcraft.client.screen.AlloyForgeScreen::new);
         event.register(ModMenus.ENERGY_CELL.get(), com.atomcraft.client.screen.EnergyCellScreen::new);
+        event.register(ModMenus.WIRELESS_TRANSMITTER.get(), com.atomcraft.client.screen.WirelessTransmitterScreen::new);
     }
 
     /** Mostra a fórmula, a raridade e o progresso de pesquisa no tooltip de cada item. */

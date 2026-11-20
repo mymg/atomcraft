@@ -178,6 +178,61 @@ final class SelfTest {
         materials(server, level, failures);
         replicatorTiers(level, failures);
         energyStorage(level, failures);
+        toolsAndWireless(level, failures);
+    }
+
+    /** Ferramentas/armaduras de liga, Cartão de Rede + Transmissor Sem Fio e o Desintegrador Atômico. */
+    private static void toolsAndWireless(ServerLevel level, List<String> failures) {
+        var steelPick = new net.minecraft.world.item.ItemStack(com.atomcraft.tools.ModTools.PICKAXES.get(com.atomcraft.tools.ModTools.Tier.STEEL).get());
+        var titaniumPick = new net.minecraft.world.item.ItemStack(com.atomcraft.tools.ModTools.PICKAXES.get(com.atomcraft.tools.ModTools.Tier.TITANIUM_ALLOY).get());
+        var tungstenPick = new net.minecraft.world.item.ItemStack(com.atomcraft.tools.ModTools.PICKAXES.get(com.atomcraft.tools.ModTools.Tier.TUNGSTEN_CARBIDE).get());
+        var obsidian = Blocks.OBSIDIAN.defaultBlockState();
+        check(failures, steelPick.getMaxDamage() == 500 && steelPick.isCorrectToolForDrops(Blocks.IRON_ORE.defaultBlockState())
+                && !steelPick.isCorrectToolForDrops(obsidian), "picareta de aço: 500 de durabilidade, minera ferro, não obsidiana");
+        check(failures, titaniumPick.isCorrectToolForDrops(obsidian) && tungstenPick.isCorrectToolForDrops(obsidian),
+                "picaretas de titânio e tungstênio mineram obsidiana");
+        check(failures, tungstenPick.getDestroySpeed(Blocks.STONE.defaultBlockState()) > titaniumPick.getDestroySpeed(Blocks.STONE.defaultBlockState()),
+                "carbeto de tungstênio minera mais rápido que titânio");
+        var chest = new net.minecraft.world.item.ItemStack(com.atomcraft.tools.ModTools.ARMOR.get(1).get());
+        check(failures, chest.get(net.minecraft.core.component.DataComponents.EQUIPPABLE) != null, "peitoral de aço é vestível");
+
+        // Transmissor + cartão vinculado a um jogador falso
+        BlockPos drivePos = new BlockPos(0, 120, 108);
+        level.getChunk(drivePos);
+        place(level, drivePos, ModBlocks.DRIVE.get());
+        place(level, drivePos.east(), com.atomcraft.tools.ModTools.WIRELESS_TRANSMITTER.get());
+        ((DriveBlockEntity) level.getBlockEntity(drivePos)).disks().set(0, ItemResource.of(ModItems.DISK_64K.get()), 1);
+        var transmitter = (com.atomcraft.block.entity.WirelessTransmitterBlockEntity) level.getBlockEntity(drivePos.east());
+        transmitter.energy().set(50_000);
+        var player = net.neoforged.neoforge.common.util.FakePlayerFactory.get(level,
+                new com.mojang.authlib.GameProfile(java.util.UUID.fromString("00000000-0000-0000-0000-00000000a70c"), "atomcraft_tester"));
+        player.setPos(drivePos.getX() + 5, drivePos.getY(), drivePos.getZ());
+        player.getInventory().clearContent();
+        check(failures, com.atomcraft.wireless.Wireless.find(player) == null, "sem cartão não há rede sem fio");
+        var card = new net.minecraft.world.item.ItemStack(com.atomcraft.tools.ModTools.NETWORK_CARD.get());
+        card.set(ModComponents.WIRELESS_LINK.get(), new com.atomcraft.wireless.WirelessLink(level.dimension(), drivePos.east(),
+                java.util.UUID.randomUUID(), "outro"));
+        player.getInventory().setItem(0, card);
+        check(failures, com.atomcraft.wireless.Wireless.find(player) == null, "cartão de outro jogador não funciona");
+        card.set(ModComponents.WIRELESS_LINK.get(), new com.atomcraft.wireless.WirelessLink(level.dimension(), drivePos.east(),
+                player.getUUID(), player.getName().getString()));
+        check(failures, com.atomcraft.wireless.Wireless.find(player) == transmitter, "cartão vinculado alcança o transmissor");
+        player.setPos(drivePos.getX() + 1000, drivePos.getY(), drivePos.getZ());
+        check(failures, com.atomcraft.wireless.Wireless.find(player) == null, "fora do alcance não funciona");
+        player.setPos(drivePos.getX() + 5, drivePos.getY(), drivePos.getZ());
+
+        // Desintegrador: carrega pelo transmissor e manda o bloco quebrado para a rede
+        var disintegrator = new net.minecraft.world.item.ItemStack(com.atomcraft.tools.ModTools.DISINTEGRATOR.get());
+        check(failures, disintegrator.getDestroySpeed(Blocks.STONE.defaultBlockState()) == 1f, "desintegrador sem energia é lento");
+        int moved = com.atomcraft.tools.AtomicDisintegratorItem.charge(disintegrator, transmitter, 20_000);
+        check(failures, moved == 20_000 && transmitter.energy().getAmountAsInt() == 30_000, "desintegrador carrega pelo transmissor");
+        check(failures, disintegrator.getDestroySpeed(Blocks.STONE.defaultBlockState()) > 10f
+                && disintegrator.isCorrectToolForDrops(Blocks.OAK_LOG.defaultBlockState()), "desintegrador carregado é rápido e serve para tudo");
+        long before = transmitter.network().totals().elements().values().stream().mapToLong(Long::longValue).sum();
+        check(failures, com.atomcraft.tools.AtomicDisintegratorItem.atomize(transmitter, new net.minecraft.world.item.ItemStack(Items.COBBLESTONE, 4)),
+                "pedregulho desintegrado vai para a rede");
+        long after = transmitter.network().totals().elements().values().stream().mapToLong(Long::longValue).sum();
+        check(failures, after > before, "rede ganhou os elementos do pedregulho (" + before + " → " + after + ")");
     }
 
     /** Células de Energia (lados, rede, item) e Matriz de Energia (estrutura 3×5×3 e portas). */

@@ -45,5 +45,8 @@ public final class ModMenus {
     public static final DeferredHolder<MenuType<?>, MenuType<com.atomcraft.menu.EnergyCellMenu>> ENERGY_CELL =
             MENUS.register("energy_cell", () -> IMenuTypeExtension.create(com.atomcraft.menu.EnergyCellMenu::client));
 
+    public static final DeferredHolder<MenuType<?>, MenuType<com.atomcraft.menu.WirelessTransmitterMenu>> WIRELESS_TRANSMITTER =
+            MENUS.register("wireless_transmitter", () -> IMenuTypeExtension.create(com.atomcraft.menu.WirelessTransmitterMenu::client));
+
     private ModMenus() {}
 }

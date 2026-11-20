@@ -29,5 +29,17 @@ public final class ModComponents {
                     builder -> builder.persistent(com.mojang.serialization.Codec.INT)
                             .networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.VAR_INT));
 
+    /** Vínculo do Cartão de Rede com um Transmissor Sem Fio e com o jogador. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<com.atomcraft.wireless.WirelessLink>> WIRELESS_LINK =
+            COMPONENTS.registerComponentType("wireless_link",
+                    builder -> builder.persistent(com.atomcraft.wireless.WirelessLink.CODEC)
+                            .networkSynchronized(com.atomcraft.wireless.WirelessLink.STREAM_CODEC));
+
+    /** Desintegrador Atômico: transforma os blocos quebrados em elementos (true) ou só minera (false). */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> DISINTEGRATE =
+            COMPONENTS.registerComponentType("disintegrate",
+                    builder -> builder.persistent(com.mojang.serialization.Codec.BOOL)
+                            .networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.BOOL));
+
     private ModComponents() {}
 }

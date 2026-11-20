@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "GCG",
+    "WRW"
+  ],
+  "key": {
+    "G": "minecraft:gold_ingot",
+    "C": "atomcraft:circuit_board",
+    "W": "atomcraft:copper_wire",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "atomcraft:network_card",
+    "count": 1
+  }
+}

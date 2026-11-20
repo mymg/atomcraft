@@ -171,7 +171,7 @@ jobs:
           mkdir -p run/screenshots
           ./gradlew runClient > client.log 2>&1 &
           done_names=""
-          for i in $(seq 1 600); do
+          for i in $(seq 1 1200); do
             for name in $(grep -o "SHOWCASE capture [a-z_]*" client.log | awk '{print $3}'); do
               case " $done_names " in *" $name "*) ;; *)
                 python3 -c "from PIL import ImageGrab; ImageGrab.grab(xdisplay=':99').save('run/screenshots/$name.png')"

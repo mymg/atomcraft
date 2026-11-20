@@ -24,7 +24,7 @@ public final class ModBlocks {
 
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(AtomCraft.MOD_ID);
 
-    private static BlockBehaviour.Properties machine(BlockBehaviour.Properties properties) {
+    public static BlockBehaviour.Properties machine(BlockBehaviour.Properties properties) {
         return properties.mapColor(MapColor.METAL).strength(3.5f).sound(SoundType.METAL).requiresCorrectToolForDrops();
     }
 

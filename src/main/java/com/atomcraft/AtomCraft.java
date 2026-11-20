@@ -36,6 +36,7 @@ public class AtomCraft {
 
     public AtomCraft(IEventBus modBus, ModContainer container) {
         com.atomcraft.material.ModMaterials.init(); // registra os materiais antes de entregar os registros ao NeoForge
+        com.atomcraft.tools.ModTools.init();
         ModBlocks.BLOCKS.register(modBus);
         ModItems.ITEMS.register(modBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modBus);
@@ -50,6 +51,7 @@ public class AtomCraft {
         NeoForge.EVENT_BUS.addListener(AtomCraft::onServerStarted);
         NeoForge.EVENT_BUS.addListener(AtomCraft::onDatapackSync);
         NeoForge.EVENT_BUS.addListener(AtomCraft::registerCommands);
+        NeoForge.EVENT_BUS.addListener(com.atomcraft.tools.ToolEvents::onBlockDrops);
         Showcase.register();
     }
 

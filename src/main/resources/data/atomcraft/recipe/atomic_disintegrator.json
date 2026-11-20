@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " TD",
+    " CT",
+    "S  "
+  ],
+  "key": {
+    "T": "atomcraft:tungsten_carbide_plate",
+    "D": "minecraft:diamond",
+    "C": "atomcraft:circuit_board",
+    "S": "atomcraft:titanium_alloy_ingot"
+  },
+  "result": {
+    "id": "atomcraft:atomic_disintegrator",
+    "count": 1
+  }
+}

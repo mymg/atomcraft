@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "atomcraft:block/wireless_transmitter_top",
+    "front": "atomcraft:block/wireless_transmitter_front",
+    "side": "atomcraft:block/machine_side",
+    "particle": "atomcraft:block/machine_side"
+  }
+}

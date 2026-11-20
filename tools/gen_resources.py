@@ -229,7 +229,7 @@ for tag, formula, rarity in COMPAT:
     w(f"data/atomcraft/atomcraft/compositions/compat/{tag.replace(':', '_').replace('/', '_')}.json", entry)
 
 # ---------- Blocos ----------
-MACHINES = ["atomizer", "analyzer", "replicator", "advanced_replicator", "drive", "terminal", "combustion_generator", "carbon_generator", "fusion_reactor", "synthesizer", "alloy_forge", "quantum_replicator"]
+MACHINES = ["atomizer", "analyzer", "replicator", "advanced_replicator", "drive", "terminal", "combustion_generator", "carbon_generator", "fusion_reactor", "synthesizer", "alloy_forge", "quantum_replicator", "wireless_transmitter"]
 GENERATORS = ["combustion_generator", "carbon_generator"]
 for b in MACHINES:
     if b == "quantum_replicator":
@@ -779,6 +779,75 @@ w("data/minecraft/tags/block/mineable/pickaxe.json", {"values": [f"atomcraft:{b}
 w("data/minecraft/tags/block/needs_iron_tool.json", {"values": [f"atomcraft:{b}" for b in MACHINES + REACTOR_PARTS + TOOL_TAGS["iron"] + ENERGY_BLOCKS]
                                                      + [f"atomcraft:{m[0]}_{s_}" for m in MATERIALS if m[6] >= 2 for s_ in ("block", "slab", "stairs", "wall")]})
 
+# ---------- Ferramentas, armaduras e equipamentos ----------
+TOOL_TIERS = [("steel", "Steel", "de Aço", (150, 158, 170)), ("titanium_alloy", "Titanium Alloy", "de Liga de Titânio", (150, 168, 200)),
+              ("tungsten_carbide", "Tungsten Carbide", "de Carbeto de Tungstênio", (82, 86, 100))]
+TOOL_KINDS = [("sword", "Sword", "Espada", "swords"), ("pickaxe", "Pickaxe", "Picareta", "pickaxes"), ("axe", "Axe", "Machado", "axes"),
+              ("shovel", "Shovel", "Pá", "shovels"), ("hoe", "Hoe", "Enxada", "hoes")]
+ARMOR_TIERS = [("steel", "Steel", "de Aço", (150, 158, 170)), ("titanium_alloy", "Titanium Alloy", "de Liga de Titânio", (150, 168, 200))]
+ARMOR_KINDS = [("helmet", "Helmet", "Capacete", "head_armor"), ("chestplate", "Chestplate", "Peitoral", "chest_armor"),
+               ("leggings", "Leggings", "Calças", "leg_armor"), ("boots", "Boots", "Botas", "foot_armor")]
+TOOL_TAGS_ITEMS = {}
+for tid, en_t, pt_t, color in TOOL_TIERS:
+    ing = f"atomcraft:{tid}_ingot"
+    for kind, en_k, pt_k, tag in TOOL_KINDS:
+        name = f"{tid}_{kind}"
+        w(f"assets/atomcraft/models/item/{name}.json", {"parent": "minecraft:item/handheld", "textures": {"layer0": f"atomcraft:item/{name}"}})
+        w(f"assets/atomcraft/items/{name}.json", {"model": {"type": "minecraft:model", "model": f"atomcraft:item/{name}"}})
+        MAT_LANG[f"item.atomcraft.{name}"] = (f"{en_t} {en_k}", f"{pt_k} {pt_t}")
+        TOOL_TAGS_ITEMS.setdefault(tag, []).append(f"atomcraft:{name}")
+    shaped(f"{tid}_sword", ["#", "#", "S"], {"#": ing, "S": "minecraft:stick"}, f"atomcraft:{tid}_sword")
+    shaped(f"{tid}_pickaxe", ["###", " S ", " S "], {"#": ing, "S": "minecraft:stick"}, f"atomcraft:{tid}_pickaxe")
+    shaped(f"{tid}_axe", ["##", "#S", " S"], {"#": ing, "S": "minecraft:stick"}, f"atomcraft:{tid}_axe")
+    shaped(f"{tid}_shovel", ["#", "S", "S"], {"#": ing, "S": "minecraft:stick"}, f"atomcraft:{tid}_shovel")
+    shaped(f"{tid}_hoe", ["##", " S", " S"], {"#": ing, "S": "minecraft:stick"}, f"atomcraft:{tid}_hoe")
+for aid, en_t, pt_t, color in ARMOR_TIERS:
+    ing = f"atomcraft:{aid}_ingot"
+    w(f"assets/atomcraft/equipment/{aid}.json", {"layers": {"humanoid": [{"texture": f"atomcraft:{aid}"}],
+                                                            "humanoid_leggings": [{"texture": f"atomcraft:{aid}"}]}})
+    for kind, en_k, pt_k, tag in ARMOR_KINDS:
+        name = f"{aid}_{kind}"
+        item_model(name)
+        MAT_LANG[f"item.atomcraft.{name}"] = (f"{en_t} {en_k}", f"{pt_k} {pt_t}")
+        TOOL_TAGS_ITEMS.setdefault(tag, []).append(f"atomcraft:{name}")
+    shaped(f"{aid}_helmet", ["###", "# #"], {"#": ing}, f"atomcraft:{aid}_helmet")
+    shaped(f"{aid}_chestplate", ["# #", "###", "###"], {"#": ing}, f"atomcraft:{aid}_chestplate")
+    shaped(f"{aid}_leggings", ["###", "# #", "# #"], {"#": ing}, f"atomcraft:{aid}_leggings")
+    shaped(f"{aid}_boots", ["# #", "# #"], {"#": ing}, f"atomcraft:{aid}_boots")
+for tag, values in TOOL_TAGS_ITEMS.items():
+    w(f"data/minecraft/tags/item/{tag}.json", {"values": values})
+for tag in ("trimmable_armor",):
+    w(f"data/minecraft/tags/item/{tag}.json", {"values": [v for k in ("head_armor", "chest_armor", "leg_armor", "foot_armor") for v in TOOL_TAGS_ITEMS[k]]})
+for name in ("network_card", "atomic_disintegrator"):
+    item_model(name)
+w("assets/atomcraft/models/item/atomic_disintegrator.json", {"parent": "minecraft:item/handheld", "textures": {"layer0": "atomcraft:item/atomic_disintegrator"}})
+shaped("network_card", ["GCG", "WRW"], {"G": "minecraft:gold_ingot", "C": CIRCUIT, "W": WIRE, "R": RED}, "atomcraft:network_card")
+shaped("atomic_disintegrator", [" TD", " CT", "S  "], {"T": "atomcraft:tungsten_carbide_plate", "D": "minecraft:diamond", "C": CIRCUIT,
+                                                        "S": "atomcraft:titanium_alloy_ingot"}, "atomcraft:atomic_disintegrator")
+shaped("wireless_transmitter", ["EAE", "CWC", "PRP"], {"E": "minecraft:ender_pearl", "A": AME, "C": CIRCUIT, "W": "atomcraft:atomic_cable",
+                                                        "P": "atomcraft:steel_plate", "R": "minecraft:redstone_block"}, "atomcraft:wireless_transmitter")
+MAT_LANG.update({
+    "item.atomcraft.network_card": ("Network Card", "Cartão de Rede"),
+    "item.atomcraft.atomic_disintegrator": ("Atomic Disintegrator", "Desintegrador Atômico"),
+    "block.atomcraft.wireless_transmitter": ("Wireless Transmitter", "Transmissor Sem Fio"),
+    "itemGroup.atomcraft.equipment": ("AtomCraft: Equipment", "AtomCraft: Equipamentos"),
+    "message.atomcraft.card_linked": ("Network card linked to the transmitter at %s", "Cartão vinculado ao transmissor em %s"),
+    "message.atomcraft.card_unlinked": ("Network card unlinked", "Cartão desvinculado"),
+    "tooltip.atomcraft.card_unlinked": ("Sneak + use on a Wireless Transmitter to link", "Agachado + clique num Transmissor Sem Fio para vincular"),
+    "tooltip.atomcraft.card_linked": ("Linked: %s (%s)", "Vinculado: %s (%s)"),
+    "tooltip.atomcraft.card_owner": ("Owner: %s", "Dono: %s"),
+    "message.atomcraft.disintegrate_on": ("Disintegrator: blocks become elements", "Desintegrador: blocos viram elementos"),
+    "message.atomcraft.disintegrate_off": ("Disintegrator: normal drops", "Desintegrador: itens normais"),
+    "tooltip.atomcraft.disintegrate_on": ("Mode: disintegrate (elements to the network)", "Modo: desintegrar (elementos para a rede)"),
+    "tooltip.atomcraft.disintegrate_off": ("Mode: normal drops", "Modo: itens normais"),
+    "tooltip.atomcraft.disintegrator_hint": ("Needs a linked Network Card · Sneak + use: mode", "Precisa de um Cartão de Rede vinculado · Agachado + clique: modo"),
+    "gui.atomcraft.range": ("Range: %s blocks", "Alcance: %s blocos"),
+    "gui.atomcraft.range_unlimited": ("Range: unlimited", "Alcance: sem limite"),
+    "gui.atomcraft.card_hint_1": ("Sneak + use a Network", "Agachado + clique com um"),
+    "gui.atomcraft.card_hint_2": ("Card here to link it", "Cartão de Rede para vincular"),
+    "atomcraft.configuration.wireless": ("Wireless", "Sem fio"),
+})
+
 # ---------- Traduções ----------
 MODULE_NAMES = {"containment": ("Magnetic Containment", "Confinamento Magnético"), "injector": ("Fuel Injector", "Injetor de Combustível"),
                 "recycler": ("Hydrogen Recycler", "Reciclador de Hidrogênio"), "ignition": ("Plasma Ignition", "Ignição a Plasma")}
@@ -1037,7 +1106,7 @@ def atom(d, c, cx=7.5, cy=7.5):
     d.point((int(cx), int(cy)), fill=(255, 255, 255, 255)); d.point((int(cx) + 1, int(cy) + 1), fill=(255, 255, 255, 255))
 
 COLORS = {"atomizer": (80, 220, 255, 255), "analyzer": (190, 110, 240, 255), "replicator": (255, 170, 60, 255), "drive": (90, 220, 120, 255),
-    "terminal": (39, 201, 181, 255), "synthesizer": (120, 230, 140, 255), "combustion_generator": (255, 120, 30, 255), "carbon_generator": (226, 50, 50, 255), "fusion_reactor": (255, 90, 190, 255), "alloy_forge": (255, 140, 40, 255), "advanced_replicator": (190, 110, 255, 255)}
+    "terminal": (39, 201, 181, 255), "synthesizer": (120, 230, 140, 255), "combustion_generator": (255, 120, 30, 255), "carbon_generator": (226, 50, 50, 255), "fusion_reactor": (255, 90, 190, 255), "alloy_forge": (255, 140, 40, 255), "advanced_replicator": (190, 110, 255, 255), "wireless_transmitter": (80, 220, 255, 255)}
 img, d = frame(); d.line([4, 5, 11, 5], fill=(60, 63, 70, 255)); d.line([4, 10, 11, 10], fill=(60, 63, 70, 255)); save(img, "block/machine_side.png")
 for name, c in COLORS.items():
     if name not in GENERATORS:  # os geradores usam generator_top.png / generator_side.png
@@ -1064,6 +1133,10 @@ for name, c in COLORS.items():
         d.line([4, 7, 2, 7], fill=(201, 166, 70, 255)); d.line([11, 7, 13, 7], fill=(201, 166, 70, 255))
         d.line([7, 4, 7, 2], fill=(201, 166, 70, 255)); d.line([7, 11, 7, 13], fill=(201, 166, 70, 255))
         d.rectangle([6, 6, 9, 9], fill=c)
+    elif name == "wireless_transmitter":
+        # Antena com ondas
+        d.line([8, 5, 8, 12], fill=c); d.rectangle([6, 12, 10, 13], fill=c)
+        d.arc([3, 2, 13, 12], 200, 340, fill=c); d.arc([5, 4, 11, 10], 200, 340, fill=c)
     elif name == "alloy_forge":
         # Cadinho com metal derretido
         d.polygon([(4, 5), (11, 5), (10, 12), (5, 12)], fill=(60, 62, 70, 255), outline=(120, 124, 136, 255))
@@ -1297,6 +1370,59 @@ for suffix, glow in (("", (90, 80, 40, 255)), ("_on", MC)):
 img, d = frame(); d.rectangle([3, 3, 12, 12], fill=(20, 30, 28, 255), outline=(90, 208, 160, 255))
 d.rectangle([6, 6, 9, 9], fill=(90, 208, 160, 255)); d.line([(3, 8), (5, 8)], fill=(190, 110, 255, 255)); d.line([(10, 8), (12, 8)], fill=(190, 110, 255, 255))
 save(img, "block/quantum_port.png")
+
+# Ferramentas, armaduras e equipamentos (provisórios)
+WOOD = (120, 84, 46, 255)
+def tool_tex(kind, c):
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+    hi, lo, mid = shade(c, 1.3), shade(c, 0.7), shade(c, 1.0)
+    if kind == "sword":
+        d.line([(3, 12), (12, 3)], fill=mid, width=2); d.line([(4, 12), (12, 4)], fill=hi)
+        d.line([(2, 10), (5, 13)], fill=lo, width=2); d.line([(1, 14), (3, 12)], fill=WOOD, width=2)
+        return img
+    d.line([(2, 13), (10, 5)], fill=WOOD, width=2)
+    if kind == "pickaxe":
+        d.line([(4, 3), (8, 2), (11, 3), (13, 5), (14, 8), (13, 12)], fill=mid, width=2); d.line([(5, 3), (9, 3)], fill=hi)
+    elif kind == "axe":
+        d.polygon([(8, 2), (13, 3), (14, 8), (11, 8), (9, 5)], fill=mid); d.line([(13, 3), (14, 7)], fill=hi)
+    elif kind == "shovel":
+        d.polygon([(10, 3), (13, 2), (14, 5), (12, 7), (9, 6)], fill=mid); d.point((12, 3), fill=hi)
+    elif kind == "hoe":
+        d.line([(7, 3), (12, 3), (12, 6)], fill=mid, width=2); d.point((8, 2), fill=hi)
+    return img
+def armor_icon(kind, c):
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+    mid, hi, lo = shade(c, 1.0), shade(c, 1.3), shade(c, 0.65)
+    if kind == "helmet":
+        d.rectangle([3, 4, 12, 7], fill=mid); d.rectangle([3, 8, 4, 11], fill=mid); d.rectangle([11, 8, 12, 11], fill=mid); d.line([(4, 5), (11, 5)], fill=hi)
+    elif kind == "chestplate":
+        d.rectangle([2, 2, 5, 5], fill=mid); d.rectangle([10, 2, 13, 5], fill=mid); d.rectangle([4, 4, 11, 13], fill=mid); d.line([(7, 5), (7, 12)], fill=lo)
+    elif kind == "leggings":
+        d.rectangle([3, 2, 12, 5], fill=mid); d.rectangle([3, 6, 6, 14], fill=mid); d.rectangle([9, 6, 12, 14], fill=mid); d.line([(4, 3), (11, 3)], fill=hi)
+    else:
+        d.rectangle([2, 8, 5, 13], fill=mid); d.rectangle([10, 8, 13, 13], fill=mid); d.line([(2, 13), (6, 13)], fill=lo); d.line([(10, 13), (14, 13)], fill=lo)
+    return img
+def armor_layer(c):
+    img = Image.new("RGBA", (64, 32), shade(c, 0.95)); d = ImageDraw.Draw(img)
+    for x in range(0, 64, 4):
+        d.line([(x, 0), (x, 31)], fill=shade(c, 0.85))
+    d.rectangle([0, 0, 63, 31], outline=shade(c, 0.6))
+    return img
+for tid, en_t, pt_t, color in TOOL_TIERS:
+    for kind, *_ in TOOL_KINDS:
+        save(tool_tex(kind, color), f"item/{tid}_{kind}.png")
+for aid, en_t, pt_t, color in ARMOR_TIERS:
+    for kind, *_ in ARMOR_KINDS:
+        save(armor_icon(kind, color), f"item/{aid}_{kind}.png")
+    save(armor_layer(color), f"entity/equipment/humanoid/{aid}.png")
+    save(armor_layer(shade(color, 0.9)), f"entity/equipment/humanoid_leggings/{aid}.png")
+img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+d.rectangle([2, 4, 13, 12], fill=(40, 46, 58, 255), outline=(80, 220, 255, 255)); d.rectangle([4, 6, 7, 9], fill=(220, 180, 70, 255))
+d.line([(9, 7), (12, 7)], fill=(80, 220, 255, 255)); d.line([(9, 9), (11, 9)], fill=(80, 220, 255, 255)); save(img, "item/network_card.png")
+img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+d.line([(2, 13), (7, 8)], fill=(150, 166, 194, 255), width=2); d.polygon([(6, 6), (10, 2), (14, 6), (10, 10)], fill=(62, 64, 76, 255))
+d.polygon([(8, 6), (10, 4), (12, 6), (10, 8)], fill=(80, 220, 255, 255)); d.point((13, 2), fill=(255, 255, 255, 255)); d.point((14, 1), fill=(80, 220, 255, 255))
+save(img, "item/atomic_disintegrator.png")
 
 print("ok", len(BASE), "itens base,", len(TAGS), "tags vanilla,", len(COMPAT), "tags de compatibilidade,",
       len(kept), "arquivos de aparência preservados")

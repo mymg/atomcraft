@@ -154,6 +154,23 @@ public final class Config {
             .comment("Matriz de Energia: FE por tick em cada porta (e pela rede)").defineInRange("matrixRate", 256_000, 1, Integer.MAX_VALUE);
 
     static {
+        BUILDER.pop().push("wireless");
+    }
+
+    public static final ModConfigSpec.IntValue WIRELESS_RANGE = BUILDER
+            .comment("Alcance do Transmissor Sem Fio em blocos (-1 = sem limite na mesma dimensão)")
+            .defineInRange("range", 128, -1, 100_000);
+    public static final ModConfigSpec.BooleanValue WIRELESS_CROSS_DIMENSION = BUILDER
+            .comment("O Cartão de Rede funciona em outra dimensão (ex.: Nether usando um transmissor no Overworld)")
+            .define("crossDimension", false);
+    public static final ModConfigSpec.IntValue TRANSMITTER_CAPACITY = BUILDER
+            .comment("Transmissor Sem Fio: energia guardada para os equipamentos (FE)")
+            .defineInRange("transmitterCapacity", 1_000_000, 1_000, Integer.MAX_VALUE);
+    public static final ModConfigSpec.IntValue DISINTEGRATOR_ENERGY = BUILDER
+            .comment("Desintegrador Atômico: FE por bloco quebrado")
+            .defineInRange("disintegratorEnergyPerBlock", 200, 0, 1_000_000);
+
+    static {
         BUILDER.pop();
     }
 
