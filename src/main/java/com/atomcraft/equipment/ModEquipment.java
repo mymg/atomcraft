@@ -50,11 +50,13 @@ public final class ModEquipment {
     public static final DeferredItem<AnalyzerRingItem> ANALYZER_RING = ModItems.ITEMS.registerItem("analyzer_ring", AnalyzerRingItem::new,
             p -> p.stacksTo(1).rarity(Rarity.UNCOMMON));
 
+    public static final DeferredItem<Item> BLANK_MODULE = ModItems.ITEMS.registerSimpleItem("blank_module");
+
     public static final Map<EquipmentModule, DeferredItem<EquipmentModuleItem>> MODULES = new EnumMap<>(EquipmentModule.class);
     public static final List<DeferredItem<? extends Item>> TAB_ORDER = new ArrayList<>();
 
     static {
-        TAB_ORDER.addAll(List.of(MODULE_BENCH_ITEM, EXO_HELMET, EXO_CHESTPLATE, EXO_LEGGINGS, EXO_BOOTS, JETPACK, MAGNET, ANALYZER_RING));
+        TAB_ORDER.addAll(List.of(MODULE_BENCH_ITEM, EXO_HELMET, EXO_CHESTPLATE, EXO_LEGGINGS, EXO_BOOTS, JETPACK, MAGNET, ANALYZER_RING, BLANK_MODULE));
         for (EquipmentModule module : EquipmentModule.values()) {
             DeferredItem<EquipmentModuleItem> item = ModItems.ITEMS.registerItem(module.id() + "_module",
                     p -> new EquipmentModuleItem(module, p));
