@@ -78,6 +78,15 @@ final class ClientShowcase {
                 name = replicatorScreen.getMenu().tier().name().toLowerCase() + "_replicator";
             }
             AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture {}", name);
+            if (screen instanceof com.atomcraft.client.screen.ModuleBenchScreen bench) {
+                var menu = bench.getMenu();
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < 4; i++) {
+                    var slot = menu.slots.get(i);
+                    sb.append(i).append(':').append(slot.isActive()).append('@').append(slot.x).append(' ');
+                }
+                AtomCraft.LOGGER.info("AtomCraft SHOWCASE bancada kind={} slots {}", menu.kind(), sb);
+            }
         }
     }
 }
