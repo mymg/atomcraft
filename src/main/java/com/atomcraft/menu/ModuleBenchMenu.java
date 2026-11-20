@@ -29,7 +29,13 @@ public class ModuleBenchMenu extends BaseMenu {
     public static final int WIDTH = 176, HEIGHT = 200;
     public static final int EQUIPMENT_X = 30, EQUIPMENT_Y = 40, MODULE_X = 86, MODULE_Y = 40, MODULE_GAP = 24;
 
-    private final SimpleContainer container = new SimpleContainer(1 + EquipmentKind.MAX_SLOTS);
+    private final SimpleContainer container = new SimpleContainer(1 + EquipmentKind.MAX_SLOTS) {
+        @Override
+        public void setChanged() {
+            super.setChanged();
+            containerChanged(this);
+        }
+    };
     private ItemStack loadedFor = ItemStack.EMPTY;
     private boolean updating;
 
@@ -72,7 +78,6 @@ public class ModuleBenchMenu extends BaseMenu {
         }
         machineSlots = 1 + EquipmentKind.MAX_SLOTS;
         addPlayerInventory(inventory, 8, HEIGHT - 82);
-        container.addListener(this::containerChanged);
     }
 
     @Override

@@ -102,13 +102,13 @@ public final class EquipmentEvents {
         ItemStack jetpack = Worn.jetpack(player);
         if (jetpack.isEmpty()) return;
         if (ModularItem.level(jetpack, EquipmentModule.HOVER) <= 0) {
-            player.displayClientMessage(Component.translatable("message.atomcraft.hover_missing").withStyle(ChatFormatting.GRAY), true);
+            player.sendOverlayMessage(Component.translatable("message.atomcraft.hover_missing").withStyle(ChatFormatting.GRAY));
             return;
         }
         boolean hover = !JetpackItem.hover(jetpack);
         jetpack.set(ModComponents.HOVER.get(), hover);
-        player.displayClientMessage(Component.translatable(hover ? "message.atomcraft.hover_on" : "message.atomcraft.hover_off")
-                .withStyle(hover ? ChatFormatting.AQUA : ChatFormatting.GRAY), true);
+        player.sendOverlayMessage(Component.translatable(hover ? "message.atomcraft.hover_on" : "message.atomcraft.hover_off")
+                .withStyle(hover ? ChatFormatting.AQUA : ChatFormatting.GRAY));
     }
 
     // ---------------------------------------------------------------- Ímã

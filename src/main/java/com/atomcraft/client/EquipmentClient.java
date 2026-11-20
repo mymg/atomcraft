@@ -102,7 +102,7 @@ public final class EquipmentClient {
 
     private static void renderHud(GuiGraphicsExtractor graphics, DeltaTracker delta) {
         Minecraft mc = Minecraft.getInstance();
-        if (!analyzer || mc.player == null || mc.level == null || mc.options.hideGui || mc.gui.screen() != null) return;
+        if (!analyzer || mc.player == null || mc.level == null || mc.gui.screen() != null) return;
         Item item = null;
         HitResult hit = mc.hitResult;
         if (hit instanceof BlockHitResult block && hit.getType() == HitResult.Type.BLOCK) {

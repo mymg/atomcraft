@@ -45,8 +45,8 @@ public class MagnetItem extends Item {
         if (!level.isClientSide()) {
             boolean active = !active(stack);
             stack.set(ModComponents.ACTIVE.get(), active);
-            player.displayClientMessage(Component.translatable(active ? "message.atomcraft.magnet_on" : "message.atomcraft.magnet_off")
-                    .withStyle(active ? ChatFormatting.AQUA : ChatFormatting.GRAY), true);
+            player.sendOverlayMessage(Component.translatable(active ? "message.atomcraft.magnet_on" : "message.atomcraft.magnet_off")
+                    .withStyle(active ? ChatFormatting.AQUA : ChatFormatting.GRAY));
         }
         return InteractionResult.SUCCESS;
     }
