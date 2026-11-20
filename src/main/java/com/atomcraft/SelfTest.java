@@ -212,7 +212,7 @@ final class SelfTest {
         var card = new net.minecraft.world.item.ItemStack(com.atomcraft.tools.ModTools.NETWORK_CARD.get());
         card.set(ModComponents.WIRELESS_LINK.get(), new com.atomcraft.wireless.WirelessLink(level.dimension(), drivePos.east(),
                 java.util.UUID.randomUUID(), "outro"));
-        player.getInventory().add(card);
+        player.getInventory().setItem(0, card);
         check(failures, com.atomcraft.wireless.Wireless.find(player) == null, "cartão de outro jogador não funciona");
         card.set(ModComponents.WIRELESS_LINK.get(), new com.atomcraft.wireless.WirelessLink(level.dimension(), drivePos.east(),
                 player.getUUID(), player.getName().getString()));
