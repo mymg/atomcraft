@@ -442,7 +442,7 @@ final class SelfTest {
         matrix.checkStructure();
         check(failures, level.getBlockState(controller.south().above()).getValue(com.atomcraft.block.StructurePartBlock.FORMED),
                 "matriz formada: peças escondidas");
-        check(failures, !level.getBlockState(inPort).getValue(com.atomcraft.block.StructurePartBlock.FORMED), "matriz formada: interfaces visíveis");
+        check(failures, level.getBlockState(inPort).getRenderShape() == net.minecraft.world.level.block.RenderShape.MODEL, "matriz formada: interfaces visíveis");
         check(failures, level.getBlockState(controller).getValue(com.atomcraft.block.EnergyMatrixBlock.CHARGED), "matriz com energia: bobina acesa");
         matrix.energy().set(0);
         matrix.checkStructure();

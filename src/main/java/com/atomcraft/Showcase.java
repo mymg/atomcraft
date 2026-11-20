@@ -356,6 +356,7 @@ final class Showcase {
             // Visão do reator formado no mundo
             player.connection.teleport(base.getX() - 3.5, base.getY() + 4, base.getZ() + 0.5, -90f, 18f);
         }
+        if (ticks == 3700) player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND, net.minecraft.world.item.ItemStack.EMPTY);
         if (ticks >= 3700 && ticks < 4100 && ticks % 20 == 0) {
             // Visão das estruturas: Matriz formada (modelo), Replicador Quântico e um segundo quântico com a prévia
             player.connection.teleport(base.getX() - 13.5, base.getY() + 3.5, base.getZ() + 0.5, -90f, 12f);
