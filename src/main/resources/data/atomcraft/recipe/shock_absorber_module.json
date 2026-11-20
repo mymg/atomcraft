@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "atomcraft:blank_module",
+    "minecraft:slime_ball",
+    "#minecraft:wool"
+  ],
+  "result": {
+    "id": "atomcraft:shock_absorber_module",
+    "count": 1
+  }
+}

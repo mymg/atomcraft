@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "atomcraft:blank_module",
+    "atomcraft:tungsten_carbide_plate",
+    "atomcraft:tungsten_carbide_plate",
+    "minecraft:diamond"
+  ],
+  "result": {
+    "id": "atomcraft:area_module",
+    "count": 1
+  }
+}

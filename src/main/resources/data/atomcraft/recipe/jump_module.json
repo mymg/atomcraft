@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "atomcraft:blank_module",
+    "minecraft:slime_ball",
+    "minecraft:slime_ball",
+    "minecraft:piston"
+  ],
+  "result": {
+    "id": "atomcraft:jump_module",
+    "count": 1
+  }
+}

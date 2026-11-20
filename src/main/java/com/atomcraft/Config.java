@@ -171,6 +171,29 @@ public final class Config {
             .defineInRange("disintegratorEnergyPerBlock", 200, 0, 1_000_000);
 
     static {
+        BUILDER.pop().push("equipment");
+    }
+
+    public static final ModConfigSpec.IntValue EXO_CHARGE = BUILDER
+            .comment("Exoesqueleto: FE por segundo que cada peça recebe do Transmissor Sem Fio")
+            .defineInRange("exoChargePerSecond", 20_000, 0, Integer.MAX_VALUE);
+    public static final ModConfigSpec.IntValue SHIELD_ENERGY = BUILDER
+            .comment("Escudo de energia do Exoesqueleto: FE gastos por ponto de dano absorvido")
+            .defineInRange("shieldEnergyPerDamage", 1_000, 1, 1_000_000);
+    public static final ModConfigSpec.IntValue JETPACK_TANK = BUILDER
+            .comment("Jetpack: capacidade do tanque (átomos de hidrogênio)")
+            .defineInRange("jetpackTank", 16_000, 100, 10_000_000);
+    public static final ModConfigSpec.IntValue JETPACK_USE = BUILDER
+            .comment("Jetpack: hidrogênio por tick subindo (×(1 + nível do Propulsor)); flutuando gasta este valor")
+            .defineInRange("jetpackUsePerTick", 1, 0, 1_000);
+    public static final ModConfigSpec.IntValue JETPACK_REFUEL = BUILDER
+            .comment("Jetpack: hidrogênio por segundo tirado dos Drives pelo Transmissor Sem Fio")
+            .defineInRange("jetpackRefuelPerSecond", 400, 0, 1_000_000);
+    public static final ModConfigSpec.IntValue MAGNET_RANGE = BUILDER
+            .comment("Anel Magnético: raio em blocos")
+            .defineInRange("magnetRange", 8, 1, 32);
+
+    static {
         BUILDER.pop();
     }
 

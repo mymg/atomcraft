@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "atomcraft:block/module_bench_top",
+    "side": "atomcraft:block/module_bench_side",
+    "bottom": "atomcraft:block/machine_side"
+  }
+}

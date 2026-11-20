@@ -243,6 +243,44 @@ quebrados viram elementos direto nos Drives (o que não couber cai normalmente).
 | **Cartão de Rede** | ouro, placa de circuito, fio de cobre, redstone |
 | **Desintegrador Atômico** | chapas de carbeto de tungstênio, diamante, placa de circuito, lingote de liga de titânio |
 
+### Bancada de Módulos
+
+Coloque um equipamento no slot da esquerda: os módulos instalados aparecem à direita. Ponha ou tire módulos e eles
+são gravados na hora no equipamento; tirar o equipamento leva os módulos junto. Módulos com níveis (II, III) são
+empilhados no mesmo slot. Todo módulo é feito com um **Módulo Vazio** mais os ingredientes do efeito.
+
+| Equipamento | Slots | Módulos |
+|---|---|---|
+| Capacete do Exoesqueleto | 2 | Visão Noturna, Respirador, Analisador |
+| Peitoral do Exoesqueleto | 3 | Blindagem (I–III), Escudo de Energia |
+| Calças do Exoesqueleto | 2 | Blindagem (I–III), Velocidade (I–III), Subida de Degraus |
+| Botas do Exoesqueleto | 2 | Salto (I–III), Amortecedor (I–III) |
+| Jetpack a Hidrogênio | 2 | Propulsor (I–III), Flutuação |
+| Desintegrador Atômico | 2 | Eficiência (I–III), Área (3×3; agachado quebra um bloco) |
+
+### Exoesqueleto
+
+Armadura de liga de titânio com bateria de 250.000 FE em cada peça. Com o Cartão de Rede no inventário, as peças
+recarregam pelo Transmissor Sem Fio. Sem energia, os módulos ativos param (Blindagem e Amortecedor são passivos).
+O Escudo de Energia absorve o dano gastando 1.000 FE por ponto.
+
+### Jetpack a Hidrogênio
+
+Vista no peito (ou nas costas, com o Curios) e segure **pular** para subir. O tanque (16.000 H) enche sozinho com o
+hidrogênio dos Drives, pelo Transmissor Sem Fio. Com o módulo de Flutuação, a tecla **H** liga/desliga a flutuação:
+no ar, o jetpack mantém a altura; agachar desce devagar.
+
+### Acessórios
+
+- **Anel Magnético**: puxa itens e orbes de experiência num raio de 8 blocos. Agachado + clique liga/desliga;
+  agachar pausa.
+- **Anel Analisador**: mostra a composição química do bloco ou item que você mira.
+
+Os dois funcionam no inventário ou num slot de anel do **Curios** (opcional). Com o Curios, o jogador ganha slots de
+anel, costas (jetpack) e amuleto (Cartão de Rede).
+
+Configuração: seção `equipment` (recarga, escudo, tanque e consumo do jetpack, raio do ímã).
+
 ## Metais, ligas e minérios
 
 ### Forja de Ligas
@@ -446,6 +484,7 @@ O `.jar` fica disponível em **Actions → Artifacts**.
 - [x] Complexidade e níveis de replicador (Avançado e Quântico)
 - [x] Células de Energia e Matriz de Energia
 - [x] Ferramentas/armaduras de liga, Transmissor Sem Fio, Cartão de Rede e Desintegrador Atômico
+- [x] Bancada de Módulos, Exoesqueleto, Jetpack a Hidrogênio, Anel Magnético, Anel Analisador e Curios
 - [ ] Suporte a fluidos (tanques e fluid pipes)
 - [ ] Texturas e modelos definitivos
 - [ ] Integração com JEI/EMI (mostrar fórmula e custo)

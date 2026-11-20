@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "T T",
+    "TCT"
+  ],
+  "key": {
+    "T": "atomcraft:titanium_alloy_plate",
+    "C": "atomcraft:circuit_board"
+  },
+  "result": {
+    "id": "atomcraft:exo_boots",
+    "count": 1
+  }
+}

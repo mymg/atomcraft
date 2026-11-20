@@ -36,7 +36,7 @@ final class ClientShowcase {
 
     private static void onTick(ClientTickEvent.Post event) {
         Screen screen = Minecraft.getInstance().gui.screen();
-        if (screen == null && screensSeen >= 14 && !machinesCaptured) {
+        if (screen == null && screensSeen >= 15 && !machinesCaptured) {
             // Depois das interfaces, o servidor fecha o menu e posiciona a câmera nas máquinas e depois no reator.
             idleTicks++;
             if (idleTicks == 100 && !worldCaptured) {
@@ -55,6 +55,7 @@ final class ClientShowcase {
             current = screen;
             ticks = 0;
             screensSeen++;
+            AtomCraft.LOGGER.info("AtomCraft SHOWCASE tela {}: {}", screensSeen, screen.getClass().getSimpleName());
             if (screen instanceof ReplicatorScreen replicator) replicator.showcaseSelect(Items.IRON_INGOT);
             // Mostra os painéis laterais em algumas máquinas.
             MachineScreen<?> machine = (MachineScreen<?>) screen;

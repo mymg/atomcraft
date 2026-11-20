@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "TCT",
+    "TGT"
+  ],
+  "key": {
+    "T": "atomcraft:titanium_alloy_plate",
+    "C": "atomcraft:circuit_board",
+    "G": "minecraft:tinted_glass"
+  },
+  "result": {
+    "id": "atomcraft:exo_helmet",
+    "count": 1
+  }
+}

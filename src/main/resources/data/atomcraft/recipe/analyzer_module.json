@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "atomcraft:blank_module",
+    "minecraft:spyglass",
+    "minecraft:amethyst_shard"
+  ],
+  "result": {
+    "id": "atomcraft:analyzer_module",
+    "count": 1
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PWP",
+    "WCW",
+    "PWP"
+  ],
+  "key": {
+    "P": "atomcraft:steel_plate",
+    "W": "atomcraft:copper_wire",
+    "C": "atomcraft:circuit_board"
+  },
+  "result": {
+    "id": "atomcraft:blank_module",
+    "count": 2
+  }
+}
