@@ -56,9 +56,14 @@ final class Showcase {
         setup(serverPlayer);
     }
 
+    /** Onde o jogador começa: ele volta para cá antes de cada interface (slimes do mundo plano empurram). */
+    private static net.minecraft.world.phys.Vec3 start = net.minecraft.world.phys.Vec3.ZERO;
+
     private static void setup(ServerPlayer player) {
         ServerLevel level = player.level();
         base = player.blockPosition().offset(3, 0, 0);
+        start = player.position();
+        level.getServer().setDifficulty(net.minecraft.world.Difficulty.PEACEFUL, true);
         level.setBlock(base, ModBlocks.DRIVE.get().defaultBlockState().setValue(com.atomcraft.block.MachineBlock.FACING,
                 net.minecraft.core.Direction.WEST), Block.UPDATE_ALL);
         com.atomcraft.block.TallMachineBlock.place(level, base.east(), ModBlocks.ATOMIZER.get().defaultBlockState());
@@ -298,10 +303,12 @@ final class Showcase {
             default -> null;
         };
         if (target != null) {
+            player.connection.teleport(start.x, start.y, start.z, player.getYRot(), player.getXRot());
             if (level.getBlockEntity(target) instanceof MenuProvider provider) player.openMenu(provider);
             AtomCraft.LOGGER.info("AtomCraft SHOWCASE tick {}: abrindo {} ({})", ticks, target, level.getBlockState(target).getBlock());
         }
         if (ticks == 2920) {
+            player.connection.teleport(start.x, start.y, start.z, player.getYRot(), player.getXRot());
             // Bancada com o peitoral do exoesqueleto (escudo + blindagem II)
             com.atomcraft.block.ModuleBenchBlock.open(player, base.south(7));
             if (player.containerMenu instanceof com.atomcraft.menu.ModuleBenchMenu bench) {
