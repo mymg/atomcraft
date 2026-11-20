@@ -438,10 +438,15 @@ final class SelfTest {
                 "Cabo/Drive ligado à Porta da Matriz alcança o controlador");
         matrix.tick();
         check(failures, receiver.energy().getAmountAsInt() > 0, "porta de saída alimenta a célula vizinha (" + receiver.energy().getAmountAsInt() + ")");
-        check(failures, level.getBlockState(controller.south().above()).getValue(com.atomcraft.block.StructurePartBlock.FORMED)
-                && !level.getBlockState(inPort).getValue(com.atomcraft.block.StructurePartBlock.FORMED)
-                && level.getBlockState(controller).getValue(com.atomcraft.block.EnergyMatrixBlock.CHARGED),
-                "matriz formada: peças escondidas, interfaces visíveis, controlador carregado");
+        matrix.energy().set(1_000_000);
+        matrix.checkStructure();
+        check(failures, level.getBlockState(controller.south().above()).getValue(com.atomcraft.block.StructurePartBlock.FORMED),
+                "matriz formada: peças escondidas");
+        check(failures, !level.getBlockState(inPort).getValue(com.atomcraft.block.StructurePartBlock.FORMED), "matriz formada: interfaces visíveis");
+        check(failures, level.getBlockState(controller).getValue(com.atomcraft.block.EnergyMatrixBlock.CHARGED), "matriz com energia: bobina acesa");
+        matrix.energy().set(0);
+        matrix.checkStructure();
+        check(failures, !level.getBlockState(controller).getValue(com.atomcraft.block.EnergyMatrixBlock.CHARGED), "matriz vazia: bobina apagada");
         level.setBlock(controller.south().above(), Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
         check(failures, !matrix.checkStructure(), "matriz desforma sem um núcleo");
         check(failures, !level.getBlockState(controller.south()).getValue(com.atomcraft.block.StructurePartBlock.FORMED), "peças reaparecem ao desformar");
