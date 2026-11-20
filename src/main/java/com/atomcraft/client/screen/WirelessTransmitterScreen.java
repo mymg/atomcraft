@@ -35,8 +35,8 @@ public class WirelessTransmitterScreen extends MachineScreen<WirelessTransmitter
         Component range = menu.range() < 0 ? Component.translatable("gui.atomcraft.range_unlimited")
                 : Component.translatable("gui.atomcraft.range", menu.range());
         graphics.text(font, range, x, y + 12, TechGui.TEXT_TEAL, false);
-        graphics.text(font, Component.translatable("gui.atomcraft.card_hint_1"), x, y + 26, TechGui.TEXT_DIM, false);
-        graphics.text(font, Component.translatable("gui.atomcraft.card_hint_2"), x, y + 35, TechGui.TEXT_DIM, false);
+        graphics.text(font, Component.translatable("gui.atomcraft.card_hint_1"), x, y + 23, TechGui.TEXT_DIM, false);
+        graphics.text(font, Component.translatable("gui.atomcraft.card_hint_2"), x, y + 32, TechGui.TEXT_DIM, false);
         storageRow(graphics, 28, 72, 168);
         MachineStatus status = menu.isEnabled() ? MachineStatus.WORKING : MachineStatus.DISABLED;
         graphics.text(font, status.label(), leftPos + 9, topPos + 95, statusColor(status), false);
