@@ -297,8 +297,9 @@ final class Showcase {
             case 2720 -> base.south(6);
             default -> null;
         };
-        if (target != null && level.getBlockEntity(target) instanceof MenuProvider provider) {
-            player.openMenu(provider);
+        if (target != null) {
+            if (level.getBlockEntity(target) instanceof MenuProvider provider) player.openMenu(provider);
+            AtomCraft.LOGGER.info("AtomCraft SHOWCASE tick {}: abrindo {} ({})", ticks, target, level.getBlockState(target).getBlock());
         }
         if (ticks == 2920) {
             // Bancada com o peitoral do exoesqueleto (escudo + blindagem II)

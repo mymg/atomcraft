@@ -55,6 +55,7 @@ final class ClientShowcase {
             current = screen;
             ticks = 0;
             screensSeen++;
+            AtomCraft.LOGGER.info("AtomCraft SHOWCASE tela {}: {}", screensSeen, screen.getClass().getSimpleName());
             if (screen instanceof ReplicatorScreen replicator) replicator.showcaseSelect(Items.IRON_INGOT);
             // Mostra os painéis laterais em algumas máquinas.
             MachineScreen<?> machine = (MachineScreen<?>) screen;
