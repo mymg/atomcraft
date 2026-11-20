@@ -34,7 +34,7 @@ public class WirelessTransmitterMenu extends BaseMenu {
 
     @Override
     protected Block block() {
-        return ModBlocks.WIRELESS_TRANSMITTER.get();
+        return com.atomcraft.tools.ModTools.WIRELESS_TRANSMITTER.get();
     }
 
     public int energy() {

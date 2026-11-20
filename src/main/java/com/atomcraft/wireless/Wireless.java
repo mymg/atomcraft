@@ -46,7 +46,7 @@ public final class Wireless {
         if (target == null) return null;
         if (target != level && !Config.WIRELESS_CROSS_DIMENSION.get()) return null;
         int range = Config.WIRELESS_RANGE.get();
-        if (target == level && range >= 0 && player.distanceToSqr(link.pos().getCenter()) > (double) range * range) return null;
+        if (target == level && range >= 0 && player.distanceToSqr(net.minecraft.world.phys.Vec3.atCenterOf(link.pos())) > (double) range * range) return null;
         if (!target.isLoaded(link.pos())) return null;
         if (target.getBlockEntity(link.pos()) instanceof WirelessTransmitterBlockEntity transmitter && transmitter.isEnabled()) {
             return transmitter;
