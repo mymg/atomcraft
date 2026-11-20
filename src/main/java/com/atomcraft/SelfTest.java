@@ -261,6 +261,8 @@ final class SelfTest {
                 "bancada recusa visão noturna nas calças");
         check(failures, !bench.accepts(2, new net.minecraft.world.item.ItemStack(modules.get(com.atomcraft.equipment.EquipmentModule.SPEED).get())),
                 "calças têm só 2 slots");
+        check(failures, bench.slots.get(1).mayPlace(new net.minecraft.world.item.ItemStack(modules.get(com.atomcraft.equipment.EquipmentModule.SPEED).get()))
+                && bench.slots.get(2).isActive() && !bench.slots.get(3).isActive(), "slots da bancada: 1º aceita velocidade, 3º fica inativo nas calças");
         bench.insertModule(0, new net.minecraft.world.item.ItemStack(modules.get(com.atomcraft.equipment.EquipmentModule.SPEED).get(), 2));
         bench.insertModule(1, new net.minecraft.world.item.ItemStack(modules.get(com.atomcraft.equipment.EquipmentModule.STEP_ASSIST).get()));
         check(failures, !bench.accepts(1, new net.minecraft.world.item.ItemStack(modules.get(com.atomcraft.equipment.EquipmentModule.SPEED).get())),

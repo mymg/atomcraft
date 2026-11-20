@@ -57,11 +57,11 @@ public class ModuleBenchMenu extends BaseMenu {
             }
         });
         for (int i = 0; i < EquipmentKind.MAX_SLOTS; i++) {
-            int index = i;
+            int moduleIndex = i; // (não chamar de "index": Slot já tem um campo index, que esconderia a variável)
             addSlot(new Slot(container, 1 + i, MODULE_X + i * MODULE_GAP, MODULE_Y) {
                 @Override
                 public boolean mayPlace(ItemStack stack) {
-                    return accepts(index, stack);
+                    return accepts(moduleIndex, stack);
                 }
 
                 @Override
@@ -72,7 +72,7 @@ public class ModuleBenchMenu extends BaseMenu {
                 @Override
                 public boolean isActive() {
                     EquipmentKind kind = kind();
-                    return kind != null && index < kind.slots();
+                    return kind != null && moduleIndex < kind.slots();
                 }
             });
         }
