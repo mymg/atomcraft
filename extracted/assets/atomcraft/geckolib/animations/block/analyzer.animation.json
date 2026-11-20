@@ -1,0 +1,55 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"idle": {
+			"loop": true,
+			"bones": {
+				"lazer": {
+					"scale": {
+						"vector": [0, 0, 0]
+					}
+				}
+			}
+		},
+		"analyzing": {
+			"loop": true,
+			"animation_length": 2.1667,
+			"bones": {
+				"anayzer": {
+					"position": {
+						"0.0": {
+							"vector": [0, -6, 0]
+						},
+						"1.6667": {
+							"vector": [0, 4, 0]
+						},
+						"1.8333": {
+							"vector": [0, 4, 0]
+						},
+						"2.0": {
+							"vector": [0, -6, 0]
+						},
+						"2.1667": {
+							"vector": [0, -6, 0]
+						}
+					}
+				},
+				"lazer": {
+					"scale": {
+						"0.0": {
+							"vector": [1, 1, 1]
+						},
+						"1.6667": {
+							"pre": [1, 1, 1],
+							"post": [0, 0, 0]
+						},
+						"2.1667": {
+							"pre": [0, 0, 0],
+							"post": [1, 1, 1]
+						}
+					}
+				}
+			}
+		}
+	}
+}
