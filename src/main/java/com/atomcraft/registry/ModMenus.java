@@ -48,5 +48,8 @@ public final class ModMenus {
     public static final DeferredHolder<MenuType<?>, MenuType<com.atomcraft.menu.WirelessTransmitterMenu>> WIRELESS_TRANSMITTER =
             MENUS.register("wireless_transmitter", () -> IMenuTypeExtension.create(com.atomcraft.menu.WirelessTransmitterMenu::client));
 
+    public static final DeferredHolder<MenuType<?>, MenuType<com.atomcraft.menu.ModuleBenchMenu>> MODULE_BENCH =
+            MENUS.register("module_bench", () -> IMenuTypeExtension.create(com.atomcraft.menu.ModuleBenchMenu::client));
+
     private ModMenus() {}
 }

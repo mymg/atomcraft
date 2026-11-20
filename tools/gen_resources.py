@@ -848,6 +848,105 @@ MAT_LANG.update({
     "atomcraft.configuration.wireless": ("Wireless", "Sem fio"),
 })
 
+# ---------- Equipamentos: Bancada de Módulos, Exoesqueleto, Jetpack, acessórios e módulos ----------
+w("assets/atomcraft/blockstates/module_bench.json", {"variants": {"": {"model": "atomcraft:block/module_bench"}}})
+w("assets/atomcraft/models/block/module_bench.json", {"parent": "minecraft:block/cube_bottom_top", "textures": {
+    "top": "atomcraft:block/module_bench_top", "side": "atomcraft:block/module_bench_side", "bottom": "atomcraft:block/machine_side"}})
+block_item("module_bench")
+self_drop("module_bench")
+w("data/minecraft/tags/block/mineable/pickaxe.json", {"values": [f"atomcraft:{b}" for b in MACHINES + ["atomic_cable", "module_bench"] + REACTOR_PARTS + MATERIAL_BLOCKS + ORE_BLOCKS + ENERGY_BLOCKS]})
+EXO_KINDS = [("helmet", "Helmet", "Capacete", "head_armor"), ("chestplate", "Chestplate", "Peitoral", "chest_armor"),
+             ("leggings", "Leggings", "Calças", "leg_armor"), ("boots", "Boots", "Botas", "foot_armor")]
+w("assets/atomcraft/equipment/exoskeleton.json", {"layers": {"humanoid": [{"texture": "atomcraft:exoskeleton"}],
+                                                          "humanoid_leggings": [{"texture": "atomcraft:exoskeleton"}]}})
+w("assets/atomcraft/equipment/hydrogen_jetpack.json", {"layers": {"humanoid": [{"texture": "atomcraft:hydrogen_jetpack"}]}})
+for kind, en_k, pt_k, tag in EXO_KINDS:
+    item_model(f"exo_{kind}")
+    MAT_LANG[f"item.atomcraft.exo_{kind}"] = (f"Exoskeleton {en_k}", f"{pt_k} do Exoesqueleto")
+    TOOL_TAGS_ITEMS.setdefault(tag, []).append(f"atomcraft:exo_{kind}")
+for tag in ("head_armor", "chest_armor", "leg_armor", "foot_armor"):
+    w(f"data/minecraft/tags/item/{tag}.json", {"values": TOOL_TAGS_ITEMS[tag]})
+for name in ("hydrogen_jetpack", "magnet_ring", "analyzer_ring", "blank_module"):
+    item_model(name)
+EQUIP_MODULES = [  # (id, en, pt, descrição en, descrição pt, cor, receita sem o módulo vazio)
+    ("night_vision", "Night Vision", "Visão Noturna", "See in the dark", "Enxergar no escuro", (120, 230, 120), ["minecraft:golden_carrot", "minecraft:glowstone_dust"]),
+    ("respirator", "Respirator", "Respirador", "Breathe underwater", "Respirar debaixo d'água", (90, 160, 255), ["minecraft:kelp", "minecraft:glass_bottle", "atomcraft:stainless_steel_plate"]),
+    ("analyzer", "Analyzer", "Analisador", "Shows the composition of what you look at", "Mostra a composição do que você mira", (190, 110, 240), ["minecraft:spyglass", "minecraft:amethyst_shard"]),
+    ("plating", "Plating", "Blindagem", "+2 armor and +1 toughness per level", "+2 de armadura e +1 de resistência por nível", (150, 168, 200), ["atomcraft:titanium_alloy_plate", "atomcraft:titanium_alloy_plate", "atomcraft:tungsten_carbide_plate"]),
+    ("shield", "Energy Shield", "Escudo de Energia", "Absorbs damage using the battery", "Absorve dano gastando a bateria", (80, 220, 255), ["minecraft:shield", "minecraft:redstone_block", "minecraft:amethyst_shard"]),
+    ("speed", "Speed", "Velocidade", "+15% speed per level", "+15% de velocidade por nível", (255, 210, 80), ["minecraft:sugar", "minecraft:piston", "minecraft:redstone"]),
+    ("step_assist", "Step Assist", "Subida de Degraus", "Walk up full blocks", "Sobe blocos inteiros andando", (230, 150, 70), ["minecraft:piston", "minecraft:stone_stairs"]),
+    ("jump", "Jump Boost", "Salto", "Jump higher (per level)", "Pula mais alto (por nível)", (110, 230, 160), ["minecraft:slime_ball", "minecraft:slime_ball", "minecraft:piston"]),
+    ("shock_absorber", "Shock Absorber", "Amortecedor", "+4 blocks of safe fall per level", "+4 blocos de queda sem dano por nível", (240, 240, 240), ["minecraft:slime_ball", "#minecraft:wool"]),
+    ("thruster", "Thruster", "Propulsor", "Stronger, faster climb (uses more H)", "Sobe mais rápido (gasta mais H)", (255, 120, 40), ["minecraft:fire_charge", "atomcraft:invar_plate"]),
+    ("hover", "Hover", "Flutuação", "Holds altitude (hover key, H)", "Mantém a altura (tecla de flutuação, H)", (200, 200, 255), ["minecraft:phantom_membrane", "minecraft:feather"]),
+    ("efficiency", "Efficiency", "Eficiência", "Breaks blocks faster", "Quebra blocos mais rápido", (255, 90, 90), ["minecraft:diamond", "minecraft:redstone", "minecraft:redstone"]),
+    ("area", "Area", "Área", "Breaks 3×3 (sneak: single block)", "Quebra 3×3 (agachado: um bloco)", (255, 170, 230), ["atomcraft:tungsten_carbide_plate", "atomcraft:tungsten_carbide_plate", "minecraft:diamond"]),
+]
+for mid, en, pt, den, dpt, color, ingredients in EQUIP_MODULES:
+    item_model(f"{mid}_module")
+    MAT_LANG[f"item.atomcraft.{mid}_module"] = (f"{en} Module", f"Módulo de {pt}")
+    MAT_LANG[f"module.atomcraft.{mid}"] = (en, pt)
+    MAT_LANG[f"module.atomcraft.{mid}.desc"] = (den, dpt)
+    shapeless(f"{mid}_module", ["atomcraft:blank_module"] + ingredients, f"atomcraft:{mid}_module")
+shaped("blank_module", ["PWP", "WCW", "PWP"], {"P": pl("steel"), "W": WIRE, "C": CIRCUIT}, "atomcraft:blank_module", 2)
+shaped("module_bench", ["CTC", "P P", "PPP"], {"C": CIRCUIT, "T": "minecraft:smithing_table", "P": pl("steel")}, "atomcraft:module_bench")
+TI = pl("titanium_alloy")
+shaped("exo_helmet", ["TCT", "TGT"], {"T": TI, "C": CIRCUIT, "G": "minecraft:tinted_glass"}, "atomcraft:exo_helmet")
+shaped("exo_chestplate", ["T T", "CBC", "TTT"], {"T": TI, "C": CIRCUIT, "B": "atomcraft:basic_energy_cell"}, "atomcraft:exo_chestplate")
+shaped("exo_leggings", ["TCT", "P P", "T T"], {"T": TI, "C": CIRCUIT, "P": "minecraft:piston"}, "atomcraft:exo_leggings")
+shaped("exo_boots", ["T T", "TCT"], {"T": TI, "C": CIRCUIT}, "atomcraft:exo_boots")
+shaped("hydrogen_jetpack", ["SCS", "BWB", "H H"], {"S": pl("stainless_steel"), "C": CIRCUIT, "B": "minecraft:bucket", "W": WIRE,
+                                                    "H": "minecraft:hopper"}, "atomcraft:hydrogen_jetpack")
+shaped("magnet_ring", [" R ", "P P", " P "], {"R": RED, "P": pl("invar")}, "atomcraft:magnet_ring")
+shaped("analyzer_ring", [" C ", "GAG", " G "], {"C": CIRCUIT, "G": "minecraft:gold_ingot", "A": AME}, "atomcraft:analyzer_ring")
+# Curios (opcional): slots de anel, costas e amuleto para jogadores; os itens que vão em cada um
+w("data/atomcraft/curios/entities/atomcraft.json", {"entities": ["player"], "slots": ["ring", "back", "charm"]})
+w("data/curios/tags/item/ring.json", {"values": ["atomcraft:magnet_ring", "atomcraft:analyzer_ring"]})
+w("data/curios/tags/item/back.json", {"values": ["atomcraft:hydrogen_jetpack"]})
+w("data/curios/tags/item/charm.json", {"values": ["atomcraft:network_card"]})
+MAT_LANG.update({
+    "block.atomcraft.module_bench": ("Module Bench", "Bancada de Módulos"),
+    "item.atomcraft.hydrogen_jetpack": ("Hydrogen Jetpack", "Jetpack a Hidrogênio"),
+    "item.atomcraft.magnet_ring": ("Magnet Ring", "Anel Magnético"),
+    "item.atomcraft.analyzer_ring": ("Analyzer Ring", "Anel Analisador"),
+    "item.atomcraft.blank_module": ("Blank Module", "Módulo Vazio"),
+    "equipment_kind.atomcraft.exo_helmet": ("Exo Helmet", "Capacete Exo"),
+    "equipment_kind.atomcraft.exo_chestplate": ("Exo Chestplate", "Peitoral Exo"),
+    "equipment_kind.atomcraft.exo_leggings": ("Exo Leggings", "Calças Exo"),
+    "equipment_kind.atomcraft.exo_boots": ("Exo Boots", "Botas Exo"),
+    "equipment_kind.atomcraft.jetpack": ("Jetpack", "Jetpack"),
+    "equipment_kind.atomcraft.disintegrator": ("Disintegrator", "Desintegrador"),
+    "tooltip.atomcraft.module_level": ("%s %s", "%s %s"),
+    "tooltip.atomcraft.module_slots": ("Modules: %s/%s (Module Bench)", "Módulos: %s/%s (Bancada de Módulos)"),
+    "tooltip.atomcraft.module_for": ("Fits: %s", "Serve em: %s"),
+    "tooltip.atomcraft.module_max": ("Stack up to %s in the slot for more levels", "Até %s no slot para mais níveis"),
+    "tooltip.atomcraft.module_energy": ("Uses %s FE/t per level", "Gasta %s FE/t por nível"),
+    "tooltip.atomcraft.hydrogen": ("Hydrogen: %s / %s", "Hidrogênio: %s / %s"),
+    "tooltip.atomcraft.hover_on": ("Hover: on", "Flutuação: ligada"),
+    "tooltip.atomcraft.hover_off": ("Hover: off", "Flutuação: desligada"),
+    "tooltip.atomcraft.jetpack_hint": ("Hold jump to fly · refuels from the network (Network Card)", "Segure pular para voar · reabastece pela rede (Cartão de Rede)"),
+    "tooltip.atomcraft.magnet_on": ("Pulling items within %s blocks", "Puxando itens a até %s blocos"),
+    "tooltip.atomcraft.magnet_off": ("Off", "Desligado"),
+    "tooltip.atomcraft.magnet_hint": ("Sneak + use: on/off · sneaking pauses it", "Agachado + clique: liga/desliga · agachar pausa"),
+    "tooltip.atomcraft.analyzer_ring": ("Shows the composition of the block or item you look at", "Mostra a composição do bloco ou item que você mira"),
+    "message.atomcraft.magnet_on": ("Magnet on", "Ímã ligado"),
+    "message.atomcraft.magnet_off": ("Magnet off", "Ímã desligado"),
+    "message.atomcraft.hover_on": ("Jetpack: hover on", "Jetpack: flutuação ligada"),
+    "message.atomcraft.hover_off": ("Jetpack: hover off", "Jetpack: flutuação desligada"),
+    "message.atomcraft.hover_missing": ("The jetpack needs a Hover Module", "O jetpack precisa de um Módulo de Flutuação"),
+    "hud.atomcraft.no_composition": ("No known composition", "Sem composição conhecida"),
+    "gui.atomcraft.equipment": ("Equipment", "Equipamento"),
+    "gui.atomcraft.modules": ("Modules", "Módulos"),
+    "gui.atomcraft.no_modules": ("No modules installed", "Nenhum módulo instalado"),
+    "gui.atomcraft.bench_hint_1": ("Place an exoskeleton", "Coloque uma peça do"),
+    "gui.atomcraft.bench_hint_2": ("piece, jetpack or", "exoesqueleto, o jetpack"),
+    "gui.atomcraft.bench_hint_3": ("disintegrator on the left", "ou o desintegrador"),
+    "gui.atomcraft.module_slot": ("Module slot. Fits:", "Slot de módulo. Aceita:"),
+    "key.atomcraft.jetpack_hover": ("Jetpack: toggle hover", "Jetpack: flutuação"),
+    "atomcraft.configuration.equipment": ("Equipment", "Equipamentos"),
+})
+
 # ---------- Traduções ----------
 MODULE_NAMES = {"containment": ("Magnetic Containment", "Confinamento Magnético"), "injector": ("Fuel Injector", "Injetor de Combustível"),
                 "recycler": ("Hydrogen Recycler", "Reciclador de Hidrogênio"), "ignition": ("Plasma Ignition", "Ignição a Plasma")}
@@ -1423,6 +1522,70 @@ img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
 d.line([(2, 13), (7, 8)], fill=(150, 166, 194, 255), width=2); d.polygon([(6, 6), (10, 2), (14, 6), (10, 10)], fill=(62, 64, 76, 255))
 d.polygon([(8, 6), (10, 4), (12, 6), (10, 8)], fill=(80, 220, 255, 255)); d.point((13, 2), fill=(255, 255, 255, 255)); d.point((14, 1), fill=(80, 220, 255, 255))
 save(img, "item/atomic_disintegrator.png")
+
+# Equipamentos (provisórias: substitua pelos seus arquivos)
+CYAN = (80, 220, 255, 255)
+img, d = frame(); d.rectangle([2, 2, 13, 13], fill=(34, 38, 46, 255))
+for i, x in enumerate((3, 7, 11)):
+    d.rectangle([x, 6, x + 2, 9], fill=(20, 22, 28, 255), outline=CYAN if i else (255, 200, 80, 255))
+d.line([(3, 3), (12, 3)], fill=(118, 124, 136, 255)); d.line([(3, 12), (12, 12)], fill=(118, 124, 136, 255))
+save(img, "block/module_bench_top.png")
+img, d = frame(); d.rectangle([2, 3, 13, 6], fill=(34, 38, 46, 255)); d.line([(3, 4), (12, 4)], fill=CYAN)
+d.rectangle([4, 9, 11, 12], fill=(60, 64, 72, 255)); d.point((5, 10), fill=(255, 200, 80, 255)); d.point((10, 10), fill=CYAN)
+save(img, "block/module_bench_side.png")
+EXO = (64, 74, 92)
+for kind, *_ in EXO_KINDS:
+    img = armor_icon(kind, EXO); d = ImageDraw.Draw(img)
+    accent = {"helmet": [(5, 6), (6, 6), (9, 6), (10, 6)], "chestplate": [(7, 7), (8, 7), (7, 8), (8, 8)],
+              "leggings": [(4, 8), (11, 8), (4, 11), (11, 11)], "boots": [(3, 10), (11, 10)]}[kind]
+    for p in accent:
+        d.point(p, fill=CYAN)
+    save(img, f"item/exo_{kind}.png")
+def exo_layer():
+    img = Image.new("RGBA", (64, 32), shade(EXO, 1.0)); d = ImageDraw.Draw(img)
+    for x in range(0, 64, 4):
+        d.line([(x, 0), (x, 31)], fill=shade(EXO, 0.85))
+    for y in (5, 22, 27):
+        d.line([(0, y), (63, y)], fill=CYAN[:3] + (255,))
+    d.rectangle([0, 0, 63, 31], outline=shade(EXO, 0.6))
+    return img
+save(exo_layer(), "entity/equipment/humanoid/exoskeleton.png")
+save(exo_layer(), "entity/equipment/humanoid_leggings/exoskeleton.png")
+# Jetpack no corpo: só as costas (u 32-39, v 20-31) e as alças na frente
+img = Image.new("RGBA", (64, 32), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+d.rectangle([32, 20, 39, 31], fill=(150, 156, 168, 255))
+d.rectangle([32, 21, 34, 30], fill=(214, 220, 230, 255)); d.rectangle([37, 21, 39, 30], fill=(214, 220, 230, 255))
+d.line([(35, 20), (35, 31)], fill=(60, 64, 72, 255)); d.line([(36, 20), (36, 31)], fill=(60, 64, 72, 255))
+d.point((33, 22), fill=CYAN); d.point((38, 22), fill=CYAN)
+d.line([(21, 20), (21, 31)], fill=(60, 64, 72, 255)); d.line([(26, 20), (26, 31)], fill=(60, 64, 72, 255))
+save(img, "entity/equipment/humanoid/hydrogen_jetpack.png")
+img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+for x in (3, 9):
+    d.rounded_rectangle([x, 2, x + 4, 12], radius=2, fill=(214, 220, 230, 255), outline=(110, 116, 128, 255))
+    d.polygon([(x + 1, 13), (x + 3, 13), (x + 4, 15), (x, 15)], fill=(255, 140, 40, 255))
+d.rectangle([7, 4, 8, 9], fill=(60, 64, 72, 255)); d.point((5, 4), fill=CYAN); d.point((11, 4), fill=CYAN)
+save(img, "item/hydrogen_jetpack.png")
+img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+d.ellipse([3, 3, 12, 12], outline=(166, 172, 150, 255), width=2)
+d.rectangle([3, 9, 5, 12], fill=(220, 60, 60, 255)); d.rectangle([10, 9, 12, 12], fill=(60, 110, 230, 255))
+save(img, "item/magnet_ring.png")
+img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+d.ellipse([3, 4, 12, 13], outline=(226, 190, 92, 255), width=2)
+d.polygon([(7, 1), (10, 3), (8, 6), (5, 3)], fill=(190, 110, 240, 255)); d.point((7, 3), fill=(255, 255, 255, 255))
+save(img, "item/analyzer_ring.png")
+def module_tex(c):
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+    d.rectangle([2, 3, 13, 12], fill=(30, 46, 40, 255), outline=(70, 96, 84, 255))
+    for x in range(3, 13, 2):
+        d.point((x, 13), fill=(226, 190, 92, 255)); d.point((x, 2), fill=(226, 190, 92, 255))
+    if c:
+        d.rectangle([5, 5, 10, 10], fill=(18, 20, 26, 255)); d.rectangle([6, 6, 9, 9], fill=c + (255,))
+    else:
+        d.rectangle([5, 5, 10, 10], fill=(18, 20, 26, 255), outline=(90, 96, 104, 255))
+    return img
+save(module_tex(None), "item/blank_module.png")
+for mid, en, pt, den, dpt, color, ingredients in EQUIP_MODULES:
+    save(module_tex(color), f"item/{mid}_module.png")
 
 print("ok", len(BASE), "itens base,", len(TAGS), "tags vanilla,", len(COMPAT), "tags de compatibilidade,",
       len(kept), "arquivos de aparência preservados")

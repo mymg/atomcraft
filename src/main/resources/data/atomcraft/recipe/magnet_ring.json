@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " R ",
+    "P P",
+    " P "
+  ],
+  "key": {
+    "R": "minecraft:redstone",
+    "P": "atomcraft:invar_plate"
+  },
+  "result": {
+    "id": "atomcraft:magnet_ring",
+    "count": 1
+  }
+}

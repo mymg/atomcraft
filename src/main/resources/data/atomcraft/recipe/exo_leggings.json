@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "TCT",
+    "P P",
+    "T T"
+  ],
+  "key": {
+    "T": "atomcraft:titanium_alloy_plate",
+    "C": "atomcraft:circuit_board",
+    "P": "minecraft:piston"
+  },
+  "result": {
+    "id": "atomcraft:exo_leggings",
+    "count": 1
+  }
+}

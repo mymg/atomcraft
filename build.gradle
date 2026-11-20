@@ -15,6 +15,12 @@ base {
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 repositories {
+    // Curios (opcional): slots de acessórios (anel, costas, amuleto)
+    maven {
+        name = 'Curios'
+        url = 'https://maven.theillusivec4.top/'
+        content { includeGroup('top.theillusivec4.curios') }
+    }
     // GeckoLib: modelos grandes e animados (Reator de Fusão)
     maven {
         name = 'GeckoLib'
@@ -24,6 +30,9 @@ repositories {
 }
 
 dependencies {
+    // Curios é opcional: compila contra a API e roda junto só no ambiente de desenvolvimento/CI.
+    compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
+    runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"
     implementation "com.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
 }
 

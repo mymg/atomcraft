@@ -47,6 +47,11 @@ public final class ModNetwork {
             if (payload.partition().isEmpty()) stack.remove(ModComponents.DISK_PARTITION.get());
             else stack.set(ModComponents.DISK_PARTITION.get(), payload.partition());
         });
+        registrar.playToServer(JetpackPayload.TYPE, JetpackPayload.STREAM_CODEC, (payload, context) -> {
+            if (!(context.player() instanceof ServerPlayer player)) return;
+            if (payload.toggleHover()) com.atomcraft.equipment.EquipmentEvents.toggleHover(player);
+            else com.atomcraft.equipment.EquipmentEvents.setJetState(player, Math.max(0, Math.min(2, payload.state())));
+        });
         registrar.playToClient(MachineInfoPayload.TYPE, MachineInfoPayload.STREAM_CODEC, (payload, context) -> {
             if (context.player().containerMenu instanceof BaseMenu menu && menu.containerId == payload.containerId()) {
                 menu.setOwnerName(payload.ownerName());

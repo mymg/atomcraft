@@ -33,13 +33,21 @@ import java.util.function.Consumer;
  * quebrados viram elementos direto nos Drives da rede (se couberem), e a bateria recarrega sozinha
  * pelo Transmissor Sem Fio. Agachado + clique alterna entre desintegrar e soltar os itens normalmente.
  */
-public class AtomicDisintegratorItem extends Item {
+public class AtomicDisintegratorItem extends Item implements com.atomcraft.equipment.ModularItem {
 
     public static final int CAPACITY = 100_000, CHARGE_PER_TICK = 2_000;
     private static final float SPEED = 14f;
 
+    /** Evita que os blocos da área quebrem outra área (destroyBlock chama mineBlock de novo). */
+    private static boolean breakingArea;
+
     public AtomicDisintegratorItem(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    public com.atomcraft.equipment.EquipmentKind kind() {
+        return com.atomcraft.equipment.EquipmentKind.DISINTEGRATOR;
     }
 
     public static int energy(ItemStack stack) {
@@ -67,7 +75,8 @@ public class AtomicDisintegratorItem extends Item {
 
     @Override
     public float getDestroySpeed(ItemStack stack, BlockState state) {
-        return powered(stack) && mineable(state) ? SPEED : 1f;
+        return powered(stack) && mineable(state)
+                ? SPEED + 6f * com.atomcraft.equipment.ModularItem.level(stack, com.atomcraft.equipment.EquipmentModule.EFFICIENCY) : 1f;
     }
 
     @Override
@@ -79,8 +88,45 @@ public class AtomicDisintegratorItem extends Item {
     public boolean mineBlock(ItemStack stack, Level level, BlockState state, BlockPos pos, LivingEntity miner) {
         if (!level.isClientSide() && state.getDestroySpeed(level, pos) != 0f && powered(stack)) {
             setEnergy(stack, energy(stack) - Config.DISINTEGRATOR_ENERGY.get());
+            if (!breakingArea && miner instanceof net.minecraft.server.level.ServerPlayer player && !player.isShiftKeyDown()
+                    && com.atomcraft.equipment.ModularItem.level(stack, com.atomcraft.equipment.EquipmentModule.AREA) > 0) {
+                breakArea(player, stack, pos, state.getDestroySpeed(level, pos));
+            }
         }
         return true;
+    }
+
+    /**
+     * Módulo de Área: quebra os 8 blocos em volta, no plano perpendicular a para onde o jogador olha
+     * (blocos bem mais duros que o do meio ficam). Agachado quebra só um.
+     */
+    public static int breakArea(net.minecraft.server.level.ServerPlayer player, ItemStack stack, BlockPos center, float hardness) {
+        net.minecraft.world.phys.Vec3 look = player.getLookAngle();
+        double ax = Math.abs(look.x), ay = Math.abs(look.y), az = Math.abs(look.z);
+        net.minecraft.core.Direction.Axis axis = ay >= ax && ay >= az ? net.minecraft.core.Direction.Axis.Y
+                : ax >= az ? net.minecraft.core.Direction.Axis.X : net.minecraft.core.Direction.Axis.Z;
+        int broken = 0;
+        breakingArea = true;
+        try {
+            for (int a = -1; a <= 1; a++) {
+                for (int b = -1; b <= 1; b++) {
+                    if (a == 0 && b == 0) continue;
+                    BlockPos target = switch (axis) {
+                        case X -> center.offset(0, a, b);
+                        case Y -> center.offset(a, 0, b);
+                        case Z -> center.offset(a, b, 0);
+                    };
+                    BlockState state = player.level().getBlockState(target);
+                    float targetHardness = state.getDestroySpeed(player.level(), target);
+                    if (state.isAir() || targetHardness < 0 || targetHardness > hardness * 2 + 1 || !mineable(state)) continue;
+                    if (!powered(player.getMainHandItem()) || player.getMainHandItem() != stack) break;
+                    if (player.gameMode.destroyBlock(target)) broken++;
+                }
+            }
+        } finally {
+            breakingArea = false;
+        }
+        return broken;
     }
 
     /** Recarrega a bateria pelo Transmissor Sem Fio vinculado. */
@@ -146,6 +192,7 @@ public class AtomicDisintegratorItem extends Item {
                 String.format("%,d", energy(stack)), String.format("%,d", CAPACITY)).withStyle(ChatFormatting.GRAY));
         tooltip.accept(Component.translatable(atomizes(stack) ? "tooltip.atomcraft.disintegrate_on" : "tooltip.atomcraft.disintegrate_off")
                 .withStyle(atomizes(stack) ? ChatFormatting.AQUA : ChatFormatting.DARK_GRAY));
+        com.atomcraft.equipment.ModularItem.appendModules(stack, kind(), tooltip);
         tooltip.accept(Component.translatable("tooltip.atomcraft.disintegrator_hint").withStyle(ChatFormatting.DARK_GRAY));
     }
 }

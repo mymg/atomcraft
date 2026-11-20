@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "T T",
+    "CBC",
+    "TTT"
+  ],
+  "key": {
+    "T": "atomcraft:titanium_alloy_plate",
+    "C": "atomcraft:circuit_board",
+    "B": "atomcraft:basic_energy_cell"
+  },
+  "result": {
+    "id": "atomcraft:exo_chestplate",
+    "count": 1
+  }
+}

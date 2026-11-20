@@ -84,6 +84,15 @@ public final class ModCreativeTab {
                         output.accept(item.get());
                     }
                 }
+                for (var item : com.atomcraft.equipment.ModEquipment.TAB_ORDER) {
+                    ItemStack stack = new ItemStack(item.get());
+                    if (item.get() instanceof com.atomcraft.equipment.ExoArmorItem) {
+                        com.atomcraft.equipment.Battery.set(stack, com.atomcraft.equipment.ExoArmorItem.CAPACITY, com.atomcraft.equipment.ExoArmorItem.CAPACITY);
+                    } else if (item.get() instanceof com.atomcraft.equipment.JetpackItem) {
+                        com.atomcraft.equipment.JetpackItem.setFuel(stack, com.atomcraft.equipment.JetpackItem.capacity());
+                    }
+                    output.accept(stack);
+                }
             })
             .build());
 

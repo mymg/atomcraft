@@ -242,6 +242,9 @@ final class Showcase {
             player.getInventory().add(new net.minecraft.world.item.ItemStack(com.atomcraft.tools.ModTools.PICKAXES.get(tier).get()));
         }
         for (var armor : com.atomcraft.tools.ModTools.ARMOR) player.getInventory().add(new net.minecraft.world.item.ItemStack(armor.get()));
+        // Bancada de Módulos; o Anel Analisador no inventário mostra a composição do bloco mirado nos prints do mundo
+        level.setBlock(base.south(7), com.atomcraft.equipment.ModEquipment.MODULE_BENCH.get().defaultBlockState(), Block.UPDATE_ALL);
+        player.getInventory().add(new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.ANALYZER_RING.get()));
 
         level.setBlock(base.south(4), ModBlocks.ALLOY_FORGE.get().defaultBlockState(), Block.UPDATE_ALL);
         if (level.getBlockEntity(base.south(4)) instanceof com.atomcraft.block.entity.AlloyForgeBlockEntity forge) {
@@ -297,7 +300,21 @@ final class Showcase {
         if (target != null && level.getBlockEntity(target) instanceof MenuProvider provider) {
             player.openMenu(provider);
         }
-        if (ticks == 2960) {
+        if (ticks == 2920) {
+            // Bancada com o peitoral do exoesqueleto (escudo + blindagem II)
+            com.atomcraft.block.ModuleBenchBlock.open(player, base.south(7));
+            if (player.containerMenu instanceof com.atomcraft.menu.ModuleBenchMenu bench) {
+                var chest = new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.EXO_CHESTPLATE.get());
+                com.atomcraft.equipment.Battery.set(chest, 180_000, com.atomcraft.equipment.ExoArmorItem.CAPACITY);
+                var modules = com.atomcraft.equipment.ModEquipment.MODULES;
+                com.atomcraft.equipment.ModularItem.setModules(chest, List.of(
+                        new net.minecraft.world.item.ItemStack(modules.get(com.atomcraft.equipment.EquipmentModule.SHIELD).get()),
+                        new net.minecraft.world.item.ItemStack(modules.get(com.atomcraft.equipment.EquipmentModule.PLATING).get(), 2),
+                        net.minecraft.world.item.ItemStack.EMPTY));
+                bench.insertEquipment(chest);
+            }
+        }
+        if (ticks == 3160) {
             // Visão das máquinas de 2 blocos (Replicador, Drive, Atomizador e Analisador animados)
             player.closeContainer();
             player.getAbilities().mayfly = true;
@@ -312,14 +329,14 @@ final class Showcase {
                 }
             }
         }
-        if (ticks > 2960 && ticks < 3300 && ticks % 20 == 0) {
+        if (ticks > 3160 && ticks < 3500 && ticks % 20 == 0) {
             // Mantém a câmera no lugar (mobs/slimes podem empurrar o jogador)
             machinesView(player);
         }
-        if (ticks == 3300) {
+        if (ticks == 3500) {
             // Visão do reator formado no mundo
             player.connection.teleport(base.getX() - 3.5, base.getY() + 4, base.getZ() + 0.5, -90f, 18f);
         }
-        if (ticks == 3900) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
+        if (ticks == 4100) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
     }
 }

@@ -41,5 +41,29 @@ public final class ModComponents {
                     builder -> builder.persistent(com.mojang.serialization.Codec.BOOL)
                             .networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.BOOL));
 
+    /** Módulos instalados num equipamento (Bancada de Módulos). */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<net.minecraft.world.item.component.ItemContainerContents>> INSTALLED_MODULES =
+            COMPONENTS.registerComponentType("installed_modules",
+                    builder -> builder.persistent(net.minecraft.world.item.component.ItemContainerContents.CODEC)
+                            .networkSynchronized(net.minecraft.world.item.component.ItemContainerContents.STREAM_CODEC));
+
+    /** Hidrogênio no tanque do Jetpack. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> HYDROGEN =
+            COMPONENTS.registerComponentType("hydrogen",
+                    builder -> builder.persistent(com.mojang.serialization.Codec.INT)
+                            .networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.VAR_INT));
+
+    /** Jetpack: modo de flutuação ligado. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> HOVER =
+            COMPONENTS.registerComponentType("hover",
+                    builder -> builder.persistent(com.mojang.serialization.Codec.BOOL)
+                            .networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.BOOL));
+
+    /** Acessório ligado/desligado (Anel Magnético). */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> ACTIVE =
+            COMPONENTS.registerComponentType("active",
+                    builder -> builder.persistent(com.mojang.serialization.Codec.BOOL)
+                            .networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.BOOL));
+
     private ModComponents() {}
 }

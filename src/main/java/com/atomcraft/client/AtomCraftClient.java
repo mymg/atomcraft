@@ -50,6 +50,7 @@ public class AtomCraftClient {
         ElementDiskItem.openPartitionScreen = hand -> Minecraft.getInstance().gui.setScreen(new PartitionScreen(hand));
         NeoForge.EVENT_BUS.addListener(AtomCraftClient::onTooltip);
         ClientShowcase.register();
+        EquipmentClient.register(modBus);
     }
 
     private static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
@@ -74,6 +75,7 @@ public class AtomCraftClient {
         event.register(ModMenus.ALLOY_FORGE.get(), com.atomcraft.client.screen.AlloyForgeScreen::new);
         event.register(ModMenus.ENERGY_CELL.get(), com.atomcraft.client.screen.EnergyCellScreen::new);
         event.register(ModMenus.WIRELESS_TRANSMITTER.get(), com.atomcraft.client.screen.WirelessTransmitterScreen::new);
+        event.register(ModMenus.MODULE_BENCH.get(), com.atomcraft.client.screen.ModuleBenchScreen::new);
     }
 
     /** Mostra a fórmula, a raridade e o progresso de pesquisa no tooltip de cada item. */

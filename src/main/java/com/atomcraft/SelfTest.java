@@ -179,6 +179,7 @@ final class SelfTest {
         replicatorTiers(level, failures);
         energyStorage(level, failures);
         toolsAndWireless(level, failures);
+        equipment(level, failures);
     }
 
     /** Ferramentas/armaduras de liga, Cartão de Rede + Transmissor Sem Fio e o Desintegrador Atômico. */
@@ -233,6 +234,128 @@ final class SelfTest {
                 "pedregulho desintegrado vai para a rede");
         long after = transmitter.network().totals().elements().values().stream().mapToLong(Long::longValue).sum();
         check(failures, after > before, "rede ganhou os elementos do pedregulho (" + before + " → " + after + ")");
+    }
+
+    /** Bancada de Módulos, Exoesqueleto, Jetpack, Anel Magnético, Desintegrador com módulos e Curios. */
+    private static void equipment(ServerLevel level, List<String> failures) {
+        BlockPos drivePos = new BlockPos(0, 120, 116);
+        level.getChunk(drivePos);
+        place(level, drivePos, ModBlocks.DRIVE.get());
+        place(level, drivePos.east(), com.atomcraft.tools.ModTools.WIRELESS_TRANSMITTER.get());
+        place(level, drivePos.west(), com.atomcraft.equipment.ModEquipment.MODULE_BENCH.get());
+        ((DriveBlockEntity) level.getBlockEntity(drivePos)).disks().set(0, ItemResource.of(ModItems.DISK_64K.get()), 1);
+        var transmitter = (com.atomcraft.block.entity.WirelessTransmitterBlockEntity) level.getBlockEntity(drivePos.east());
+        transmitter.energy().set(500_000);
+        transmitter.network().insert(new com.atomcraft.chemistry.Composition(java.util.Map.of(com.atomcraft.chemistry.ChemicalElement.HYDROGEN, 5_000L)), 1);
+        var player = net.neoforged.neoforge.common.util.FakePlayerFactory.get(level,
+                new com.mojang.authlib.GameProfile(java.util.UUID.fromString("00000000-0000-0000-0000-00000000e9a1"), "atomcraft_equipment"));
+        player.setPos(drivePos.getX() + 2, drivePos.getY(), drivePos.getZ() + 1);
+        player.getInventory().clearContent();
+        var modules = com.atomcraft.equipment.ModEquipment.MODULES;
+
+        // Bancada: instala, tira o equipamento (módulos vão junto), devolve e lê de novo
+        var bench = new com.atomcraft.menu.ModuleBenchMenu(0, player.getInventory(), drivePos.west());
+        var legs = new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.EXO_LEGGINGS.get());
+        bench.insertEquipment(legs);
+        check(failures, !bench.accepts(0, new net.minecraft.world.item.ItemStack(modules.get(com.atomcraft.equipment.EquipmentModule.NIGHT_VISION).get())),
+                "bancada recusa visão noturna nas calças");
+        check(failures, !bench.accepts(2, new net.minecraft.world.item.ItemStack(modules.get(com.atomcraft.equipment.EquipmentModule.SPEED).get())),
+                "calças têm só 2 slots");
+        bench.insertModule(0, new net.minecraft.world.item.ItemStack(modules.get(com.atomcraft.equipment.EquipmentModule.SPEED).get(), 2));
+        bench.insertModule(1, new net.minecraft.world.item.ItemStack(modules.get(com.atomcraft.equipment.EquipmentModule.STEP_ASSIST).get()));
+        check(failures, !bench.accepts(1, new net.minecraft.world.item.ItemStack(modules.get(com.atomcraft.equipment.EquipmentModule.SPEED).get())),
+                "bancada não repete módulo em dois slots");
+        check(failures, com.atomcraft.equipment.ModularItem.level(legs, com.atomcraft.equipment.EquipmentModule.SPEED) == 2
+                && com.atomcraft.equipment.ModularItem.level(legs, com.atomcraft.equipment.EquipmentModule.STEP_ASSIST) == 1,
+                "módulos gravados nas calças (velocidade II, degraus)");
+        bench.insertEquipment(net.minecraft.world.item.ItemStack.EMPTY);
+        check(failures, bench.slots.get(1).getItem().isEmpty() && bench.slots.get(2).getItem().isEmpty(), "tirar o equipamento leva os módulos");
+        bench.insertEquipment(legs);
+        check(failures, bench.slots.get(1).getItem().getCount() == 2, "módulos voltam ao recolocar o equipamento");
+        bench.removed(player);
+        check(failures, bench.equipment().isEmpty() && bench.slots.get(1).getItem().isEmpty(), "fechar a bancada esvazia os slots (equipamento devolvido)");
+        player.getInventory().clearContent();
+
+        // Exoesqueleto: velocidade e degraus com energia; sem energia, param
+        player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.LEGS, legs);
+        com.atomcraft.equipment.Battery.set(legs, 1_000, com.atomcraft.equipment.ExoArmorItem.CAPACITY);
+        com.atomcraft.equipment.EquipmentEvents.tickExo(player, 10);
+        var speed = player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED);
+        var step = player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.STEP_HEIGHT);
+        check(failures, speed.hasModifier(AtomCraft.id("exo_speed")) && step.getValue() > 1.0, "calças com energia: velocidade e degraus");
+        check(failures, com.atomcraft.equipment.Battery.energy(legs) == 1_000 - (2 * 2 + 1) * 10, "módulos gastam energia (" + com.atomcraft.equipment.Battery.energy(legs) + ")");
+        com.atomcraft.equipment.Battery.set(legs, 0, com.atomcraft.equipment.ExoArmorItem.CAPACITY);
+        com.atomcraft.equipment.EquipmentEvents.tickExo(player, 10);
+        check(failures, !speed.hasModifier(AtomCraft.id("exo_speed")), "sem energia os módulos param");
+
+        // Escudo no peitoral e recarga sem fio
+        var chest = new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.EXO_CHESTPLATE.get());
+        com.atomcraft.equipment.ModularItem.setModules(chest, List.of(new net.minecraft.world.item.ItemStack(modules.get(com.atomcraft.equipment.EquipmentModule.SHIELD).get()),
+                new net.minecraft.world.item.ItemStack(modules.get(com.atomcraft.equipment.EquipmentModule.PLATING).get(), 3),
+                net.minecraft.world.item.ItemStack.EMPTY));
+        player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, chest);
+        com.atomcraft.equipment.Battery.set(chest, 5_000, com.atomcraft.equipment.ExoArmorItem.CAPACITY);
+        float left = com.atomcraft.equipment.EquipmentEvents.absorb(player, 4f);
+        check(failures, left == 0f && com.atomcraft.equipment.Battery.energy(chest) == 1_000, "escudo absorve 4 de dano com 4.000 FE");
+        com.atomcraft.equipment.EquipmentEvents.tickExo(player, 10);
+        check(failures, player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ARMOR).hasModifier(AtomCraft.id("exo_plating_chest")),
+                "blindagem III no peitoral dá armadura");
+        var card = new net.minecraft.world.item.ItemStack(com.atomcraft.tools.ModTools.NETWORK_CARD.get());
+        card.set(ModComponents.WIRELESS_LINK.get(), new com.atomcraft.wireless.WirelessLink(level.dimension(), drivePos.east(),
+                player.getUUID(), player.getName().getString()));
+        player.getInventory().setItem(0, card);
+        com.atomcraft.equipment.EquipmentEvents.recharge(player);
+        check(failures, com.atomcraft.equipment.Battery.energy(chest) > 1_000 && com.atomcraft.equipment.Battery.energy(legs) > 0,
+                "exoesqueleto recarrega pelo transmissor");
+
+        // Jetpack: reabastece hidrogênio da rede
+        player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, net.minecraft.world.item.ItemStack.EMPTY);
+        var jetpack = new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.JETPACK.get());
+        player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, jetpack);
+        check(failures, com.atomcraft.equipment.Worn.jetpack(player) == jetpack, "jetpack vestido no peito");
+        long hBefore = transmitter.network().totals().get(com.atomcraft.chemistry.ChemicalElement.HYDROGEN);
+        com.atomcraft.equipment.EquipmentEvents.recharge(player);
+        long hAfter = transmitter.network().totals().get(com.atomcraft.chemistry.ChemicalElement.HYDROGEN);
+        int fuel = com.atomcraft.equipment.JetpackItem.fuel(jetpack);
+        check(failures, fuel > 0 && hBefore - hAfter == fuel, "jetpack tira hidrogênio da rede (" + fuel + " H)");
+
+        // Anel Magnético puxa itens próximos
+        player.getInventory().setItem(1, new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.MAGNET.get()));
+        var dropped = new net.minecraft.world.entity.item.ItemEntity(level, player.getX() + 5, player.getY(), player.getZ(),
+                new net.minecraft.world.item.ItemStack(Items.COBBLESTONE));
+        level.addFreshEntity(dropped);
+        int pulled = com.atomcraft.equipment.MagnetItem.pull(player);
+        check(failures, pulled >= 1 && dropped.getDeltaMovement().x < 0, "anel magnético puxa o item em direção ao jogador");
+        dropped.discard();
+
+        // Desintegrador com Eficiência é mais rápido
+        var plain = new net.minecraft.world.item.ItemStack(com.atomcraft.tools.ModTools.DISINTEGRATOR.get());
+        var fast = new net.minecraft.world.item.ItemStack(com.atomcraft.tools.ModTools.DISINTEGRATOR.get());
+        com.atomcraft.tools.AtomicDisintegratorItem.setEnergy(plain, 50_000);
+        com.atomcraft.tools.AtomicDisintegratorItem.setEnergy(fast, 50_000);
+        com.atomcraft.equipment.ModularItem.setModules(fast, List.of(new net.minecraft.world.item.ItemStack(modules.get(com.atomcraft.equipment.EquipmentModule.EFFICIENCY).get(), 3),
+                net.minecraft.world.item.ItemStack.EMPTY, net.minecraft.world.item.ItemStack.EMPTY));
+        check(failures, fast.getDestroySpeed(Blocks.STONE.defaultBlockState()) > plain.getDestroySpeed(Blocks.STONE.defaultBlockState()),
+                "módulo de Eficiência acelera o desintegrador");
+
+        // Curios: slots de anel/costas/amuleto e acessório equipado conta
+        if (com.atomcraft.compat.Curios.LOADED) {
+            check(failures, com.atomcraft.compat.Curios.hasPlayerSlot(level, "ring") && com.atomcraft.compat.Curios.hasPlayerSlot(level, "back")
+                    && com.atomcraft.compat.Curios.hasPlayerSlot(level, "charm"), "Curios: jogador tem slots de anel, costas e amuleto");
+            player.getInventory().clearContent();
+            player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, net.minecraft.world.item.ItemStack.EMPTY);
+            var ring = new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.ANALYZER_RING.get());
+            boolean equipped = com.atomcraft.compat.Curios.equip(player, "ring", ring);
+            check(failures, equipped && com.atomcraft.equipment.Worn.hasAnalyzer(player), "Curios: Anel Analisador no slot de anel funciona");
+            boolean back = com.atomcraft.compat.Curios.equip(player, "back", jetpack);
+            check(failures, back && com.atomcraft.equipment.Worn.jetpack(player) == jetpack, "Curios: jetpack nas costas funciona");
+            com.atomcraft.compat.Curios.equip(player, "ring", net.minecraft.world.item.ItemStack.EMPTY);
+            com.atomcraft.compat.Curios.equip(player, "back", net.minecraft.world.item.ItemStack.EMPTY);
+        } else {
+            AtomCraft.LOGGER.info("AtomCraft SELFTEST Curios ausente: integração não testada");
+        }
+        player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.LEGS, net.minecraft.world.item.ItemStack.EMPTY);
+        player.getInventory().clearContent();
     }
 
     /** Células de Energia (lados, rede, item) e Matriz de Energia (estrutura 3×5×3 e portas). */

@@ -25,6 +25,7 @@ public final class Wireless {
         List<ItemStack> stacks = new ArrayList<>();
         var inventory = player.getInventory();
         for (int i = 0; i < inventory.getContainerSize(); i++) stacks.add(inventory.getItem(i));
+        stacks.addAll(com.atomcraft.compat.Curios.equipped(player));
         return stacks;
     }
 

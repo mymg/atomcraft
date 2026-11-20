@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "atomcraft:exoskeleton"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "atomcraft:exoskeleton"
+      }
+    ]
+  }
+}

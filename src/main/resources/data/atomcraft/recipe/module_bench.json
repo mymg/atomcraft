@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "CTC",
+    "P P",
+    "PPP"
+  ],
+  "key": {
+    "C": "atomcraft:circuit_board",
+    "T": "minecraft:smithing_table",
+    "P": "atomcraft:steel_plate"
+  },
+  "result": {
+    "id": "atomcraft:module_bench",
+    "count": 1
+  }
+}
