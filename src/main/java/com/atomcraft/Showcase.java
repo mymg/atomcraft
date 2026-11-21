@@ -324,7 +324,12 @@ final class Showcase {
             default -> null;
         };
         if (target != null) {
-            player.connection.teleport(start.x, start.y, start.z, player.getYRot(), player.getXRot());
+            if (ticks == 3120) {
+                // O carregador fica longe do ponto inicial: o menu fecharia por distância.
+                player.connection.teleport(target.getX() - 1.5, target.getY(), target.getZ() + 0.5, player.getYRot(), player.getXRot());
+            } else {
+                player.connection.teleport(start.x, start.y, start.z, player.getYRot(), player.getXRot());
+            }
             if (level.getBlockEntity(target) instanceof MenuProvider provider) player.openMenu(provider);
             AtomCraft.LOGGER.info("AtomCraft SHOWCASE tick {}: abrindo {} ({})", ticks, target, level.getBlockState(target).getBlock());
         }
