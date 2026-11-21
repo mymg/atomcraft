@@ -84,6 +84,12 @@ public class WirelessTransmitterBlockEntity extends MachineBlockEntity implement
     }
 
     @Override
+    public void setLevel(net.minecraft.world.level.Level level) {
+        super.setLevel(level);
+        com.atomcraft.wireless.Wireless.register(this);
+    }
+
+    @Override
     public void setRemoved() {
         super.setRemoved();
         com.atomcraft.wireless.Wireless.unregister(this);
@@ -103,6 +109,7 @@ public class WirelessTransmitterBlockEntity extends MachineBlockEntity implement
 
     @Override
     public void serverTick() {
+        com.atomcraft.wireless.Wireless.register(this);
         status = network().hasStorage() ? MachineStatus.WORKING : MachineStatus.NO_STORAGE;
     }
 
