@@ -77,4 +77,8 @@ public class ChunkLoaderMenu extends BaseMenu {
     public int costPerChunk() {
         return data.get(ChunkLoaderBlockEntity.DATA_COST);
     }
+
+    public com.atomcraft.block.entity.MachineStatus status() {
+        return com.atomcraft.block.entity.MachineStatus.byId(data.get(ChunkLoaderBlockEntity.DATA_STATUS));
+    }
 }

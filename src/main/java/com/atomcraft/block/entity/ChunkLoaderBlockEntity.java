@@ -41,7 +41,7 @@ public class ChunkLoaderBlockEntity extends MachineBlockEntity implements Energy
 
     public static final int MAX_RADIUS = 2, GRID = MAX_RADIUS * 2 + 1, CENTER = GRID * GRID / 2;
     public static final int DATA_ENERGY_LO = 0, DATA_ENERGY_HI = 1, DATA_CAPACITY_LO = 2, DATA_CAPACITY_HI = 3,
-            DATA_MASK_LO = 4, DATA_MASK_HI = 5, DATA_LOADED = 6, DATA_RADIUS = 7, DATA_MAX = 8, DATA_COST = 9, DATA_COUNT = 10;
+            DATA_MASK_LO = 4, DATA_MASK_HI = 5, DATA_LOADED = 6, DATA_RADIUS = 7, DATA_MAX = 8, DATA_COST = 9, DATA_STATUS = 10, DATA_COUNT = 11;
 
     private final SimpleEnergyHandler energy = new SimpleEnergyHandler(Config.CHUNK_LOADER_CAPACITY.get(),
             Math.max(1, Config.CHUNK_LOADER_CAPACITY.get() / 20), 0) {
@@ -73,6 +73,7 @@ public class ChunkLoaderBlockEntity extends MachineBlockEntity implements Energy
                 case DATA_RADIUS -> radius();
                 case DATA_MAX -> Config.CHUNK_LOADER_MAX_CHUNKS.get();
                 case DATA_COST -> Config.CHUNK_LOADER_ENERGY.get();
+                case DATA_STATUS -> status.ordinal();
                 default -> 0;
             };
         }
