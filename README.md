@@ -210,6 +210,18 @@ estrutura incompleta, a interface lista as peças que faltam e o botão **Mostra
 cada peça no lugar onde ela vai. Formado, os blocos somem e aparece o modelo do replicador (com os conectores das
 portas), animado enquanto replica.
 
+## JEI (opcional)
+
+Com o JEI instalado, o AtomCraft ganha abas próprias:
+
+- **Forja de Ligas** e **Sintetizador**: "R" numa liga ou num item do Sintetizador mostra os elementos, a energia e o
+  tempo (o Sintetizador precisa da schematic na biblioteca);
+- **Combustível**: "U" num item mostra quanto FE ele rende no Gerador de Combustão;
+- **Atomizador**: "U" num item mostra quais elementos ele dá ao ser atomizado.
+
+Os elementos aparecem como fichas com o símbolo e a quantidade (passe o mouse para ver o nome); elementos ainda não
+descobertos aparecem como "?".
+
 ## Controle por redstone
 
 Toda máquina com interface tem a aba de redstone (ícone de tocha, abaixo do botão de ligar): **sempre ligada**,

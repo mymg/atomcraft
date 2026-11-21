@@ -24,11 +24,17 @@ public final class ModNetwork {
     public static void register(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar("1");
         registrar.playToClient(ValuesSyncPayload.TYPE, ValuesSyncPayload.STREAM_CODEC,
-                (payload, context) -> AtomicValues.setClientValues(payload.values()));
+                (payload, context) -> {
+                    AtomicValues.setClientValues(payload.values());
+                    com.atomcraft.compat.JeiBridge.dataChanged();
+                });
         registrar.playToClient(ResearchSyncPayload.TYPE, ResearchSyncPayload.STREAM_CODEC,
                 (payload, context) -> ClientState.setResearch(payload.progress(), payload.discovered()));
         registrar.playToClient(AlloySyncPayload.TYPE, AlloySyncPayload.STREAM_CODEC,
-                (payload, context) -> com.atomcraft.alloy.AlloyRecipes.set(payload.recipes()));
+                (payload, context) -> {
+                    com.atomcraft.alloy.AlloyRecipes.set(payload.recipes());
+                    com.atomcraft.compat.JeiBridge.dataChanged();
+                });
         registrar.playToClient(NetworkContentsPayload.TYPE, NetworkContentsPayload.STREAM_CODEC,
                 (payload, context) -> ClientState.setNetwork(payload.totals(), payload.capacity(), payload.used()));
         registrar.playToServer(ReplicatePayload.TYPE, ReplicatePayload.STREAM_CODEC, ModNetwork::handleReplicate);

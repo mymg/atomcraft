@@ -15,6 +15,12 @@ base {
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 repositories {
+    // JEI (opcional): abas de receitas do mod
+    maven {
+        name = 'BlameJared'
+        url = 'https://maven.blamejared.com/'
+        content { includeGroup('mezz.jei'); includeGroup('net.mezzdev.config') }
+    }
     // Curios (opcional): slots de acessórios (anel, costas, amuleto)
     maven {
         name = 'Curios'
@@ -30,6 +36,10 @@ repositories {
 }
 
 dependencies {
+    // JEI é opcional: compila contra a API e roda junto só no ambiente de desenvolvimento/CI.
+    compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
+    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
+    runtimeOnly "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
     // Curios é opcional: compila contra a API e roda junto só no ambiente de desenvolvimento/CI.
     compileOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}:api"
     runtimeOnly "top.theillusivec4.curios:curios-neoforge:${curios_version}"

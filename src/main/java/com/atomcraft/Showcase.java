@@ -370,6 +370,6 @@ final class Showcase {
             // Visão das estruturas: Matriz formada (modelo), Replicador Quântico e um segundo quântico com a prévia
             player.connection.teleport(base.getX() - 13.5, base.getY() + 3.5, base.getZ() + 0.5, -90f, 12f);
         }
-        if (ticks == 4300) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
+        if (ticks == 4600) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
     }
 }
