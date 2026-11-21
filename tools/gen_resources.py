@@ -868,7 +868,7 @@ MAT_LANG.update({
     "jei.atomcraft.combustion_fuel": ("Combustion Fuel", "Combustível (Gerador de Combustão)"),
     "jei.atomcraft.atomizer": ("Atomizer", "Atomizador"),
     "jei.atomcraft.energy_time": ("%s FE · %s s", "%s FE · %s s"),
-    "jei.atomcraft.needs_schematic": ("Needs the schematic in the library", "Precisa da schematic na biblioteca"),
+    "jei.atomcraft.needs_schematic": ("Needs its schematic", "Precisa da schematic"),
     "jei.atomcraft.undiscovered": ("Undiscovered element", "Elemento não descoberto"),
     "gui.atomcraft.bench_energy": ("Bench energy", "Energia da bancada"),
     "gui.atomcraft.bench_energy_hint": ("Charges the equipment and your worn armor", "Recarrega o equipamento e a armadura vestida"),

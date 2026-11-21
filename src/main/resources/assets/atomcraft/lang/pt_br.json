@@ -396,7 +396,7 @@
   "jei.atomcraft.combustion_fuel": "Combustível (Gerador de Combustão)",
   "jei.atomcraft.atomizer": "Atomizador",
   "jei.atomcraft.energy_time": "%s FE · %s s",
-  "jei.atomcraft.needs_schematic": "Precisa da schematic na biblioteca",
+  "jei.atomcraft.needs_schematic": "Precisa da schematic",
   "jei.atomcraft.undiscovered": "Elemento não descoberto",
   "gui.atomcraft.bench_energy": "Energia da bancada",
   "gui.atomcraft.bench_energy_hint": "Recarrega o equipamento e a armadura vestida",

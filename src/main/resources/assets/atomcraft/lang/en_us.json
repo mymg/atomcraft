@@ -396,7 +396,7 @@
   "jei.atomcraft.combustion_fuel": "Combustion Fuel",
   "jei.atomcraft.atomizer": "Atomizer",
   "jei.atomcraft.energy_time": "%s FE · %s s",
-  "jei.atomcraft.needs_schematic": "Needs the schematic in the library",
+  "jei.atomcraft.needs_schematic": "Needs its schematic",
   "jei.atomcraft.undiscovered": "Undiscovered element",
   "gui.atomcraft.bench_energy": "Bench energy",
   "gui.atomcraft.bench_energy_hint": "Charges the equipment and your worn armor",
