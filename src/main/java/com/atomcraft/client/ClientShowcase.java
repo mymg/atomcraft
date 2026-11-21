@@ -26,7 +26,7 @@ final class ClientShowcase {
     private static @Nullable Screen current;
     private static int ticks;
     private static int screensSeen;
-    private static int idleTicks;
+    private static int idleTicks, jeiTicks;
     private static boolean worldCaptured, machinesCaptured;
 
     private ClientShowcase() {}
@@ -38,6 +38,17 @@ final class ClientShowcase {
 
     private static void onTick(ClientTickEvent.Post event) {
         Screen screen = Minecraft.getInstance().gui.screen();
+        if (machinesCaptured && jeiTicks < 320) {
+            // Por último, as abas do AtomCraft no JEI (se o JEI estiver instalado)
+            jeiTicks++;
+            String[] categories = {"alloy_forge", "atomizer", "combustion_fuel", "synthesizer"};
+            for (int i = 0; i < categories.length; i++) {
+                if (jeiTicks == 20 + i * 70) com.atomcraft.compat.JeiBridge.showCategory.accept(categories[i]);
+                if (jeiTicks == 70 + i * 70 && screen != null) AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture jei_{}", categories[i]);
+            }
+            if (jeiTicks == 310 && screen != null) Minecraft.getInstance().gui.setScreen(null);
+            return;
+        }
         if (screen == null && screensSeen >= 15 && !machinesCaptured) {
             // Depois das interfaces, o servidor fecha o menu e posiciona a câmera nas máquinas e depois no reator.
             idleTicks++;
