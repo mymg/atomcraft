@@ -55,6 +55,8 @@ public class AtomCraft {
         NeoForge.EVENT_BUS.addListener(com.atomcraft.tools.ToolEvents::onBlockDrops);
         NeoForge.EVENT_BUS.addListener(com.atomcraft.tools.ToolEvents::onEnchantmentLevel);
         com.atomcraft.equipment.EquipmentEvents.register();
+        modBus.addListener((net.neoforged.neoforge.common.world.chunk.RegisterTicketControllersEvent event) ->
+                event.register(com.atomcraft.block.entity.ChunkLoaderBlockEntity.TICKETS));
         Showcase.register();
     }
 

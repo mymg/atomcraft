@@ -39,6 +39,12 @@ public final class ModNetwork {
                 (payload, context) -> ClientState.setNetwork(payload.totals(), payload.capacity(), payload.used()));
         registrar.playToServer(ReplicatePayload.TYPE, ReplicatePayload.STREAM_CODEC, ModNetwork::handleReplicate);
         registrar.playToServer(MachineTogglePayload.TYPE, MachineTogglePayload.STREAM_CODEC, ModNetwork::handleToggle);
+        registrar.playToServer(ChunkLoaderPayload.TYPE, ChunkLoaderPayload.STREAM_CODEC, (payload, context) -> {
+            if (!(context.player() instanceof ServerPlayer player) || !inReach(player, payload.pos())) return;
+            if (player.level().getBlockEntity(payload.pos()) instanceof com.atomcraft.block.entity.ChunkLoaderBlockEntity loader) {
+                loader.toggle(payload.cell());
+            }
+        });
         registrar.playToServer(SynthesizePayload.TYPE, SynthesizePayload.STREAM_CODEC, ModNetwork::handleSynthesize);
         registrar.playToServer(SideConfigPayload.TYPE, SideConfigPayload.STREAM_CODEC, (payload, context) -> {
             if (!(context.player() instanceof ServerPlayer player) || !inReach(player, payload.pos())) return;

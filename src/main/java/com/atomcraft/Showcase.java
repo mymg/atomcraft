@@ -261,6 +261,13 @@ final class Showcase {
         for (var armor : com.atomcraft.tools.ModTools.ARMOR) player.getInventory().add(new net.minecraft.world.item.ItemStack(armor.get()));
         // Bancada de Módulos; o Anel Analisador no inventário mostra a composição do bloco mirado nos prints do mundo
         level.setBlock(base.south(7), com.atomcraft.equipment.ModEquipment.MODULE_BENCH.get().defaultBlockState(), Block.UPDATE_ALL);
+        // Carregador de Chunks com algumas chunks escolhidas
+        level.setBlock(base.south(8), ModBlocks.CHUNK_LOADER.get().defaultBlockState(), Block.UPDATE_ALL);
+        if (level.getBlockEntity(base.south(8)) instanceof com.atomcraft.block.entity.ChunkLoaderBlockEntity loader) {
+            loader.setOwner(player);
+            loader.energy().set(400_000);
+            for (int cell : new int[]{7, 11, 13, 17, 6}) loader.toggle(cell);
+        }
         player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND,
                 new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.ANALYZER_RING.get()));
 
@@ -313,6 +320,7 @@ final class Showcase {
             case 2320 -> base.south(5);
             case 2520 -> base.offset(-6, 1, -3);
             case 2720 -> base.south(6);
+            case 3120 -> base.south(8);
             default -> null;
         };
         if (target != null) {
@@ -342,7 +350,7 @@ final class Showcase {
                 bench.insertEquipment(chest);
             }
         }
-        if (ticks == 3160) {
+        if (ticks == 3360) {
             // Visão das máquinas de 2 blocos (Replicador, Drive, Atomizador e Analisador animados)
             player.closeContainer();
             player.getAbilities().mayfly = true;
@@ -357,19 +365,19 @@ final class Showcase {
                 }
             }
         }
-        if (ticks > 3160 && ticks < 3500 && ticks % 20 == 0) {
+        if (ticks > 3360 && ticks < 3700 && ticks % 20 == 0) {
             // Mantém a câmera no lugar (mobs/slimes podem empurrar o jogador)
             machinesView(player);
         }
-        if (ticks == 3500) {
+        if (ticks == 3700) {
             // Visão do reator formado no mundo
             player.connection.teleport(base.getX() - 3.5, base.getY() + 4, base.getZ() + 0.5, -90f, 18f);
         }
-        if (ticks == 3700) player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND, net.minecraft.world.item.ItemStack.EMPTY);
-        if (ticks >= 3700 && ticks < 4100 && ticks % 20 == 0) {
+        if (ticks == 3900) player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND, net.minecraft.world.item.ItemStack.EMPTY);
+        if (ticks >= 3900 && ticks < 4300 && ticks % 20 == 0) {
             // Visão das estruturas: Matriz formada (modelo), Replicador Quântico e um segundo quântico com a prévia
             player.connection.teleport(base.getX() - 13.5, base.getY() + 3.5, base.getZ() + 0.5, -90f, 12f);
         }
-        if (ticks == 4600) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
+        if (ticks == 4800) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
     }
 }

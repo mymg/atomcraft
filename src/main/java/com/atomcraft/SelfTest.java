@@ -180,6 +180,7 @@ final class SelfTest {
         energyStorage(level, failures);
         toolsAndWireless(level, failures);
         equipment(level, failures);
+        chunkLoader(level, failures);
     }
 
     /** Ferramentas/armaduras de liga, Cartão de Rede + Transmissor Sem Fio e o Desintegrador Atômico. */
@@ -237,6 +238,37 @@ final class SelfTest {
                 "pedregulho desintegrado vai para a rede");
         long after = transmitter.network().totals().elements().values().stream().mapToLong(Long::longValue).sum();
         check(failures, after > before, "rede ganhou os elementos do pedregulho (" + before + " → " + after + ")");
+    }
+
+    /** Carregador de Chunks: seleção, custo, energia e liberação. */
+    private static void chunkLoader(ServerLevel level, List<String> failures) {
+        BlockPos pos = new BlockPos(0, 120, 140);
+        level.getChunk(pos);
+        place(level, pos, ModBlocks.CHUNK_LOADER.get());
+        var loader = (com.atomcraft.block.entity.ChunkLoaderBlockEntity) level.getBlockEntity(pos);
+        check(failures, loader.selectedCount() == 1, "carregador começa só com a própria chunk");
+        loader.toggle(com.atomcraft.block.entity.ChunkLoaderBlockEntity.CENTER);
+        check(failures, loader.selectedCount() == 1, "a chunk do carregador não pode ser solta");
+        loader.toggle(7);
+        loader.toggle(11);
+        check(failures, loader.selectedCount() == 3 && loader.costPerTick() == 3 * Config.CHUNK_LOADER_ENERGY.get(), "escolher chunks soma o custo");
+        loader.tick();
+        check(failures, loader.forced().isEmpty() && loader.status() == com.atomcraft.block.entity.MachineStatus.NO_ENERGY,
+                "sem energia não carrega nada");
+        loader.energy().set(100_000);
+        loader.tick();
+        check(failures, loader.forced().size() == 3 && loader.energy().getAmountAsInt() == 100_000 - loader.costPerTick(),
+                "com energia carrega as 3 chunks e gasta o custo");
+        net.minecraft.world.level.ChunkPos center = net.minecraft.world.level.ChunkPos.containing(pos);
+        check(failures, loader.forced().contains(net.minecraft.world.level.ChunkPos.pack(center.x(), center.z() - 1)),
+                "a chunk ao norte está forçada");
+        loader.toggle(7);
+        check(failures, loader.forced().size() == 2, "soltar uma chunk libera o ticket");
+        loader.setEnabled(false);
+        loader.tick();
+        check(failures, loader.forced().isEmpty(), "desligado, solta todas as chunks");
+        loader.setEnabled(true);
+        level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
     }
 
     /** Cartão de Rede do nível, vinculado ao jogador. */
@@ -297,6 +329,9 @@ final class SelfTest {
         var step = player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.STEP_HEIGHT);
         check(failures, speed.hasModifier(AtomCraft.id("exo_speed")) && step.getValue() > 1.0, "calças com energia: velocidade e degraus");
         check(failures, com.atomcraft.equipment.Battery.energy(legs) == 1_000 - (2 * 2 + 1) * 10, "módulos gastam energia (" + com.atomcraft.equipment.Battery.energy(legs) + ")");
+        com.atomcraft.equipment.EquipmentEvents.tickExo(player, 10);
+        check(failures, com.atomcraft.equipment.Battery.energy(legs) == 1_000 - (2 * 2 + 1) * 10 && speed.hasModifier(AtomCraft.id("exo_speed")),
+                "parado, as calças não gastam energia (e continuam ativas)");
         com.atomcraft.equipment.Battery.set(legs, 0, com.atomcraft.equipment.ExoArmorItem.CAPACITY);
         com.atomcraft.equipment.EquipmentEvents.tickExo(player, 10);
         check(failures, !speed.hasModifier(AtomCraft.id("exo_speed")), "sem energia os módulos param");

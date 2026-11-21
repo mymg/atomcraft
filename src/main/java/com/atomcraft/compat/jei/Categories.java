@@ -68,7 +68,7 @@ public final class Categories {
     /** Forja de Ligas: elementos + energia → liga. */
     static final class Alloy extends ElementCategory<AlloyRecipe> {
         Alloy(IGuiHelper gui) {
-            super(JeiRecipes.ALLOY, "alloy_forge", gui, ModBlocks.ALLOY_FORGE.get(), 160, 54);
+            super(JeiRecipes.ALLOY, "alloy_forge", gui, ModBlocks.ALLOY_FORGE.get(), 160, 56);
         }
 
         @Override
@@ -78,7 +78,7 @@ public final class Categories {
 
         @Override
         int[] area() {
-            return new int[]{0, 2, 98, 3};
+            return new int[]{0, 2, 100, 2};
         }
 
         @Override
@@ -94,14 +94,14 @@ public final class Categories {
         @Override
         public void draw(AlloyRecipe recipe, IRecipeSlotsView slots, GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
             super.draw(recipe, slots, graphics, mouseX, mouseY);
-            text(graphics, energyAndTime(recipe.energy(), recipe.ticks()), 0, 44, TEXT_DIM);
+            text(graphics, energyAndTime(recipe.energy(), recipe.ticks()), 0, 46, TEXT_DIM);
         }
     }
 
     /** Sintetizador: elementos + energia → item exclusivo (precisa da schematic na biblioteca). */
     static final class Synthesis extends ElementCategory<SynthesisRecipe> {
         Synthesis(IGuiHelper gui) {
-            super(JeiRecipes.SYNTHESIS, "synthesizer", gui, ModBlocks.SYNTHESIZER.get(), 160, 64);
+            super(JeiRecipes.SYNTHESIS, "synthesizer", gui, ModBlocks.SYNTHESIZER.get(), 160, 66);
         }
 
         @Override
@@ -111,7 +111,7 @@ public final class Categories {
 
         @Override
         int[] area() {
-            return new int[]{0, 2, 98, 3};
+            return new int[]{0, 2, 100, 2};
         }
 
         @Override
@@ -127,8 +127,8 @@ public final class Categories {
         @Override
         public void draw(SynthesisRecipe recipe, IRecipeSlotsView slots, GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
             super.draw(recipe, slots, graphics, mouseX, mouseY);
-            text(graphics, energyAndTime(recipe.energy(), recipe.ticks()), 0, 44, TEXT_DIM);
-            text(graphics, Component.translatable("jei.atomcraft.needs_schematic"), 0, 54, TEXT_DIM);
+            text(graphics, energyAndTime(recipe.energy(), recipe.ticks()), 0, 46, TEXT_DIM);
+            text(graphics, Component.translatable("jei.atomcraft.needs_schematic"), 0, 56, TEXT_DIM);
         }
     }
 
@@ -158,7 +158,7 @@ public final class Categories {
     /** Atomizador: item → elementos guardados na rede. */
     static final class Atomizer extends ElementCategory<JeiRecipes.Atomize> {
         Atomizer(IGuiHelper gui) {
-            super(JeiRecipes.ATOMIZE, "atomizer", gui, ModBlocks.ATOMIZER.get(), 160, 42);
+            super(JeiRecipes.ATOMIZE, "atomizer", gui, ModBlocks.ATOMIZER.get(), 160, 53);
         }
 
         @Override
@@ -168,17 +168,17 @@ public final class Categories {
 
         @Override
         int[] area() {
-            return new int[]{52, 2, 108, 3};
+            return new int[]{50, 1, 110, 3};
         }
 
         @Override
         public void setRecipe(IRecipeLayoutBuilder builder, JeiRecipes.Atomize recipe, IFocusGroup focuses) {
-            builder.addInputSlot(2, 12).setStandardSlotBackground().add(recipe.item());
+            builder.addInputSlot(2, 18).setStandardSlotBackground().add(recipe.item());
         }
 
         @Override
         public void createRecipeExtras(IRecipeExtrasBuilder builder, JeiRecipes.Atomize recipe, IFocusGroup focuses) {
-            builder.addRecipeArrow().setPosition(24, 12);
+            builder.addRecipeArrow().setPosition(23, 18);
         }
     }
 }

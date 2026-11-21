@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PEP",
+    "ECE",
+    "PDP"
+  ],
+  "key": {
+    "P": "atomcraft:steel_plate",
+    "E": "minecraft:ender_pearl",
+    "C": "atomcraft:circuit_board",
+    "D": "minecraft:diamond"
+  },
+  "result": {
+    "id": "atomcraft:chunk_loader",
+    "count": 1
+  }
+}

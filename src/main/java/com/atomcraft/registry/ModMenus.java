@@ -51,5 +51,8 @@ public final class ModMenus {
     public static final DeferredHolder<MenuType<?>, MenuType<com.atomcraft.menu.ModuleBenchMenu>> MODULE_BENCH =
             MENUS.register("module_bench", () -> IMenuTypeExtension.create(com.atomcraft.menu.ModuleBenchMenu::client));
 
+    public static final DeferredHolder<MenuType<?>, MenuType<com.atomcraft.menu.ChunkLoaderMenu>> CHUNK_LOADER =
+            MENUS.register("chunk_loader", () -> IMenuTypeExtension.create(com.atomcraft.menu.ChunkLoaderMenu::client));
+
     private ModMenus() {}
 }

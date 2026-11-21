@@ -229,7 +229,7 @@ for tag, formula, rarity in COMPAT:
     w(f"data/atomcraft/atomcraft/compositions/compat/{tag.replace(':', '_').replace('/', '_')}.json", entry)
 
 # ---------- Blocos ----------
-MACHINES = ["atomizer", "analyzer", "replicator", "advanced_replicator", "drive", "terminal", "combustion_generator", "carbon_generator", "fusion_reactor", "synthesizer", "alloy_forge", "quantum_replicator", "wireless_transmitter"]
+MACHINES = ["atomizer", "analyzer", "replicator", "advanced_replicator", "drive", "terminal", "combustion_generator", "carbon_generator", "fusion_reactor", "synthesizer", "alloy_forge", "quantum_replicator", "wireless_transmitter", "chunk_loader"]
 GENERATORS = ["combustion_generator", "carbon_generator"]
 for b in MACHINES:
     if b == "quantum_replicator":
@@ -832,12 +832,23 @@ shaped("infinite_network_card", ["DED", "ECE", "DED"], {"D": "minecraft:diamond"
 shaped("dimensional_network_card", ["OEO", "SCS", "OEO"], {"O": "minecraft:crying_obsidian", "E": "minecraft:ender_eye", "S": "minecraft:nether_star", "C": "atomcraft:infinite_network_card"}, "atomcraft:dimensional_network_card")
 shaped("atomic_disintegrator", [" TD", " CT", "S  "], {"T": "atomcraft:tungsten_carbide_plate", "D": "minecraft:diamond", "C": CIRCUIT,
                                                         "S": "atomcraft:titanium_alloy_ingot"}, "atomcraft:atomic_disintegrator")
+shaped("chunk_loader", ["PEP", "ECE", "PDP"], {"P": "atomcraft:steel_plate", "E": "minecraft:ender_pearl", "C": CIRCUIT,
+                                               "D": "minecraft:diamond"}, "atomcraft:chunk_loader")
 shaped("wireless_transmitter", ["EAE", "CWC", "PRP"], {"E": "minecraft:ender_pearl", "A": AME, "C": CIRCUIT, "W": "atomcraft:atomic_cable",
                                                         "P": "atomcraft:steel_plate", "R": "minecraft:redstone_block"}, "atomcraft:wireless_transmitter")
 MAT_LANG.update({
     "item.atomcraft.network_card": ("Network Card", "Cartão de Rede"),
     "item.atomcraft.atomic_disintegrator": ("Atomic Disintegrator", "Desintegrador Atômico"),
     "block.atomcraft.wireless_transmitter": ("Wireless Transmitter", "Transmissor Sem Fio"),
+    "block.atomcraft.chunk_loader": ("Chunk Loader", "Carregador de Chunks"),
+    "gui.atomcraft.chunks": ("Chunks", "Chunks"),
+    "gui.atomcraft.cost": ("Cost", "Custo"),
+    "gui.atomcraft.loaded": ("Loaded now", "Carregadas"),
+    "gui.atomcraft.chunk_pos": ("Chunk %s, %s", "Chunk %s, %s"),
+    "gui.atomcraft.chunk_center": ("The loader's chunk (always loaded)", "Chunk do carregador (sempre carregada)"),
+    "gui.atomcraft.chunk_out_of_range": ("Outside the configured radius", "Fora do raio da configuração"),
+    "gui.atomcraft.chunk_load": ("Click to keep it loaded", "Clique para manter carregada"),
+    "gui.atomcraft.chunk_unload": ("Click to release it", "Clique para soltar"),
     "itemGroup.atomcraft.equipment": ("AtomCraft: Equipment", "AtomCraft: Equipamentos"),
     "item.atomcraft.advanced_network_card": ("Advanced Network Card", "Cartão de Rede Avançado"),
     "item.atomcraft.infinite_network_card": ("Infinite Network Card", "Cartão de Rede Infinito"),
@@ -1246,7 +1257,7 @@ def atom(d, c, cx=7.5, cy=7.5):
     d.point((int(cx), int(cy)), fill=(255, 255, 255, 255)); d.point((int(cx) + 1, int(cy) + 1), fill=(255, 255, 255, 255))
 
 COLORS = {"atomizer": (80, 220, 255, 255), "analyzer": (190, 110, 240, 255), "replicator": (255, 170, 60, 255), "drive": (90, 220, 120, 255),
-    "terminal": (39, 201, 181, 255), "synthesizer": (120, 230, 140, 255), "combustion_generator": (255, 120, 30, 255), "carbon_generator": (226, 50, 50, 255), "fusion_reactor": (255, 90, 190, 255), "alloy_forge": (255, 140, 40, 255), "advanced_replicator": (190, 110, 255, 255), "wireless_transmitter": (80, 220, 255, 255)}
+    "terminal": (39, 201, 181, 255), "synthesizer": (120, 230, 140, 255), "combustion_generator": (255, 120, 30, 255), "carbon_generator": (226, 50, 50, 255), "fusion_reactor": (255, 90, 190, 255), "alloy_forge": (255, 140, 40, 255), "advanced_replicator": (190, 110, 255, 255), "wireless_transmitter": (80, 220, 255, 255), "chunk_loader": (255, 192, 64, 255)}
 img, d = frame(); d.line([4, 5, 11, 5], fill=(60, 63, 70, 255)); d.line([4, 10, 11, 10], fill=(60, 63, 70, 255)); save(img, "block/machine_side.png")
 for name, c in COLORS.items():
     if name not in GENERATORS:  # os geradores usam generator_top.png / generator_side.png
@@ -1277,6 +1288,12 @@ for name, c in COLORS.items():
         # Antena com ondas
         d.line([8, 5, 8, 12], fill=c); d.rectangle([6, 12, 10, 13], fill=c)
         d.arc([3, 2, 13, 12], 200, 340, fill=c); d.arc([5, 4, 11, 10], 200, 340, fill=c)
+    elif name == "chunk_loader":
+        # Grade 3×3 de chunks com a do meio acesa
+        for gx in range(3):
+            for gy in range(3):
+                x0, y0 = 3 + gx * 4, 3 + gy * 4
+                d.rectangle([x0, y0, x0 + 2, y0 + 2], fill=c if (gx, gy) == (1, 1) else (40, 70, 80, 255))
     elif name == "alloy_forge":
         # Cadinho com metal derretido
         d.polygon([(4, 5), (11, 5), (10, 12), (5, 12)], fill=(60, 62, 70, 255), outline=(120, 124, 136, 255))

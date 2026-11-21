@@ -72,6 +72,7 @@ public final class EquipmentEvents {
         JET_STATE.remove(event.getEntity().getUUID());
         JET_PENDING.remove(event.getEntity().getUUID());
         FLIGHT.remove(event.getEntity().getUUID());
+        LAST_POSITION.remove(event.getEntity().getUUID());
     }
 
     private static void onPlayerTick(PlayerTickEvent.Post event) {
@@ -169,19 +170,31 @@ public final class EquipmentEvents {
         modifier(player, Attributes.ARMOR, LEGS_ARMOR, legsPlating * 2.0, AttributeModifier.Operation.ADD_VALUE);
         modifier(player, Attributes.ARMOR_TOUGHNESS, LEGS_TOUGHNESS, legsPlating * 1.0, AttributeModifier.Operation.ADD_VALUE);
 
-        // Pernas: velocidade e subida de degraus
+        // Pernas: velocidade e subida de degraus (só gastam energia com o jogador andando)
+        boolean moving = moved(player);
         int speed = ModularItem.level(legs, EquipmentModule.SPEED);
         int step = ModularItem.level(legs, EquipmentModule.STEP_ASSIST);
-        boolean legsOn = powered(legs, interval, speed, EquipmentModule.SPEED, step, EquipmentModule.STEP_ASSIST);
+        boolean legsOn = moving ? powered(legs, interval, speed, EquipmentModule.SPEED, step, EquipmentModule.STEP_ASSIST)
+                : speed + step > 0 && Battery.energy(legs) > 0;
         modifier(player, Attributes.MOVEMENT_SPEED, SPEED, legsOn ? speed * 0.15 : 0, AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
         modifier(player, Attributes.STEP_HEIGHT, STEP, legsOn && step > 0 ? 0.5 : 0, AttributeModifier.Operation.ADD_VALUE);
 
         // Botas: salto e amortecedor (passivo)
         int jump = ModularItem.level(feet, EquipmentModule.JUMP);
-        boolean feetOn = powered(feet, interval, jump, EquipmentModule.JUMP, 0, EquipmentModule.JUMP);
+        boolean feetOn = moving ? powered(feet, interval, jump, EquipmentModule.JUMP, 0, EquipmentModule.JUMP)
+                : jump > 0 && Battery.energy(feet) > 0;
         modifier(player, Attributes.JUMP_STRENGTH, JUMP, feetOn ? jump * 0.1 : 0, AttributeModifier.Operation.ADD_VALUE);
         modifier(player, Attributes.SAFE_FALL_DISTANCE, FALL, ModularItem.level(feet, EquipmentModule.SHOCK_ABSORBER) * 4.0,
                 AttributeModifier.Operation.ADD_VALUE);
+    }
+
+    private static final Map<UUID, net.minecraft.world.phys.Vec3> LAST_POSITION = new HashMap<>();
+
+    /** Se o jogador se mexeu desde a última verificação (parado, calças e botas não gastam energia). */
+    private static boolean moved(Player player) {
+        net.minecraft.world.phys.Vec3 now = player.position();
+        net.minecraft.world.phys.Vec3 last = LAST_POSITION.put(player.getUUID(), now);
+        return last == null || last.distanceToSqr(now) > 0.01;
     }
 
     /** Gasta a energia dos módulos ativos da peça; falso se a bateria não der conta (os módulos param). */
