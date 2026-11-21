@@ -1,58 +1,61 @@
 package com.atomcraft.wireless;
 
-import com.atomcraft.Config;
 import com.atomcraft.block.entity.WirelessTransmitterBlockEntity;
-import com.atomcraft.registry.ModComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 /**
- * Acesso sem fio à rede: procura no inventário do jogador um Cartão de Rede vinculado a ele e a um
- * Transmissor Sem Fio ligado, ao alcance. Ferramentas e equipamentos usam o transmissor encontrado
- * para tirar energia e guardar/usar elementos da rede.
+ * Acesso sem fio à rede: procura um Transmissor Sem Fio carregado, ligado e com um Cartão de Rede do
+ * jogador num dos slots, cujo nível alcance o jogador. Ferramentas e equipamentos usam o transmissor
+ * encontrado para tirar energia e guardar/usar elementos da rede.
  */
 public final class Wireless {
 
+    /** Transmissores carregados no servidor. */
+    private static final Set<WirelessTransmitterBlockEntity> TRANSMITTERS = Collections.newSetFromMap(new WeakHashMap<>());
+
     private Wireless() {}
 
-    /** Itens onde procurar cartões (inventário; os acessórios do Curios entram aqui depois). */
-    private static List<ItemStack> candidates(Player player) {
-        List<ItemStack> stacks = new ArrayList<>();
-        var inventory = player.getInventory();
-        for (int i = 0; i < inventory.getContainerSize(); i++) stacks.add(inventory.getItem(i));
-        stacks.addAll(com.atomcraft.compat.Curios.equipped(player));
-        return stacks;
+    public static void register(WirelessTransmitterBlockEntity transmitter) {
+        if (transmitter.getLevel() instanceof ServerLevel) TRANSMITTERS.add(transmitter);
     }
 
-    /** Transmissor alcançável pelo jogador, ou null. */
+    public static void unregister(WirelessTransmitterBlockEntity transmitter) {
+        TRANSMITTERS.remove(transmitter);
+    }
+
+    /** Transmissor que alcança o jogador (o que tiver mais energia), ou null. */
     public static @Nullable WirelessTransmitterBlockEntity find(Player player) {
-        if (!(player.level() instanceof ServerLevel level)) return null;
-        for (ItemStack stack : candidates(player)) {
-            WirelessLink link = stack.get(ModComponents.WIRELESS_LINK.get());
-            if (link == null || !link.owner().equals(player.getUUID())) continue;
-            WirelessTransmitterBlockEntity transmitter = resolve(level, player, link);
-            if (transmitter != null) return transmitter;
+        if (!(player.level() instanceof ServerLevel)) return null;
+        WirelessTransmitterBlockEntity best = null;
+        for (WirelessTransmitterBlockEntity transmitter : TRANSMITTERS) {
+            if (transmitter.isRemoved() || !transmitter.isEnabled() || !reaches(transmitter, player)) continue;
+            if (best == null || transmitter.energy().getAmountAsInt() > best.energy().getAmountAsInt()) best = transmitter;
         }
-        return null;
+        return best;
     }
 
-    /** Transmissor do vínculo, se existir, estiver ligado e ao alcance. */
-    public static @Nullable WirelessTransmitterBlockEntity resolve(ServerLevel level, Player player, WirelessLink link) {
-        ServerLevel target = level.getServer().getLevel(link.dimension());
-        if (target == null) return null;
-        if (target != level && !Config.WIRELESS_CROSS_DIMENSION.get()) return null;
-        int range = Config.WIRELESS_RANGE.get();
-        if (target == level && range >= 0 && player.distanceToSqr(net.minecraft.world.phys.Vec3.atCenterOf(link.pos())) > (double) range * range) return null;
-        if (!target.isLoaded(link.pos())) return null;
-        if (target.getBlockEntity(link.pos()) instanceof WirelessTransmitterBlockEntity transmitter && transmitter.isEnabled()) {
-            return transmitter;
+    /** Se algum cartão do transmissor é do jogador e o alcança. */
+    public static boolean reaches(WirelessTransmitterBlockEntity transmitter, Player player) {
+        for (int i = 0; i < transmitter.cards().size(); i++) {
+            ItemStack stack = transmitter.cards().getStack(i);
+            if (stack.getItem() instanceof NetworkCardItem card && reaches(transmitter, card.tier(), NetworkCardItem.owner(stack), player)) return true;
         }
-        return null;
+        return false;
+    }
+
+    public static boolean reaches(WirelessTransmitterBlockEntity transmitter, CardTier tier, @Nullable CardOwner owner, Player player) {
+        if (owner == null || !owner.owner().equals(player.getUUID()) || transmitter.getLevel() == null) return false;
+        if (transmitter.getLevel() != player.level()) return tier.crossDimension();
+        int range = tier.range();
+        return range < 0 || player.distanceToSqr(Vec3.atCenterOf(transmitter.getBlockPos())) <= (double) range * range;
     }
 
     /** Tira {@code amount} FE do transmissor; falso (sem tirar nada) se não houver o bastante. */

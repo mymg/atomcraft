@@ -73,16 +73,12 @@ public final class EquipmentClient {
             int thrusters = ModularItem.level(jetpack, EquipmentModule.THRUSTER);
             if (mc.options.keyJump.isDown() && mc.gui.screen() == null) {
                 state = EquipmentEvents.JET_THRUST;
-                double max = 0.32 + 0.1 * thrusters;
-                player.setDeltaMovement(motion.x, Math.min(motion.y + 0.11 + 0.025 * thrusters, max), motion.z);
-                player.resetFallDistance();
-                exhaust(player);
-            } else if (JetpackItem.hover(jetpack) && !player.onGround() && !player.isInWater()) {
-                state = EquipmentEvents.JET_HOVER;
-                double y = motion.y;
-                if (y < 0) y = mc.options.keyShift.isDown() ? Math.max(y, -0.3) : 0;
+                // Acelera até a velocidade máxima de subida, sem nunca frear quem já sobe mais rápido (ex.: o pulo)
+                double max = 0.4 + 0.12 * thrusters;
+                double y = motion.y < max ? Math.min(motion.y + 0.14 + 0.03 * thrusters, max) : motion.y;
                 player.setDeltaMovement(motion.x, y, motion.z);
                 player.resetFallDistance();
+                exhaust(player);
             }
         }
         if (state != lastState) {

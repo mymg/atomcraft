@@ -27,6 +27,19 @@ import java.util.List;
 public class ModuleBenchMenu extends BaseMenu {
 
     public static final int WIDTH = 176, HEIGHT = 200;
+    /** Coluna da armadura vestida, à esquerda da interface. */
+    public static final int ARMOR_X = -21, ARMOR_Y = 26;
+    private static final net.minecraft.world.entity.EquipmentSlot[] ARMOR = {
+            net.minecraft.world.entity.EquipmentSlot.HEAD, net.minecraft.world.entity.EquipmentSlot.CHEST,
+            net.minecraft.world.entity.EquipmentSlot.LEGS, net.minecraft.world.entity.EquipmentSlot.FEET};
+    private static final net.minecraft.resources.Identifier[] ARMOR_ICONS = {
+            net.minecraft.resources.Identifier.withDefaultNamespace("container/slot/helmet"),
+            net.minecraft.resources.Identifier.withDefaultNamespace("container/slot/chestplate"),
+            net.minecraft.resources.Identifier.withDefaultNamespace("container/slot/leggings"),
+            net.minecraft.resources.Identifier.withDefaultNamespace("container/slot/boots")};
+
+    private final net.minecraft.world.inventory.ContainerData data;
+    private final com.atomcraft.block.entity.@Nullable ModuleBenchBlockEntity bench;
     public static final int EQUIPMENT_X = 30, EQUIPMENT_Y = 40, MODULE_X = 86, MODULE_Y = 40, MODULE_GAP = 24;
 
     private final SimpleContainer container = new SimpleContainer(1 + EquipmentKind.MAX_SLOTS) {
@@ -45,6 +58,10 @@ public class ModuleBenchMenu extends BaseMenu {
 
     public ModuleBenchMenu(int id, Inventory inventory, BlockPos pos) {
         super(ModMenus.MODULE_BENCH.get(), id, inventory, pos);
+        this.bench = !inventory.player.level().isClientSide()
+                && inventory.player.level().getBlockEntity(pos) instanceof com.atomcraft.block.entity.ModuleBenchBlockEntity found ? found : null;
+        this.data = bench != null ? bench.data()
+                : new net.minecraft.world.inventory.SimpleContainerData(com.atomcraft.block.entity.ModuleBenchBlockEntity.DATA_COUNT);
         addSlot(new Slot(container, 0, EQUIPMENT_X, EQUIPMENT_Y) {
             @Override
             public boolean mayPlace(ItemStack stack) {
@@ -76,8 +93,14 @@ public class ModuleBenchMenu extends BaseMenu {
                 }
             });
         }
-        machineSlots = 1 + EquipmentKind.MAX_SLOTS;
+        // Armadura vestida: troque peças sem sair da bancada
+        for (int i = 0; i < ARMOR.length; i++) {
+            addSlot(new net.minecraft.world.inventory.ArmorSlot(inventory, inventory.player, ARMOR[i], 39 - i, ARMOR_X, ARMOR_Y + i * 18, ARMOR_ICONS[i]));
+        }
+        machineSlots = 1 + EquipmentKind.MAX_SLOTS + ARMOR.length;
         addPlayerInventory(inventory, 8, HEIGHT - 82);
+        addMachineControlsWithoutUpgrades();
+        addDataSlots(data);
     }
 
     @Override
@@ -88,6 +111,30 @@ public class ModuleBenchMenu extends BaseMenu {
     @Override
     protected boolean syncsNetwork() {
         return false;
+    }
+
+    public int energy() {
+        return combine(data.get(com.atomcraft.block.entity.ModuleBenchBlockEntity.DATA_ENERGY_LO),
+                data.get(com.atomcraft.block.entity.ModuleBenchBlockEntity.DATA_ENERGY_HI));
+    }
+
+    public int capacity() {
+        return combine(data.get(com.atomcraft.block.entity.ModuleBenchBlockEntity.DATA_CAPACITY_LO),
+                data.get(com.atomcraft.block.entity.ModuleBenchBlockEntity.DATA_CAPACITY_HI));
+    }
+
+    /** Recarrega o equipamento da bancada e a armadura vestida (a cada tick com a interface aberta). */
+    @Override
+    public void broadcastChanges() {
+        if (bench != null && !bench.isRemoved()) {
+            int budget = com.atomcraft.Config.BENCH_CHARGE.get();
+            budget -= bench.charge(container.getItem(0), budget);
+            for (var slot : ARMOR) {
+                if (budget <= 0) break;
+                budget -= bench.charge(player.getItemBySlot(slot), budget);
+            }
+        }
+        super.broadcastChanges();
     }
 
     public ItemStack equipment() {
@@ -106,7 +153,8 @@ public class ModuleBenchMenu extends BaseMenu {
         if (!item.module().fits(kind)) return false;
         for (int i = 0; i < EquipmentKind.MAX_SLOTS; i++) {
             if (i == index) continue;
-            if (container.getItem(1 + i).getItem() instanceof EquipmentModuleItem other && other.module() == item.module()) return false;
+            if (container.getItem(1 + i).getItem() instanceof EquipmentModuleItem other
+                    && (other.module() == item.module() || other.module().conflictsWith(item.module()))) return false;
         }
         return true;
     }

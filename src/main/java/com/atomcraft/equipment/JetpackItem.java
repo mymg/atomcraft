@@ -18,7 +18,8 @@ import java.util.function.Consumer;
 /**
  * Jetpack a Hidrogênio: vestido no peito (ou nas costas, com o Curios). Segure pular para subir.
  * O tanque enche sozinho com hidrogênio dos Drives, pelo Transmissor Sem Fio vinculado ao Cartão de Rede.
- * Módulos: Propulsor (mais força) e Flutuação (mantém a altura; liga/desliga com a tecla de flutuação).
+ * Módulos: Propulsor (mais força) e Voo (voo como no modo criativo, gastando hidrogênio; a tecla H
+ * liga/desliga).
  */
 public class JetpackItem extends Item implements ModularItem {
 
@@ -47,7 +48,7 @@ public class JetpackItem extends Item implements ModularItem {
     }
 
     public static boolean hover(ItemStack stack) {
-        return Boolean.TRUE.equals(stack.get(ModComponents.HOVER.get())) && ModularItem.level(stack, EquipmentModule.HOVER) > 0;
+        return !Boolean.FALSE.equals(stack.get(ModComponents.HOVER.get())) && ModularItem.level(stack, EquipmentModule.HOVER) > 0;
     }
 
     /** Hidrogênio gasto por tick subindo. */

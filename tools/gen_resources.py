@@ -823,10 +823,13 @@ for tag, values in TOOL_TAGS_ITEMS.items():
     w(f"data/minecraft/tags/item/{tag}.json", {"values": values})
 for tag in ("trimmable_armor",):
     w(f"data/minecraft/tags/item/{tag}.json", {"values": [v for k in ("head_armor", "chest_armor", "leg_armor", "foot_armor") for v in TOOL_TAGS_ITEMS[k]]})
-for name in ("network_card", "atomic_disintegrator"):
+for name in ("network_card", "advanced_network_card", "infinite_network_card", "dimensional_network_card", "atomic_disintegrator"):
     item_model(name)
 w("assets/atomcraft/models/item/atomic_disintegrator.json", {"parent": "minecraft:item/handheld", "textures": {"layer0": "atomcraft:item/atomic_disintegrator"}})
 shaped("network_card", ["GCG", "WRW"], {"G": "minecraft:gold_ingot", "C": CIRCUIT, "W": WIRE, "R": RED}, "atomcraft:network_card")
+shaped("advanced_network_card", ["GEG", "ECE", "GEG"], {"G": "minecraft:gold_ingot", "E": "minecraft:ender_pearl", "C": "atomcraft:network_card"}, "atomcraft:advanced_network_card")
+shaped("infinite_network_card", ["DED", "ECE", "DED"], {"D": "minecraft:diamond", "E": "minecraft:ender_eye", "C": "atomcraft:advanced_network_card"}, "atomcraft:infinite_network_card")
+shaped("dimensional_network_card", ["OEO", "SCS", "OEO"], {"O": "minecraft:crying_obsidian", "E": "minecraft:ender_eye", "S": "minecraft:nether_star", "C": "atomcraft:infinite_network_card"}, "atomcraft:dimensional_network_card")
 shaped("atomic_disintegrator", [" TD", " CT", "S  "], {"T": "atomcraft:tungsten_carbide_plate", "D": "minecraft:diamond", "C": CIRCUIT,
                                                         "S": "atomcraft:titanium_alloy_ingot"}, "atomcraft:atomic_disintegrator")
 shaped("wireless_transmitter", ["EAE", "CWC", "PRP"], {"E": "minecraft:ender_pearl", "A": AME, "C": CIRCUIT, "W": "atomcraft:atomic_cable",
@@ -836,11 +839,32 @@ MAT_LANG.update({
     "item.atomcraft.atomic_disintegrator": ("Atomic Disintegrator", "Desintegrador Atômico"),
     "block.atomcraft.wireless_transmitter": ("Wireless Transmitter", "Transmissor Sem Fio"),
     "itemGroup.atomcraft.equipment": ("AtomCraft: Equipment", "AtomCraft: Equipamentos"),
-    "message.atomcraft.card_linked": ("Network card linked to the transmitter at %s", "Cartão vinculado ao transmissor em %s"),
-    "message.atomcraft.card_unlinked": ("Network card unlinked", "Cartão desvinculado"),
-    "tooltip.atomcraft.card_unlinked": ("Sneak + use on a Wireless Transmitter to link", "Agachado + clique num Transmissor Sem Fio para vincular"),
-    "tooltip.atomcraft.card_linked": ("Linked: %s (%s)", "Vinculado: %s (%s)"),
+    "item.atomcraft.advanced_network_card": ("Advanced Network Card", "Cartão de Rede Avançado"),
+    "item.atomcraft.infinite_network_card": ("Infinite Network Card", "Cartão de Rede Infinito"),
+    "item.atomcraft.dimensional_network_card": ("Dimensional Network Card", "Cartão de Rede Dimensional"),
+    "message.atomcraft.card_bound": ("Network card bound to you", "Cartão de Rede vinculado a você"),
+    "tooltip.atomcraft.card_unbound": ("Not bound: sneak + right-click to bind it to you", "Sem dono: agachado + clique direito para vincular a você"),
     "tooltip.atomcraft.card_owner": ("Owner: %s", "Dono: %s"),
+    "tooltip.atomcraft.card_range": ("Range: %s blocks", "Alcance: %s blocos"),
+    "tooltip.atomcraft.card_range_infinite": ("Range: unlimited (same dimension)", "Alcance: sem limite (mesma dimensão)"),
+    "tooltip.atomcraft.card_range_dimensional": ("Range: unlimited, any dimension", "Alcance: sem limite, qualquer dimensão"),
+    "tooltip.atomcraft.card_hint": ("Put it in a Wireless Transmitter slot", "Coloque num slot do Transmissor Sem Fio"),
+    "gui.atomcraft.cards": ("Network Cards", "Cartões de Rede"),
+    "gui.atomcraft.card_slot": ("Network Card slot", "Slot de Cartão de Rede"),
+    "gui.atomcraft.card_slot_hint": ("Players whose cards are here get energy and elements wirelessly", "Quem tem o cartão aqui recebe energia e elementos sem fio"),
+    "gui.atomcraft.redstone": ("Redstone: %s", "Redstone: %s"),
+    "gui.atomcraft.redstone_hint": ("Click to change", "Clique para mudar"),
+    "redstone.atomcraft.ignored": ("Always on", "Sempre ligada"),
+    "redstone.atomcraft.ignored.desc": ("Ignores redstone", "Ignora a redstone"),
+    "redstone.atomcraft.high": ("With signal", "Com sinal"),
+    "redstone.atomcraft.high.desc": ("Works only while powered", "Só trabalha com sinal de redstone"),
+    "redstone.atomcraft.low": ("Without signal", "Sem sinal"),
+    "redstone.atomcraft.low.desc": ("A redstone signal stops it", "Um sinal de redstone desliga"),
+    "redstone.atomcraft.pulse": ("Pulse", "Pulso"),
+    "redstone.atomcraft.pulse.desc": ("Each pulse turns it on or off", "Cada pulso liga ou desliga"),
+    "status.atomcraft.waiting_redstone": ("Waiting for redstone", "Aguardando redstone"),
+    "gui.atomcraft.bench_energy": ("Bench energy", "Energia da bancada"),
+    "gui.atomcraft.bench_energy_hint": ("Charges the equipment and your worn armor", "Recarrega o equipamento e a armadura vestida"),
     "message.atomcraft.disintegrate_on": ("Disintegrator: blocks become elements", "Desintegrador: blocos viram elementos"),
     "message.atomcraft.disintegrate_off": ("Disintegrator: normal drops", "Desintegrador: itens normais"),
     "tooltip.atomcraft.disintegrate_on": ("Mode: disintegrate (elements to the network)", "Modo: desintegrar (elementos para a rede)"),
@@ -884,9 +908,11 @@ EQUIP_MODULES = [  # (id, en, pt, descrição en, descrição pt, cor, receita s
     ("jump", "Jump Boost", "Salto", "Jump higher (per level)", "Pula mais alto (por nível)", (110, 230, 160), ["minecraft:slime_ball", "minecraft:slime_ball", "minecraft:piston"]),
     ("shock_absorber", "Shock Absorber", "Amortecedor", "+4 blocks of safe fall per level", "+4 blocos de queda sem dano por nível", (240, 240, 240), ["minecraft:slime_ball", "#minecraft:wool"]),
     ("thruster", "Thruster", "Propulsor", "Stronger, faster climb (uses more H)", "Sobe mais rápido (gasta mais H)", (255, 120, 40), ["minecraft:fire_charge", "atomcraft:invar_plate"]),
-    ("hover", "Hover", "Flutuação", "Holds altitude (hover key, H)", "Mantém a altura (tecla de flutuação, H)", (200, 200, 255), ["minecraft:phantom_membrane", "minecraft:feather"]),
+    ("hover", "Flight", "Voo", "Creative-style flight using hydrogen (H toggles)", "Voo como no criativo, gastando hidrogênio (H liga/desliga)", (200, 200, 255), ["minecraft:phantom_membrane", "minecraft:feather"]),
     ("efficiency", "Efficiency", "Eficiência", "Breaks blocks faster", "Quebra blocos mais rápido", (255, 90, 90), ["minecraft:diamond", "minecraft:redstone", "minecraft:redstone"]),
     ("area", "Area", "Área", "Breaks 3×3 (sneak: single block)", "Quebra 3×3 (agachado: um bloco)", (255, 170, 230), ["atomcraft:tungsten_carbide_plate", "atomcraft:tungsten_carbide_plate", "minecraft:diamond"]),
+    ("silk_touch", "Silk Touch", "Toque Suave", "Blocks drop themselves (not with Fortune)", "Blocos caem inteiros (não junto com Fortuna)", (120, 255, 220), ["minecraft:emerald", "minecraft:string", "minecraft:slime_ball"]),
+    ("fortune", "Fortune", "Fortuna", "More ore drops per level (not with Silk Touch)", "Mais minério por nível (não junto com Toque Suave)", (255, 220, 60), ["minecraft:lapis_block", "minecraft:gold_ingot", "minecraft:diamond"]),
 ]
 for mid, en, pt, den, dpt, color, ingredients in EQUIP_MODULES:
     item_model(f"{mid}_module")
@@ -906,10 +932,9 @@ shaped("hydrogen_jetpack", ["SCS", "BWB", "H H"], {"S": pl("stainless_steel"), "
 shaped("magnet_ring", [" R ", "P P", " P "], {"R": RED, "P": pl("invar")}, "atomcraft:magnet_ring")
 shaped("analyzer_ring", [" C ", "GAG", " G "], {"C": CIRCUIT, "G": "minecraft:gold_ingot", "A": AME}, "atomcraft:analyzer_ring")
 # Curios (opcional): slots de anel, costas e amuleto para jogadores; os itens que vão em cada um
-w("data/atomcraft/curios/entities/atomcraft.json", {"entities": ["player"], "slots": ["ring", "back", "charm"]})
+w("data/atomcraft/curios/entities/atomcraft.json", {"entities": ["player"], "slots": ["ring", "back"]})
 w("data/curios/tags/item/ring.json", {"values": ["atomcraft:magnet_ring", "atomcraft:analyzer_ring"]})
 w("data/curios/tags/item/back.json", {"values": ["atomcraft:hydrogen_jetpack"]})
-w("data/curios/tags/item/charm.json", {"values": ["atomcraft:network_card"]})
 MAT_LANG.update({
     "block.atomcraft.module_bench": ("Module Bench", "Bancada de Módulos"),
     "item.atomcraft.hydrogen_jetpack": ("Hydrogen Jetpack", "Jetpack a Hidrogênio"),
@@ -928,8 +953,8 @@ MAT_LANG.update({
     "tooltip.atomcraft.module_max": ("Stack up to %s in the slot for more levels", "Até %s no slot para mais níveis"),
     "tooltip.atomcraft.module_energy": ("Uses %s FE/t per level", "Gasta %s FE/t por nível"),
     "tooltip.atomcraft.hydrogen": ("Hydrogen: %s / %s", "Hidrogênio: %s / %s"),
-    "tooltip.atomcraft.hover_on": ("Hover: on", "Flutuação: ligada"),
-    "tooltip.atomcraft.hover_off": ("Hover: off", "Flutuação: desligada"),
+    "tooltip.atomcraft.hover_on": ("Flight: on (H)", "Voo: ligado (H)"),
+    "tooltip.atomcraft.hover_off": ("Flight: off (H)", "Voo: desligado (H)"),
     "tooltip.atomcraft.jetpack_hint": ("Hold jump to fly · refuels from the network (Network Card)", "Segure pular para voar · reabastece pela rede (Cartão de Rede)"),
     "tooltip.atomcraft.magnet_on": ("Pulling items within %s blocks", "Puxando itens a até %s blocos"),
     "tooltip.atomcraft.magnet_off": ("Off", "Desligado"),
@@ -937,9 +962,9 @@ MAT_LANG.update({
     "tooltip.atomcraft.analyzer_ring": ("Shows the composition of the block or item you look at", "Mostra a composição do bloco ou item que você mira"),
     "message.atomcraft.magnet_on": ("Magnet on", "Ímã ligado"),
     "message.atomcraft.magnet_off": ("Magnet off", "Ímã desligado"),
-    "message.atomcraft.hover_on": ("Jetpack: hover on", "Jetpack: flutuação ligada"),
-    "message.atomcraft.hover_off": ("Jetpack: hover off", "Jetpack: flutuação desligada"),
-    "message.atomcraft.hover_missing": ("The jetpack needs a Hover Module", "O jetpack precisa de um Módulo de Flutuação"),
+    "message.atomcraft.hover_on": ("Jetpack: flight on", "Jetpack: voo ligado"),
+    "message.atomcraft.hover_off": ("Jetpack: flight off", "Jetpack: voo desligado"),
+    "message.atomcraft.hover_missing": ("The jetpack needs a Flight Module", "O jetpack precisa de um Módulo de Voo"),
     "hud.atomcraft.no_composition": ("No known composition", "Sem composição conhecida"),
     "gui.atomcraft.equipment": ("Equipment", "Equipamento"),
     "gui.atomcraft.modules": ("Modules", "Módulos"),
@@ -948,7 +973,7 @@ MAT_LANG.update({
     "gui.atomcraft.bench_hint_2": ("piece, jetpack or", "exoesqueleto, o jetpack"),
     "gui.atomcraft.bench_hint_3": ("disintegrator on the left", "ou o desintegrador"),
     "gui.atomcraft.module_slot": ("Module slot. Fits:", "Slot de módulo. Aceita:"),
-    "key.atomcraft.jetpack_hover": ("Jetpack: toggle hover", "Jetpack: flutuação"),
+    "key.atomcraft.jetpack_hover": ("Jetpack: toggle flight", "Jetpack: voo"),
     "atomcraft.configuration.equipment": ("Equipment", "Equipamentos"),
 })
 
@@ -1527,6 +1552,12 @@ for aid, en_t, pt_t, color in ARMOR_TIERS:
 img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
 d.rectangle([2, 4, 13, 12], fill=(40, 46, 58, 255), outline=(80, 220, 255, 255)); d.rectangle([4, 6, 7, 9], fill=(220, 180, 70, 255))
 d.line([(9, 7), (12, 7)], fill=(80, 220, 255, 255)); d.line([(9, 9), (11, 9)], fill=(80, 220, 255, 255)); save(img, "item/network_card.png")
+for cid, edge in (("advanced_network_card", (255, 200, 80, 255)), ("infinite_network_card", (190, 110, 240, 255)),
+                  ("dimensional_network_card", (90, 255, 160, 255))):
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+    d.rectangle([2, 4, 13, 12], fill=(40, 46, 58, 255), outline=edge); d.rectangle([4, 6, 7, 9], fill=(220, 180, 70, 255))
+    d.line([(9, 7), (12, 7)], fill=edge); d.line([(9, 9), (11, 9)], fill=edge)
+    save(img, f"item/{cid}.png")
 img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
 d.line([(2, 13), (7, 8)], fill=(150, 166, 194, 255), width=2); d.polygon([(6, 6), (10, 2), (14, 6), (10, 10)], fill=(62, 64, 76, 255))
 d.polygon([(8, 6), (10, 4), (12, 6), (10, 8)], fill=(80, 220, 255, 255)); d.point((13, 2), fill=(255, 255, 255, 255)); d.point((14, 1), fill=(80, 220, 255, 255))

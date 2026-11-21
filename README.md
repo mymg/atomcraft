@@ -210,6 +210,11 @@ estrutura incompleta, a interface lista as peças que faltam e o botão **Mostra
 cada peça no lugar onde ela vai. Formado, os blocos somem e aparece o modelo do replicador (com os conectores das
 portas), animado enquanto replica.
 
+## Controle por redstone
+
+Toda máquina com interface tem a aba de redstone (ícone de tocha, abaixo do botão de ligar): **sempre ligada**,
+**com sinal** (só trabalha com redstone), **sem sinal** (redstone desliga) ou **pulso** (cada pulso liga ou desliga).
+
 ## Ferramentas, armaduras e acesso sem fio
 
 ### Ferramentas e armaduras de liga
@@ -225,12 +230,18 @@ Receitas iguais às do vanilla, trocando o lingote:
 ### Transmissor Sem Fio e Cartão de Rede
 
 O **Transmissor Sem Fio** é um bloco da rede (ligue-o ao Cabo Atômico) que guarda energia dos geradores e células.
-Agachado + clique nele com um **Cartão de Rede** vincula o cartão ao transmissor e a você. Com o cartão no inventário,
-os equipamentos atômicos usam a rede à distância: energia do transmissor e elementos dos Drives. Só o dono do cartão
-consegue usá-lo. Agachado + clique no ar desfaz o vínculo.
+Agachado + clique direito com um **Cartão de Rede** na mão vincula o cartão a você; depois coloque o cartão num dos 4
+slots do transmissor. A partir daí os seus equipamentos atômicos usam a rede onde você estiver, dentro do alcance do
+cartão: energia do transmissor e elementos dos Drives. Não precisa carregar o cartão.
 
-Alcance padrão: 128 blocos, na mesma dimensão. Configurável na seção `wireless` (`range`, -1 = sem limite;
-`crossDimension`).
+| Cartão | Alcance | Receita |
+|---|---|---|
+| Cartão de Rede | 64 blocos | ouro, placa de circuito, fio de cobre, redstone |
+| Cartão de Rede Avançado | 512 blocos | cartão + ouro + pérolas do Ender |
+| Cartão de Rede Infinito | sem limite, mesma dimensão | cartão avançado + diamantes + olhos do Ender |
+| Cartão de Rede Dimensional | sem limite, qualquer dimensão | cartão infinito + obsidiana chorona + olhos do Ender + estrelas do Nether |
+
+Os alcances dos dois primeiros ficam na seção `wireless` da configuração.
 
 ### Desintegrador Atômico
 
@@ -251,26 +262,31 @@ Coloque um equipamento no slot da esquerda: os módulos instalados aparecem à d
 são gravados na hora no equipamento; tirar o equipamento leva os módulos junto. Módulos com níveis (II, III) são
 empilhados no mesmo slot. Todo módulo é feito com um **Módulo Vazio** mais os ingredientes do efeito.
 
+A bancada guarda energia própria (500.000 FE; ligue ao Cabo Atômico ou a cabos de energia de qualquer mod) e
+recarrega, com a interface aberta, o equipamento da bancada e a armadura vestida. A coluna à esquerda mostra a
+armadura vestida: troque peças sem sair da bancada.
+
 | Equipamento | Slots | Módulos |
 |---|---|---|
 | Capacete do Exoesqueleto | 2 | Visão Noturna, Respirador, Analisador |
 | Peitoral do Exoesqueleto | 3 | Blindagem (I–III), Escudo de Energia |
 | Calças do Exoesqueleto | 2 | Blindagem (I–III), Velocidade (I–III), Subida de Degraus |
 | Botas do Exoesqueleto | 2 | Salto (I–III), Amortecedor (I–III) |
-| Jetpack a Hidrogênio | 2 | Propulsor (I–III), Flutuação |
-| Desintegrador Atômico | 2 | Eficiência (I–III), Área (3×3; agachado quebra um bloco) |
+| Jetpack a Hidrogênio | 2 | Propulsor (I–III), Voo |
+| Desintegrador Atômico | 3 | Eficiência (I–III), Área (3×3; agachado quebra um bloco), Toque Suave ou Fortuna (I–III) |
 
 ### Exoesqueleto
 
-Armadura de liga de titânio com bateria de 250.000 FE em cada peça. Com o Cartão de Rede no inventário, as peças
-recarregam pelo Transmissor Sem Fio. Sem energia, os módulos ativos param (Blindagem e Amortecedor são passivos).
+Armadura de liga de titânio com bateria de 250.000 FE em cada peça. As peças recarregam pelo Transmissor Sem Fio
+(com o seu cartão num slot dele) ou na Bancada de Módulos. Sem energia, os módulos ativos param (Blindagem e Amortecedor são passivos).
 O Escudo de Energia absorve o dano gastando 1.000 FE por ponto.
 
 ### Jetpack a Hidrogênio
 
 Vista no peito (ou nas costas, com o Curios) e segure **pular** para subir. O tanque (16.000 H) enche sozinho com o
-hidrogênio dos Drives, pelo Transmissor Sem Fio. Com o módulo de Flutuação, a tecla **H** liga/desliga a flutuação:
-no ar, o jetpack mantém a altura; agachar desce devagar.
+hidrogênio dos Drives, pelo Transmissor Sem Fio. Subir com o jetpack nunca freia (o pulo continua com a força dele).
+Com o módulo de **Voo**, você voa como no modo criativo (dois toques no pulo) enquanto houver hidrogênio; a tecla
+**H** liga/desliga o voo.
 
 ### Acessórios
 
@@ -279,7 +295,7 @@ no ar, o jetpack mantém a altura; agachar desce devagar.
 - **Anel Analisador**: mostra a composição química do bloco ou item que você mira.
 
 Os dois funcionam no inventário ou num slot de anel do **Curios** (opcional). Com o Curios, o jogador ganha slots de
-anel, costas (jetpack) e amuleto (Cartão de Rede).
+anel e costas (jetpack).
 
 Configuração: seção `equipment` (recarga, escudo, tanque e consumo do jetpack, raio do ímã).
 

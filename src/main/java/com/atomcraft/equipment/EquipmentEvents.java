@@ -40,6 +40,8 @@ public final class EquipmentEvents {
 
     private static final Map<UUID, Integer> JET_STATE = new HashMap<>();
     private static final Map<UUID, Integer> JET_PENDING = new HashMap<>();
+    /** Jogadores que receberam o voo do módulo de Voo do jetpack (para tirar quando acabar). */
+    private static final java.util.Set<UUID> FLIGHT = new java.util.HashSet<>();
 
     private static final Identifier SPEED = AtomCraft.id("exo_speed");
     private static final Identifier STEP = AtomCraft.id("exo_step");
@@ -69,6 +71,7 @@ public final class EquipmentEvents {
     private static void onLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         JET_STATE.remove(event.getEntity().getUUID());
         JET_PENDING.remove(event.getEntity().getUUID());
+        FLIGHT.remove(event.getEntity().getUUID());
     }
 
     private static void onPlayerTick(PlayerTickEvent.Post event) {
@@ -85,9 +88,11 @@ public final class EquipmentEvents {
     private static void tickJetpack(ServerPlayer player, long time) {
         int state = jetState(player);
         ItemStack jetpack = Worn.jetpack(player);
+        updateFlight(player, jetpack);
         if (jetpack.isEmpty()) return;
-        if (state != JET_OFF && JetpackItem.fuel(jetpack) > 0) {
-            int cost = state == JET_THRUST ? JetpackItem.thrustCost(jetpack) : Config.JETPACK_USE.get();
+        boolean flying = FLIGHT.contains(player.getUUID()) && player.getAbilities().flying;
+        if ((state == JET_THRUST || flying) && JetpackItem.fuel(jetpack) > 0) {
+            int cost = state == JET_THRUST && !flying ? JetpackItem.thrustCost(jetpack) : Config.JETPACK_USE.get();
             JET_PENDING.merge(player.getUUID(), cost, Integer::sum);
             player.resetFallDistance();
         }
@@ -97,7 +102,27 @@ public final class EquipmentEvents {
         }
     }
 
-    /** Tecla de flutuação: liga/desliga o modo de flutuação do jetpack vestido. */
+    /**
+     * Módulo de Voo: com o jetpack vestido, hidrogênio no tanque e o voo ligado, o jogador voa como no
+     * modo criativo (dois toques no pulo). Sem isso, o voo some (exceto no criativo/espectador).
+     */
+    public static void updateFlight(ServerPlayer player, ItemStack jetpack) {
+        boolean allowed = !jetpack.isEmpty() && JetpackItem.hover(jetpack) && JetpackItem.fuel(jetpack) > 0;
+        var abilities = player.getAbilities();
+        if (allowed) {
+            if (!abilities.mayfly) {
+                abilities.mayfly = true;
+                FLIGHT.add(player.getUUID());
+                player.onUpdateAbilities();
+            }
+        } else if (FLIGHT.remove(player.getUUID()) && !player.isCreative() && !player.isSpectator()) {
+            abilities.mayfly = false;
+            abilities.flying = false;
+            player.onUpdateAbilities();
+        }
+    }
+
+    /** Tecla de voo (H): liga/desliga o voo do jetpack vestido. */
     public static void toggleHover(ServerPlayer player) {
         ItemStack jetpack = Worn.jetpack(player);
         if (jetpack.isEmpty()) return;
@@ -105,7 +130,7 @@ public final class EquipmentEvents {
             player.sendOverlayMessage(Component.translatable("message.atomcraft.hover_missing").withStyle(ChatFormatting.GRAY));
             return;
         }
-        boolean hover = !JetpackItem.hover(jetpack);
+        boolean hover = Boolean.FALSE.equals(jetpack.get(ModComponents.HOVER.get()));
         jetpack.set(ModComponents.HOVER.get(), hover);
         player.sendOverlayMessage(Component.translatable(hover ? "message.atomcraft.hover_on" : "message.atomcraft.hover_off")
                 .withStyle(hover ? ChatFormatting.AQUA : ChatFormatting.GRAY));

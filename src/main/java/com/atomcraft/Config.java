@@ -157,12 +157,12 @@ public final class Config {
         BUILDER.pop().push("wireless");
     }
 
-    public static final ModConfigSpec.IntValue WIRELESS_RANGE = BUILDER
-            .comment("Alcance do Transmissor Sem Fio em blocos (-1 = sem limite na mesma dimensão)")
-            .defineInRange("range", 128, -1, 100_000);
-    public static final ModConfigSpec.BooleanValue WIRELESS_CROSS_DIMENSION = BUILDER
-            .comment("O Cartão de Rede funciona em outra dimensão (ex.: Nether usando um transmissor no Overworld)")
-            .define("crossDimension", false);
+    public static final ModConfigSpec.IntValue CARD_BASIC_RANGE = BUILDER
+            .comment("Alcance do Cartão de Rede (básico) em blocos, do transmissor até o jogador")
+            .defineInRange("basicCardRange", 64, 1, 100_000);
+    public static final ModConfigSpec.IntValue CARD_ADVANCED_RANGE = BUILDER
+            .comment("Alcance do Cartão de Rede Avançado em blocos (o Infinito não tem limite na mesma dimensão; o Dimensional funciona em qualquer dimensão)")
+            .defineInRange("advancedCardRange", 512, 1, 1_000_000);
     public static final ModConfigSpec.IntValue TRANSMITTER_CAPACITY = BUILDER
             .comment("Transmissor Sem Fio: energia guardada para os equipamentos (FE)")
             .defineInRange("transmitterCapacity", 1_000_000, 1_000, Integer.MAX_VALUE);
@@ -189,6 +189,12 @@ public final class Config {
     public static final ModConfigSpec.IntValue JETPACK_REFUEL = BUILDER
             .comment("Jetpack: hidrogênio por segundo tirado dos Drives pelo Transmissor Sem Fio")
             .defineInRange("jetpackRefuelPerSecond", 400, 0, 1_000_000);
+    public static final ModConfigSpec.IntValue BENCH_CAPACITY = BUILDER
+            .comment("Bancada de Módulos: energia guardada (FE)")
+            .defineInRange("benchCapacity", 500_000, 1_000, Integer.MAX_VALUE);
+    public static final ModConfigSpec.IntValue BENCH_CHARGE = BUILDER
+            .comment("Bancada de Módulos: FE por tick para recarregar o equipamento e a armadura vestida")
+            .defineInRange("benchChargePerTick", 10_000, 1, Integer.MAX_VALUE);
     public static final ModConfigSpec.IntValue MAGNET_RANGE = BUILDER
             .comment("Anel Magnético: raio em blocos")
             .defineInRange("magnetRange", 8, 1, 32);

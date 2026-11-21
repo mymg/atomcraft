@@ -18,12 +18,18 @@ import net.neoforged.neoforge.transfer.energy.SimpleEnergyHandler;
 
 /**
  * Transmissor Sem Fio: nó da rede com um estoque de energia (cheio pelos geradores e células da
- * rede) que os equipamentos atômicos usam à distância, junto com os elementos dos Drives.
+ * rede) que os equipamentos atômicos usam à distância, junto com os elementos dos Drives. Alimenta os
+ * jogadores cujos Cartões de Rede estão nos seus slots.
  */
 public class WirelessTransmitterBlockEntity extends MachineBlockEntity implements EnergyReceiver {
 
     public static final int DATA_ENERGY_LO = 0, DATA_ENERGY_HI = 1, DATA_CAPACITY_LO = 2, DATA_CAPACITY_HI = 3,
-            DATA_RANGE = 4, DATA_COUNT = 5;
+            DATA_COUNT = 4;
+    public static final int CARD_SLOTS = 4;
+
+    /** Cartões de Rede dos jogadores que este transmissor alimenta. */
+    private final com.atomcraft.storage.FilteredItemHandler cards = new com.atomcraft.storage.FilteredItemHandler(CARD_SLOTS, 1,
+            (slot, resource) -> resource.getItem() instanceof com.atomcraft.wireless.NetworkCardItem, this::setChanged);
 
     private final SimpleEnergyHandler energy = new SimpleEnergyHandler(Config.TRANSMITTER_CAPACITY.get(), 100_000, 0) {
         @Override
@@ -41,7 +47,6 @@ public class WirelessTransmitterBlockEntity extends MachineBlockEntity implement
                 case DATA_ENERGY_HI -> (stored >>> 16) & 0xFFFF;
                 case DATA_CAPACITY_LO -> capacity & 0xFFFF;
                 case DATA_CAPACITY_HI -> (capacity >>> 16) & 0xFFFF;
-                case DATA_RANGE -> Config.WIRELESS_RANGE.get() + 1; // 0 = sem limite
                 default -> 0;
             };
         }
@@ -68,8 +73,43 @@ public class WirelessTransmitterBlockEntity extends MachineBlockEntity implement
         return data;
     }
 
+    public com.atomcraft.storage.FilteredItemHandler cards() {
+        return cards;
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        com.atomcraft.wireless.Wireless.register(this);
+    }
+
+    @Override
+    public void setLevel(net.minecraft.world.level.Level level) {
+        super.setLevel(level);
+        com.atomcraft.wireless.Wireless.register(this);
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        com.atomcraft.wireless.Wireless.unregister(this);
+    }
+
+    @Override
+    public void onChunkUnloaded() {
+        super.onChunkUnloaded();
+        com.atomcraft.wireless.Wireless.unregister(this);
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        if (level != null && !level.isClientSide()) dropContents(level, pos, cards);
+    }
+
     @Override
     public void serverTick() {
+        com.atomcraft.wireless.Wireless.register(this);
         status = network().hasStorage() ? MachineStatus.WORKING : MachineStatus.NO_STORAGE;
     }
 
@@ -92,11 +132,13 @@ public class WirelessTransmitterBlockEntity extends MachineBlockEntity implement
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         energy.deserialize(input.childOrEmpty("energy"));
+        cards.deserialize(input.childOrEmpty("cards"));
     }
 
     @Override
     public void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         energy.serialize(output.child("energy"));
+        cards.serialize(output.child("cards"));
     }
 }

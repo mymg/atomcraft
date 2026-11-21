@@ -245,11 +245,13 @@ final class Showcase {
         if (level.getBlockEntity(base.south(6)) instanceof com.atomcraft.block.entity.WirelessTransmitterBlockEntity transmitter) {
             transmitter.setOwner(player);
             transmitter.energy().set(640_000);
+            // Cartões no transmissor: o do jogador (vinculado) e um avançado ainda sem dono
+            var card = new net.minecraft.world.item.ItemStack(com.atomcraft.tools.ModTools.NETWORK_CARD.get());
+            card.set(com.atomcraft.registry.ModComponents.CARD_OWNER.get(), new com.atomcraft.wireless.CardOwner(player.getUUID(), player.getName().getString()));
+            transmitter.cards().set(0, ItemResource.of(card), 1);
+            transmitter.cards().set(1, ItemResource.of(new net.minecraft.world.item.ItemStack(
+                    com.atomcraft.tools.ModTools.CARDS.get(com.atomcraft.wireless.CardTier.ADVANCED).get())), 1);
         }
-        var card = new net.minecraft.world.item.ItemStack(com.atomcraft.tools.ModTools.NETWORK_CARD.get());
-        card.set(com.atomcraft.registry.ModComponents.WIRELESS_LINK.get(), new com.atomcraft.wireless.WirelessLink(level.dimension(),
-                base.south(6), player.getUUID(), player.getName().getString()));
-        player.getInventory().add(card);
         var disintegrator = new net.minecraft.world.item.ItemStack(com.atomcraft.tools.ModTools.DISINTEGRATOR.get());
         com.atomcraft.tools.AtomicDisintegratorItem.setEnergy(disintegrator, 60_000);
         player.getInventory().add(disintegrator);
@@ -321,7 +323,14 @@ final class Showcase {
         if (ticks == 2920) {
             player.connection.teleport(start.x, start.y, start.z, player.getYRot(), player.getXRot());
             // Bancada com o peitoral do exoesqueleto (escudo + blindagem II)
-            com.atomcraft.block.ModuleBenchBlock.open(player, base.south(7));
+            // Armadura vestida (aparece na coluna da esquerda da bancada)
+            player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.EXO_HELMET.get()));
+            player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.LEGS, new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.EXO_LEGGINGS.get()));
+            player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.FEET, new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.EXO_BOOTS.get()));
+            if (level.getBlockEntity(base.south(7)) instanceof com.atomcraft.block.entity.ModuleBenchBlockEntity bench) {
+                bench.energy().set(320_000);
+                player.openMenu(bench);
+            }
             if (player.containerMenu instanceof com.atomcraft.menu.ModuleBenchMenu bench) {
                 var chest = new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.EXO_CHESTPLATE.get());
                 com.atomcraft.equipment.Battery.set(chest, 180_000, com.atomcraft.equipment.ExoArmorItem.CAPACITY);

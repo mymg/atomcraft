@@ -20,6 +20,8 @@ import java.util.List;
 /** Bancada de Módulos: equipamento à esquerda, slots de módulo à direita e a lista do que está instalado. */
 public class ModuleBenchScreen extends MachineScreen<ModuleBenchMenu> {
 
+    private static final int BENCH_BAR_X = 60, BENCH_BAR_Y = 25, BENCH_BAR_W = 6, BENCH_BAR_H = 74;
+
     public ModuleBenchScreen(ModuleBenchMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, ModuleBenchMenu.WIDTH, ModuleBenchMenu.HEIGHT);
     }
@@ -27,6 +29,8 @@ public class ModuleBenchScreen extends MachineScreen<ModuleBenchMenu> {
     @Override
     protected void extractPanels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         TechGui.glass(graphics, leftPos + 8, topPos + 21, 62, 82);
+        // Coluna da armadura vestida, à esquerda
+        TechGui.frame(graphics, leftPos + ModuleBenchMenu.ARMOR_X - 6, topPos + ModuleBenchMenu.ARMOR_Y - 6, 27, 4 * 18 + 10);
         TechGui.glass(graphics, leftPos + 74, topPos + 21, 94, 82);
     }
 
@@ -35,6 +39,9 @@ public class ModuleBenchScreen extends MachineScreen<ModuleBenchMenu> {
         ItemStack equipment = menu.equipment();
         EquipmentKind kind = menu.kind();
         int left = leftPos + 12, right = leftPos + 78;
+        // Energia da bancada (barra fina à direita do painel do equipamento)
+        float benchFill = menu.capacity() <= 0 ? 0 : (float) menu.energy() / menu.capacity();
+        TechGui.verticalBar(graphics, leftPos + BENCH_BAR_X, topPos + BENCH_BAR_Y, BENCH_BAR_W, BENCH_BAR_H, benchFill, TechGui.ENERGY);
         TechGui.smallText(graphics, font, Component.translatable("gui.atomcraft.equipment").getString(), left, topPos + 26, TechGui.TEXT_TEAL, false);
         TechGui.smallText(graphics, font, (kind == null ? Component.translatable("gui.atomcraft.modules") : kind.label()).getString(),
                 right, topPos + 26, TechGui.TEXT_TEAL, false);
@@ -44,8 +51,8 @@ public class ModuleBenchScreen extends MachineScreen<ModuleBenchMenu> {
             int x = leftPos + ModuleBenchMenu.MODULE_X + i * ModuleBenchMenu.MODULE_GAP, y = topPos + ModuleBenchMenu.MODULE_Y;
             if (kind != null && i < kind.slots()) continue;
             TechGui.slot(graphics, x, y);
-            graphics.fill(x + 1, y + 1, x + 17, y + 17, 0xC0101418);
-            graphics.fill(x + 4, y + 8, x + 14, y + 10, 0xFF3A4048);
+            graphics.fill(x, y, x + 16, y + 16, 0xC0101418);
+            graphics.fill(x + 3, y + 7, x + 13, y + 9, 0xFF3A4048);
         }
 
         if (kind == null) {
@@ -71,7 +78,7 @@ public class ModuleBenchScreen extends MachineScreen<ModuleBenchMenu> {
             amount = AtomicDisintegratorItem.energy(equipment);
             capacity = AtomicDisintegratorItem.CAPACITY;
         }
-        TechGui.horizontalBar(graphics, left, topPos + 66, 54, 7, (float) amount / capacity, color);
+        TechGui.horizontalBar(graphics, left, topPos + 66, 44, 7, (float) amount / capacity, color);
         TechGui.smallText(graphics, font, GuiUtil.formatAmount(amount) + unit, left, topPos + 76, TechGui.TEXT_LIGHT, false);
         TechGui.smallText(graphics, font, "/ " + GuiUtil.formatAmount(capacity), left, topPos + 84, TechGui.TEXT_DIM, false);
 
@@ -103,7 +110,20 @@ public class ModuleBenchScreen extends MachineScreen<ModuleBenchMenu> {
     }
 
     @Override
+    protected boolean hasClickedOutside(double mouseX, double mouseY, int left, int top) {
+        if (mouseX >= left + ModuleBenchMenu.ARMOR_X - 6 && mouseX < left && mouseY >= top + ModuleBenchMenu.ARMOR_Y - 6
+                && mouseY < top + ModuleBenchMenu.ARMOR_Y + 4 * 18 + 4) return false;
+        return super.hasClickedOutside(mouseX, mouseY, left, top);
+    }
+
+    @Override
     protected void extractTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        if (hovering(mouseX, mouseY, BENCH_BAR_X, BENCH_BAR_Y, BENCH_BAR_W, BENCH_BAR_H)) {
+            tooltip(graphics, mouseX, mouseY, Component.translatable("gui.atomcraft.bench_energy"),
+                    Component.literal(GuiUtil.formatAmount(menu.energy()) + " / " + GuiUtil.formatAmount(menu.capacity()) + " FE").withColor(TechGui.TEXT_LIGHT),
+                    Component.translatable("gui.atomcraft.bench_energy_hint").withColor(TechGui.TEXT_DIM));
+            return;
+        }
         EquipmentKind kind = menu.kind();
         if (kind == null || !menu.getCarried().isEmpty()) return;
         for (int i = 0; i < kind.slots(); i++) {

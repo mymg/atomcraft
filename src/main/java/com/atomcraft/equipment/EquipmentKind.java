@@ -9,7 +9,7 @@ public enum EquipmentKind {
     EXO_LEGGINGS("exo_leggings", 2),
     EXO_BOOTS("exo_boots", 2),
     JETPACK("jetpack", 2),
-    DISINTEGRATOR("disintegrator", 2);
+    DISINTEGRATOR("disintegrator", 3);
 
     /** Maior quantidade de slots de módulo entre os equipamentos (slots da bancada). */
     public static final int MAX_SLOTS = 3;

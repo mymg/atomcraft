@@ -53,6 +53,7 @@ public class AtomCraft {
         NeoForge.EVENT_BUS.addListener(AtomCraft::onDatapackSync);
         NeoForge.EVENT_BUS.addListener(AtomCraft::registerCommands);
         NeoForge.EVENT_BUS.addListener(com.atomcraft.tools.ToolEvents::onBlockDrops);
+        NeoForge.EVENT_BUS.addListener(com.atomcraft.tools.ToolEvents::onEnchantmentLevel);
         com.atomcraft.equipment.EquipmentEvents.register();
         Showcase.register();
     }

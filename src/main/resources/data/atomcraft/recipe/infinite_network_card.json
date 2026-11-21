@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "DED",
+    "ECE",
+    "DED"
+  ],
+  "key": {
+    "D": "minecraft:diamond",
+    "E": "minecraft:ender_eye",
+    "C": "atomcraft:advanced_network_card"
+  },
+  "result": {
+    "id": "atomcraft:infinite_network_card",
+    "count": 1
+  }
+}

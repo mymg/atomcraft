@@ -19,4 +19,17 @@ public final class ToolEvents {
         // O que couber vira elementos; o resto cai normalmente.
         event.getDrops().removeIf((ItemEntity drop) -> AtomicDisintegratorItem.atomize(transmitter, drop.getItem()));
     }
+
+    /** Toque Suave e Fortuna do desintegrador valem como os encantamentos (sem aparecer no item). */
+    public static void onEnchantmentLevel(net.neoforged.neoforge.event.enchanting.GetEnchantmentLevelEvent event) {
+        if (!(event.getStack() instanceof net.minecraft.world.item.ItemStack stack) || !(stack.getItem() instanceof AtomicDisintegratorItem)) return;
+        int silk = com.atomcraft.equipment.ModularItem.level(stack, com.atomcraft.equipment.EquipmentModule.SILK_TOUCH);
+        int fortune = com.atomcraft.equipment.ModularItem.level(stack, com.atomcraft.equipment.EquipmentModule.FORTUNE);
+        if (silk > 0 && event.isTargetting(net.minecraft.world.item.enchantment.Enchantments.SILK_TOUCH)) {
+            event.getHolder(net.minecraft.world.item.enchantment.Enchantments.SILK_TOUCH).ifPresent(h -> event.getEnchantments().set(h, silk));
+        }
+        if (fortune > 0 && event.isTargetting(net.minecraft.world.item.enchantment.Enchantments.FORTUNE)) {
+            event.getHolder(net.minecraft.world.item.enchantment.Enchantments.FORTUNE).ifPresent(h -> event.getEnchantments().set(h, fortune));
+        }
+    }
 }
