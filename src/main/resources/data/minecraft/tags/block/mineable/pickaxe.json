@@ -13,6 +13,7 @@
     "atomcraft:alloy_forge",
     "atomcraft:quantum_replicator",
     "atomcraft:wireless_transmitter",
+    "atomcraft:chunk_loader",
     "atomcraft:atomic_cable",
     "atomcraft:module_bench",
     "atomcraft:reactor_casing",

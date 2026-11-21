@@ -219,8 +219,17 @@ Com o JEI instalado, o AtomCraft ganha abas próprias:
 - **Combustível**: "U" num item mostra quanto FE ele rende no Gerador de Combustão;
 - **Atomizador**: "U" num item mostra quais elementos ele dá ao ser atomizado.
 
-Os elementos aparecem como fichas com o símbolo e a quantidade (passe o mouse para ver o nome); elementos ainda não
-descobertos aparecem como "?".
+Os elementos aparecem com os mesmos ícones redondos do Terminal de Elementos, seguidos da quantidade (passe o mouse
+para ver o nome); elementos ainda não descobertos aparecem como "?".
+
+## Carregador de Chunks
+
+Mantém chunks carregadas enquanto tiver energia. A interface mostra uma grade 5×5 centrada na chunk do bloco
+(como no Mekanism): clique numa célula para carregar ou soltar aquela chunk; a do meio fica sempre ligada.
+Cada chunk escolhida custa 25 FE/t; sem energia, desligado ou sem permissão da redstone, todas as chunks são soltas.
+
+Na configuração (`chunkLoader`) dá para desativar o bloco por completo (útil em modpacks com FTB Chunks e afins),
+limitar o raio (0–2), o número máximo de chunks por bloco, o custo por chunk e a capacidade de energia.
 
 ## Controle por redstone
 
@@ -292,6 +301,7 @@ armadura vestida: troque peças sem sair da bancada.
 Armadura de liga de titânio com bateria de 250.000 FE em cada peça. As peças recarregam pelo Transmissor Sem Fio
 (com o seu cartão num slot dele) ou na Bancada de Módulos. Sem energia, os módulos ativos param (Blindagem e Amortecedor são passivos).
 O Escudo de Energia absorve o dano gastando 1.000 FE por ponto.
+Calças e botas só gastam energia enquanto o jogador anda: parado, os módulos continuam ativos sem consumir nada.
 
 ### Jetpack a Hidrogênio
 

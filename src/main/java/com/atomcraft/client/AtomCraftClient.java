@@ -78,6 +78,7 @@ public class AtomCraftClient {
         event.register(ModMenus.ENERGY_CELL.get(), com.atomcraft.client.screen.EnergyCellScreen::new);
         event.register(ModMenus.WIRELESS_TRANSMITTER.get(), com.atomcraft.client.screen.WirelessTransmitterScreen::new);
         event.register(ModMenus.MODULE_BENCH.get(), com.atomcraft.client.screen.ModuleBenchScreen::new);
+        event.register(ModMenus.CHUNK_LOADER.get(), com.atomcraft.client.screen.ChunkLoaderScreen::new);
     }
 
     /** Mostra a fórmula, a raridade e o progresso de pesquisa no tooltip de cada item. */

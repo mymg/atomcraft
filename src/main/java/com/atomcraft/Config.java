@@ -200,6 +200,26 @@ public final class Config {
             .defineInRange("magnetRange", 8, 1, 32);
 
     static {
+        BUILDER.pop().push("chunkLoader");
+    }
+
+    public static final ModConfigSpec.BooleanValue CHUNK_LOADER_ENABLED = BUILDER
+            .comment("Carregador de Chunks ativo (desligue em modpacks com outro sistema, como FTB Chunks)")
+            .define("enabled", true);
+    public static final ModConfigSpec.IntValue CHUNK_LOADER_RADIUS = BUILDER
+            .comment("Raio da grade em chunks em volta do carregador (0 = só a chunk dele; 2 = grade 5×5)")
+            .defineInRange("radius", 2, 0, 2);
+    public static final ModConfigSpec.IntValue CHUNK_LOADER_MAX_CHUNKS = BUILDER
+            .comment("Máximo de chunks carregadas por carregador")
+            .defineInRange("maxChunks", 9, 1, 25);
+    public static final ModConfigSpec.IntValue CHUNK_LOADER_ENERGY = BUILDER
+            .comment("FE por tick para cada chunk carregada (0 = de graça)")
+            .defineInRange("energyPerChunk", 25, 0, 1_000_000);
+    public static final ModConfigSpec.IntValue CHUNK_LOADER_CAPACITY = BUILDER
+            .comment("Energia guardada no carregador (FE)")
+            .defineInRange("capacity", 500_000, 1_000, Integer.MAX_VALUE);
+
+    static {
         BUILDER.pop();
     }
 

@@ -49,7 +49,7 @@ final class ClientShowcase {
             if (jeiTicks == 310 && screen != null) Minecraft.getInstance().gui.setScreen(null);
             return;
         }
-        if (screen == null && screensSeen >= 15 && !machinesCaptured) {
+        if (screen == null && screensSeen >= 16 && !machinesCaptured) {
             // Depois das interfaces, o servidor fecha o menu e posiciona a câmera nas máquinas e depois no reator.
             idleTicks++;
             if (idleTicks == 100 && !worldCaptured) {

@@ -19,6 +19,7 @@ public final class ModCapabilities {
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.MATRIX_PORT.get(), (be, side) -> be.energy());
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.WIRELESS_TRANSMITTER.get(), (be, side) -> be.energy());
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.MODULE_BENCH.get(), (be, side) -> be.energy());
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.CHUNK_LOADER.get(), (be, side) -> be.energy());
         event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.QUANTUM_PORT.get(), (be, side) -> be.energy());
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.QUANTUM_PORT.get(), (be, side) -> be.items());
         for (var type : java.util.List.of(ModBlockEntities.ADVANCED_REPLICATOR.get(), ModBlockEntities.QUANTUM_REPLICATOR.get())) {
