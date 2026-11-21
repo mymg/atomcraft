@@ -67,7 +67,8 @@ public final class ModNetwork {
     private static void handleToggle(MachineTogglePayload payload, IPayloadContext context) {
         if (!(context.player() instanceof ServerPlayer player) || !inReach(player, payload.pos())) return;
         if (player.level().getBlockEntity(payload.pos()) instanceof MachineBlockEntity machine && machine.hasPowerControl()) {
-            machine.setEnabled(!machine.isEnabled());
+            if (payload.action() == MachineTogglePayload.REDSTONE) machine.setRedstoneMode(machine.redstoneMode().next());
+            else machine.setEnabled(!machine.isSwitchedOn());
         }
     }
 

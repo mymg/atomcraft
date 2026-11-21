@@ -16,13 +16,8 @@ public class WirelessTransmitterScreen extends MachineScreen<WirelessTransmitter
     }
 
     @Override
-    protected boolean showsInventory() {
-        return false;
-    }
-
-    @Override
     protected void extractPanels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        TechGui.glass(graphics, leftPos + 28, topPos + 21, 140, 46);
+        TechGui.glass(graphics, leftPos + 28, topPos + 21, 140, 42);
     }
 
     @Override
@@ -32,19 +27,24 @@ public class WirelessTransmitterScreen extends MachineScreen<WirelessTransmitter
         int x = leftPos + 32, y = topPos + 25;
         graphics.text(font, GuiUtil.formatAmount(menu.energy()) + " / " + GuiUtil.formatAmount(menu.capacity()) + " FE", x, y,
                 TechGui.TEXT_LIGHT, false);
-        Component range = menu.range() < 0 ? Component.translatable("gui.atomcraft.range_unlimited")
-                : Component.translatable("gui.atomcraft.range", menu.range());
-        graphics.text(font, range, x, y + 12, TechGui.TEXT_TEAL, false);
-        graphics.text(font, Component.translatable("gui.atomcraft.card_hint_1"), x, y + 23, TechGui.TEXT_DIM, false);
-        graphics.text(font, Component.translatable("gui.atomcraft.card_hint_2"), x, y + 32, TechGui.TEXT_DIM, false);
-        storageRow(graphics, 28, 72, 168);
+        TechGui.smallText(graphics, font, Component.translatable("gui.atomcraft.cards").getString(), x, y + 11, TechGui.TEXT_TEAL, false);
+        storageRow(graphics, 28, 67, 168);
         MachineStatus status = menu.isEnabled() ? MachineStatus.WORKING : MachineStatus.DISABLED;
-        graphics.text(font, status.label(), leftPos + 9, topPos + 95, statusColor(status), false);
+        graphics.text(font, status.label(), leftPos + 9, topPos + 91, statusColor(status), false);
     }
 
     @Override
     protected void extractTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         if (hovering(mouseX, mouseY, BAR_X, BAR_Y, BAR_W, BAR_H)) tooltip(graphics, mouseX, mouseY, energyTooltip(menu.energy(), menu.capacity()));
-        else if (hovering(mouseX, mouseY, 28, 72, 140, 20)) tooltip(graphics, mouseX, mouseY, storageTooltip());
+        else if (hovering(mouseX, mouseY, 28, 67, 140, 20)) tooltip(graphics, mouseX, mouseY, storageTooltip());
+        else if (menu.getCarried().isEmpty()) {
+            for (int i = 0; i < com.atomcraft.block.entity.WirelessTransmitterBlockEntity.CARD_SLOTS; i++) {
+                int sx = WirelessTransmitterMenu.CARD_X + i * WirelessTransmitterMenu.CARD_GAP;
+                if (hovering(mouseX, mouseY, sx, WirelessTransmitterMenu.CARD_Y, 18, 18) && !menu.slots.get(i).hasItem()) {
+                    tooltip(graphics, mouseX, mouseY, Component.translatable("gui.atomcraft.card_slot"),
+                            Component.translatable("gui.atomcraft.card_slot_hint").withColor(TechGui.TEXT_DIM));
+                }
+            }
+        }
     }
 }

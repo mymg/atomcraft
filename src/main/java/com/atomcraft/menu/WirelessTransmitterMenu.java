@@ -13,21 +13,28 @@ import net.minecraft.world.level.block.Block;
 /** Transmissor Sem Fio: energia para os equipamentos, alcance e a rede alcançada. */
 public class WirelessTransmitterMenu extends BaseMenu {
 
-    public static final int WIDTH = 176, HEIGHT = 112;
+    public static final int WIDTH = 176, HEIGHT = 196, CARD_X = 36, CARD_Y = 40, CARD_GAP = 22;
 
     private final ContainerData data;
 
     public static WirelessTransmitterMenu client(int id, Inventory inventory, RegistryFriendlyByteBuf buf) {
-        return new WirelessTransmitterMenu(id, inventory, buf.readBlockPos(), new SimpleContainerData(WirelessTransmitterBlockEntity.DATA_COUNT));
+        return new WirelessTransmitterMenu(id, inventory, buf.readBlockPos(), new SimpleContainerData(WirelessTransmitterBlockEntity.DATA_COUNT),
+                new com.atomcraft.storage.FilteredItemHandler(WirelessTransmitterBlockEntity.CARD_SLOTS, 1,
+                        (slot, resource) -> resource.getItem() instanceof com.atomcraft.wireless.NetworkCardItem, () -> {}));
     }
 
     public WirelessTransmitterMenu(int id, Inventory inventory, WirelessTransmitterBlockEntity transmitter) {
-        this(id, inventory, transmitter.getBlockPos(), transmitter.data());
+        this(id, inventory, transmitter.getBlockPos(), transmitter.data(), transmitter.cards());
     }
 
-    private WirelessTransmitterMenu(int id, Inventory inventory, BlockPos pos, ContainerData data) {
+    private WirelessTransmitterMenu(int id, Inventory inventory, BlockPos pos, ContainerData data, com.atomcraft.storage.FilteredItemHandler cards) {
         super(ModMenus.WIRELESS_TRANSMITTER.get(), id, inventory, pos);
         this.data = data;
+        for (int i = 0; i < WirelessTransmitterBlockEntity.CARD_SLOTS; i++) {
+            addSlot(new net.neoforged.neoforge.transfer.item.ResourceHandlerSlot(cards, cards::set, i, CARD_X + i * CARD_GAP, CARD_Y));
+        }
+        machineSlots = WirelessTransmitterBlockEntity.CARD_SLOTS;
+        addPlayerInventory(inventory, 8, HEIGHT - 82);
         addMachineControlsWithoutUpgrades();
         addDataSlots(data);
     }
@@ -45,8 +52,5 @@ public class WirelessTransmitterMenu extends BaseMenu {
         return combine(data.get(WirelessTransmitterBlockEntity.DATA_CAPACITY_LO), data.get(WirelessTransmitterBlockEntity.DATA_CAPACITY_HI));
     }
 
-    /** Alcance em blocos (-1 = sem limite). */
-    public int range() {
-        return data.get(WirelessTransmitterBlockEntity.DATA_RANGE) - 1;
-    }
+
 }

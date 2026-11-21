@@ -42,6 +42,7 @@ public abstract class BaseMenu extends AbstractContainerMenu {
     /** Máquina no servidor (null no cliente). */
     protected final @Nullable MachineBlockEntity machine;
     private int enabledClient = 1;
+    private int redstoneClient = 0;
     private boolean controls;
     private boolean upgradeTab = true;
     private boolean upgradesVisible;
@@ -65,12 +66,23 @@ public abstract class BaseMenu extends AbstractContainerMenu {
         addDataSlot(new DataSlot() {
             @Override
             public int get() {
-                return machine != null ? (machine.isEnabled() ? 1 : 0) : enabledClient;
+                return machine != null ? (machine.isSwitchedOn() ? 1 : 0) : enabledClient;
             }
 
             @Override
             public void set(int value) {
                 enabledClient = value;
+            }
+        });
+        addDataSlot(new DataSlot() {
+            @Override
+            public int get() {
+                return machine != null ? machine.redstoneMode().ordinal() : redstoneClient;
+            }
+
+            @Override
+            public void set(int value) {
+                redstoneClient = value;
             }
         });
     }
@@ -140,6 +152,11 @@ public abstract class BaseMenu extends AbstractContainerMenu {
 
     public void setUpgradesVisible(boolean visible) {
         this.upgradesVisible = visible;
+    }
+
+    /** Modo de redstone da máquina aberta (sincronizado). */
+    public com.atomcraft.block.entity.RedstoneMode redstoneMode() {
+        return machine != null ? machine.redstoneMode() : com.atomcraft.block.entity.RedstoneMode.byId(redstoneClient);
     }
 
     public boolean isEnabled() {

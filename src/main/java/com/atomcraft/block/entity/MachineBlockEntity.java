@@ -34,6 +34,10 @@ public abstract class MachineBlockEntity extends BlockEntity implements MenuProv
     protected MachineStatus status = MachineStatus.IDLE;
     /** Botão de ligar/desligar da interface. */
     private boolean enabled = true;
+    /** Controle por redstone (aba da interface). */
+    private RedstoneMode redstoneMode = RedstoneMode.IGNORED;
+    /** Modo pulso: estado atual (cada pulso inverte) e o sinal do tick anterior. */
+    private boolean pulseOn, lastSignal;
     private final FilteredItemHandler upgrades = createUpgrades();
 
     private @Nullable ElementNetwork network;
@@ -47,13 +51,47 @@ public abstract class MachineBlockEntity extends BlockEntity implements MenuProv
 
     /** Chamado pelo ticker do bloco: respeita o botão de ligar/desligar. */
     public final void tick() {
-        if (enabled) {
-            serverTick();
-        } else {
+        updateRedstone();
+        if (!enabled) {
             status = MachineStatus.DISABLED;
             disabledTick();
+        } else if (!redstoneAllows()) {
+            status = MachineStatus.WAITING_REDSTONE;
+            disabledTick();
+        } else {
+            serverTick();
         }
         afterTick();
+    }
+
+    private void updateRedstone() {
+        if (level == null || redstoneMode == RedstoneMode.IGNORED) return;
+        boolean signal = level.hasNeighborSignal(worldPosition);
+        if (redstoneMode == RedstoneMode.PULSE && signal && !lastSignal) {
+            pulseOn = !pulseOn;
+            setChanged();
+        }
+        lastSignal = signal;
+    }
+
+    /** Se o controle por redstone deixa a máquina trabalhar agora. */
+    public boolean redstoneAllows() {
+        return switch (redstoneMode) {
+            case IGNORED -> true;
+            case HIGH -> lastSignal;
+            case LOW -> !lastSignal;
+            case PULSE -> pulseOn;
+        };
+    }
+
+    public RedstoneMode redstoneMode() {
+        return redstoneMode;
+    }
+
+    public void setRedstoneMode(RedstoneMode mode) {
+        this.redstoneMode = mode;
+        if (level != null) lastSignal = level.hasNeighborSignal(worldPosition);
+        setChanged();
     }
 
     /**
@@ -77,7 +115,13 @@ public abstract class MachineBlockEntity extends BlockEntity implements MenuProv
     /** Tick com a máquina desligada (geradores continuam entregando a energia guardada). */
     protected void disabledTick() {}
 
+    /** Se a máquina pode trabalhar agora: botão ligado e redstone permitindo. */
     public boolean isEnabled() {
+        return enabled && redstoneAllows();
+    }
+
+    /** Posição do botão de ligar/desligar (sem considerar a redstone). */
+    public boolean isSwitchedOn() {
         return enabled;
     }
 
@@ -206,6 +250,9 @@ public abstract class MachineBlockEntity extends BlockEntity implements MenuProv
         owner = input.read("owner", UUIDUtil.CODEC).orElse(null);
         ownerName = input.getStringOr("owner_name", "");
         enabled = input.getBooleanOr("enabled", true);
+        redstoneMode = RedstoneMode.byId(input.getIntOr("redstone", 0));
+        pulseOn = input.getBooleanOr("pulse_on", false);
+        lastSignal = input.getBooleanOr("last_signal", false);
         upgrades.deserialize(input.childOrEmpty("upgrades"));
     }
 
@@ -215,6 +262,9 @@ public abstract class MachineBlockEntity extends BlockEntity implements MenuProv
         if (owner != null) output.store("owner", UUIDUtil.CODEC, owner);
         output.putString("owner_name", ownerName);
         output.putBoolean("enabled", enabled);
+        output.putInt("redstone", redstoneMode.ordinal());
+        output.putBoolean("pulse_on", pulseOn);
+        output.putBoolean("last_signal", lastSignal);
         upgrades.serialize(output.child("upgrades"));
     }
 

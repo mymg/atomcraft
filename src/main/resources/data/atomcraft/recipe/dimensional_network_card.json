@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "OEO",
+    "SCS",
+    "OEO"
+  ],
+  "key": {
+    "O": "minecraft:crying_obsidian",
+    "E": "minecraft:ender_eye",
+    "S": "minecraft:nether_star",
+    "C": "atomcraft:infinite_network_card"
+  },
+  "result": {
+    "id": "atomcraft:dimensional_network_card",
+    "count": 1
+  }
+}

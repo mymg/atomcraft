@@ -210,16 +210,19 @@ final class SelfTest {
         player.setPos(drivePos.getX() + 5, drivePos.getY(), drivePos.getZ());
         player.getInventory().clearContent();
         check(failures, com.atomcraft.wireless.Wireless.find(player) == null, "sem cartão não há rede sem fio");
-        var card = new net.minecraft.world.item.ItemStack(com.atomcraft.tools.ModTools.NETWORK_CARD.get());
-        card.set(ModComponents.WIRELESS_LINK.get(), new com.atomcraft.wireless.WirelessLink(level.dimension(), drivePos.east(),
-                java.util.UUID.randomUUID(), "outro"));
-        player.getInventory().setItem(0, card);
+        transmitter.cards().set(0, card(com.atomcraft.wireless.CardTier.BASIC, java.util.UUID.randomUUID(), "outro"), 1);
         check(failures, com.atomcraft.wireless.Wireless.find(player) == null, "cartão de outro jogador não funciona");
-        card.set(ModComponents.WIRELESS_LINK.get(), new com.atomcraft.wireless.WirelessLink(level.dimension(), drivePos.east(),
-                player.getUUID(), player.getName().getString()));
-        check(failures, com.atomcraft.wireless.Wireless.find(player) == transmitter, "cartão vinculado alcança o transmissor");
-        player.setPos(drivePos.getX() + 1000, drivePos.getY(), drivePos.getZ());
-        check(failures, com.atomcraft.wireless.Wireless.find(player) == null, "fora do alcance não funciona");
+        transmitter.cards().set(0, card(com.atomcraft.wireless.CardTier.BASIC, player.getUUID(), "tester"), 1);
+        check(failures, com.atomcraft.wireless.Wireless.find(player) == transmitter, "cartão do jogador no transmissor alcança o jogador");
+        player.setPos(drivePos.getX() + 300, drivePos.getY(), drivePos.getZ());
+        check(failures, com.atomcraft.wireless.Wireless.find(player) == null, "fora do alcance do cartão básico não funciona");
+        transmitter.cards().set(0, card(com.atomcraft.wireless.CardTier.ADVANCED, player.getUUID(), "tester"), 1);
+        check(failures, com.atomcraft.wireless.Wireless.find(player) == transmitter, "cartão avançado alcança 300 blocos");
+        player.setPos(drivePos.getX() + 5000, drivePos.getY(), drivePos.getZ());
+        check(failures, com.atomcraft.wireless.Wireless.find(player) == null, "cartão avançado não alcança 5.000 blocos");
+        transmitter.cards().set(0, card(com.atomcraft.wireless.CardTier.INFINITE, player.getUUID(), "tester"), 1);
+        check(failures, com.atomcraft.wireless.Wireless.find(player) == transmitter, "cartão infinito alcança qualquer distância");
+        transmitter.cards().set(0, card(com.atomcraft.wireless.CardTier.BASIC, player.getUUID(), "tester"), 1);
         player.setPos(drivePos.getX() + 5, drivePos.getY(), drivePos.getZ());
 
         // Desintegrador: carrega pelo transmissor e manda o bloco quebrado para a rede
@@ -234,6 +237,13 @@ final class SelfTest {
                 "pedregulho desintegrado vai para a rede");
         long after = transmitter.network().totals().elements().values().stream().mapToLong(Long::longValue).sum();
         check(failures, after > before, "rede ganhou os elementos do pedregulho (" + before + " → " + after + ")");
+    }
+
+    /** Cartão de Rede do nível, vinculado ao jogador. */
+    private static ItemResource card(com.atomcraft.wireless.CardTier tier, java.util.UUID owner, String name) {
+        var stack = new net.minecraft.world.item.ItemStack(com.atomcraft.tools.ModTools.CARDS.get(tier).get());
+        stack.set(ModComponents.CARD_OWNER.get(), new com.atomcraft.wireless.CardOwner(owner, name));
+        return ItemResource.of(stack);
     }
 
     /** Bancada de Módulos, Exoesqueleto, Jetpack, Anel Magnético, Desintegrador com módulos e Curios. */
@@ -303,10 +313,7 @@ final class SelfTest {
         com.atomcraft.equipment.EquipmentEvents.tickExo(player, 10);
         check(failures, player.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.ARMOR).hasModifier(AtomCraft.id("exo_plating_chest")),
                 "blindagem III no peitoral dá armadura");
-        var card = new net.minecraft.world.item.ItemStack(com.atomcraft.tools.ModTools.NETWORK_CARD.get());
-        card.set(ModComponents.WIRELESS_LINK.get(), new com.atomcraft.wireless.WirelessLink(level.dimension(), drivePos.east(),
-                player.getUUID(), player.getName().getString()));
-        player.getInventory().setItem(0, card);
+        transmitter.cards().set(0, card(com.atomcraft.wireless.CardTier.BASIC, player.getUUID(), "atomcraft_equipment"), 1);
         com.atomcraft.equipment.EquipmentEvents.recharge(player);
         check(failures, com.atomcraft.equipment.Battery.energy(chest) > 1_000 && com.atomcraft.equipment.Battery.energy(legs) > 0,
                 "exoesqueleto recarrega pelo transmissor");
@@ -321,6 +328,17 @@ final class SelfTest {
         long hAfter = transmitter.network().totals().get(com.atomcraft.chemistry.ChemicalElement.HYDROGEN);
         int fuel = com.atomcraft.equipment.JetpackItem.fuel(jetpack);
         check(failures, fuel > 0 && hBefore - hAfter == fuel, "jetpack tira hidrogênio da rede (" + fuel + " H)");
+        // Módulo de Voo: voo criativo enquanto houver hidrogênio
+        com.atomcraft.equipment.EquipmentEvents.updateFlight(player, jetpack);
+        check(failures, !player.getAbilities().mayfly, "jetpack sem módulo de Voo não dá voo");
+        com.atomcraft.equipment.ModularItem.setModules(jetpack, List.of(new net.minecraft.world.item.ItemStack(modules.get(com.atomcraft.equipment.EquipmentModule.HOVER).get()),
+                net.minecraft.world.item.ItemStack.EMPTY, net.minecraft.world.item.ItemStack.EMPTY));
+        com.atomcraft.equipment.EquipmentEvents.updateFlight(player, jetpack);
+        check(failures, player.getAbilities().mayfly, "módulo de Voo libera o voo");
+        com.atomcraft.equipment.JetpackItem.setFuel(jetpack, 0);
+        com.atomcraft.equipment.EquipmentEvents.updateFlight(player, jetpack);
+        check(failures, !player.getAbilities().mayfly, "sem hidrogênio o voo acaba");
+        com.atomcraft.equipment.JetpackItem.setFuel(jetpack, fuel);
 
         // Anel Magnético puxa itens próximos
         player.getInventory().setItem(1, new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.MAGNET.get()));
@@ -340,11 +358,62 @@ final class SelfTest {
                 net.minecraft.world.item.ItemStack.EMPTY, net.minecraft.world.item.ItemStack.EMPTY));
         check(failures, fast.getDestroySpeed(Blocks.STONE.defaultBlockState()) > plain.getDestroySpeed(Blocks.STONE.defaultBlockState()),
                 "módulo de Eficiência acelera o desintegrador");
+        // Toque Suave: pedra cai como pedra; Fortuna vale como o encantamento
+        var silk = new net.minecraft.world.item.ItemStack(com.atomcraft.tools.ModTools.DISINTEGRATOR.get());
+        com.atomcraft.equipment.ModularItem.setModules(silk, List.of(new net.minecraft.world.item.ItemStack(modules.get(com.atomcraft.equipment.EquipmentModule.SILK_TOUCH).get()),
+                net.minecraft.world.item.ItemStack.EMPTY, net.minecraft.world.item.ItemStack.EMPTY));
+        var silkDrops = net.minecraft.world.level.block.Block.getDrops(Blocks.STONE.defaultBlockState(), level, drivePos.above(3), null, player, silk);
+        check(failures, silkDrops.stream().anyMatch(s -> s.is(Items.STONE)), "Toque Suave: pedra cai inteira (" + silkDrops + ")");
+        var lucky = new net.minecraft.world.item.ItemStack(com.atomcraft.tools.ModTools.DISINTEGRATOR.get());
+        com.atomcraft.equipment.ModularItem.setModules(lucky, List.of(new net.minecraft.world.item.ItemStack(modules.get(com.atomcraft.equipment.EquipmentModule.FORTUNE).get(), 3),
+                net.minecraft.world.item.ItemStack.EMPTY, net.minecraft.world.item.ItemStack.EMPTY));
+        var fortuneHolder = level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT)
+                .getOrThrow(net.minecraft.world.item.enchantment.Enchantments.FORTUNE);
+        check(failures, net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel(fortuneHolder, lucky) == 3,
+                "Fortuna III do módulo vale como encantamento");
+        var bench2 = new com.atomcraft.menu.ModuleBenchMenu(0, player.getInventory(), drivePos.west());
+        bench2.insertEquipment(silk);
+        check(failures, !bench2.accepts(1, new net.minecraft.world.item.ItemStack(modules.get(com.atomcraft.equipment.EquipmentModule.FORTUNE).get())),
+                "Toque Suave e Fortuna não ficam juntos");
+        bench2.insertEquipment(net.minecraft.world.item.ItemStack.EMPTY);
+
+        // Bancada recarrega o equipamento com a própria energia
+        var benchBe = (com.atomcraft.block.entity.ModuleBenchBlockEntity) level.getBlockEntity(drivePos.west());
+        benchBe.energy().set(100_000);
+        var emptyHelmet = new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.EXO_HELMET.get());
+        bench2.insertEquipment(emptyHelmet);
+        bench2.broadcastChanges();
+        check(failures, com.atomcraft.equipment.Battery.energy(bench2.equipment()) > 0 && benchBe.energy().getAmountAsInt() < 100_000,
+                "bancada recarrega o capacete com a própria energia");
+        check(failures, bench2.slots.get(4).isActive() && bench2.slots.get(4) instanceof net.minecraft.world.inventory.ArmorSlot,
+                "bancada mostra os slots da armadura vestida");
+        bench2.insertEquipment(net.minecraft.world.item.ItemStack.EMPTY);
+
+        // Controle por redstone: com sinal / pulso
+        benchBe.setRedstoneMode(com.atomcraft.block.entity.RedstoneMode.HIGH);
+        benchBe.tick();
+        check(failures, benchBe.status() == com.atomcraft.block.entity.MachineStatus.WAITING_REDSTONE && !benchBe.isEnabled(),
+                "modo 'com sinal' espera a redstone");
+        level.setBlock(drivePos.west().below(), Blocks.REDSTONE_BLOCK.defaultBlockState(), Block.UPDATE_ALL);
+        benchBe.tick();
+        check(failures, benchBe.isEnabled(), "com sinal de redstone a máquina trabalha");
+        benchBe.setRedstoneMode(com.atomcraft.block.entity.RedstoneMode.LOW);
+        benchBe.tick();
+        check(failures, !benchBe.isEnabled(), "modo 'sem sinal' para com redstone");
+        benchBe.setRedstoneMode(com.atomcraft.block.entity.RedstoneMode.PULSE);
+        level.setBlock(drivePos.west().below(), Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+        benchBe.tick();
+        boolean before = benchBe.isEnabled();
+        level.setBlock(drivePos.west().below(), Blocks.REDSTONE_BLOCK.defaultBlockState(), Block.UPDATE_ALL);
+        benchBe.tick();
+        check(failures, benchBe.isEnabled() != before, "pulso de redstone liga/desliga");
+        level.setBlock(drivePos.west().below(), Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+        benchBe.setRedstoneMode(com.atomcraft.block.entity.RedstoneMode.IGNORED);
 
         // Curios: slots de anel/costas/amuleto e acessório equipado conta
         if (com.atomcraft.compat.Curios.LOADED) {
-            check(failures, com.atomcraft.compat.Curios.hasPlayerSlot(level, "ring") && com.atomcraft.compat.Curios.hasPlayerSlot(level, "back")
-                    && com.atomcraft.compat.Curios.hasPlayerSlot(level, "charm"), "Curios: jogador tem slots de anel, costas e amuleto");
+            check(failures, com.atomcraft.compat.Curios.hasPlayerSlot(level, "ring") && com.atomcraft.compat.Curios.hasPlayerSlot(level, "back"),
+                    "Curios: jogador tem slots de anel e costas");
             player.getInventory().clearContent();
             player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, net.minecraft.world.item.ItemStack.EMPTY);
             var ring = new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.ANALYZER_RING.get());

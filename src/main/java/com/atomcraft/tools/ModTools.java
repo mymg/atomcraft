@@ -78,14 +78,21 @@ public final class ModTools {
             WirelessTransmitterBlock::new, p -> ModBlocks.machine(p).noOcclusion());
     public static final DeferredItem<net.minecraft.world.item.BlockItem> WIRELESS_TRANSMITTER_ITEM =
             ModItems.ITEMS.registerSimpleBlockItem(WIRELESS_TRANSMITTER);
-    public static final DeferredItem<NetworkCardItem> NETWORK_CARD = ModItems.ITEMS.registerItem("network_card",
-            NetworkCardItem::new, properties -> properties.stacksTo(1));
+    public static final java.util.Map<com.atomcraft.wireless.CardTier, DeferredItem<NetworkCardItem>> CARDS =
+            new java.util.EnumMap<>(com.atomcraft.wireless.CardTier.class);
+    static {
+        for (com.atomcraft.wireless.CardTier tier : com.atomcraft.wireless.CardTier.values()) {
+            CARDS.put(tier, ModItems.ITEMS.registerItem(tier.id(), p -> new NetworkCardItem(tier, p),
+                    properties -> properties.stacksTo(1).rarity(tier.ordinal() >= 2 ? Rarity.EPIC : tier.ordinal() == 1 ? Rarity.UNCOMMON : Rarity.COMMON)));
+        }
+    }
+    public static final DeferredItem<NetworkCardItem> NETWORK_CARD = CARDS.get(com.atomcraft.wireless.CardTier.BASIC);
     public static final DeferredItem<AtomicDisintegratorItem> DISINTEGRATOR = ModItems.ITEMS.registerItem("atomic_disintegrator",
             AtomicDisintegratorItem::new, properties -> properties.stacksTo(1).rarity(Rarity.RARE));
 
     static {
         TAB_ORDER.add(WIRELESS_TRANSMITTER_ITEM);
-        TAB_ORDER.add(NETWORK_CARD);
+        TAB_ORDER.addAll(CARDS.values());
         TAB_ORDER.add(DISINTEGRATOR);
         for (Tier tier : Tier.values()) {
             ToolMaterial m = tier.material();

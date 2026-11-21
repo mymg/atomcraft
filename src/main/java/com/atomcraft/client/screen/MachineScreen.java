@@ -40,7 +40,16 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
 
     public enum SidePanel { NONE, INFO, UPGRADES, EXTRA }
 
-    private static final int TAB_SIZE = 20, TAB_POWER = 0, TAB_INFO = 1, TAB_UPGRADES = 2, TAB_EXTRA = 3;
+    private static final int TAB_SIZE = 20, TAB_POWER = 0, TAB_INFO = 1, TAB_UPGRADES = 2, TAB_EXTRA = 3, TAB_REDSTONE = 4;
+    private static final String[] ICON_REDSTONE = {
+            "...##....",
+            "..####...",
+            "...##....",
+            "...##....",
+            "...##....",
+            "..####...",
+            ".######..",
+            "........"};
     private static final String[] ICON_POWER = {
             "....#....", ".#..#..#.", "#...#...#", "#...#...#", "#.......#", "#.......#", ".#.....#.", "..#####.."};
     private static final String[] ICON_INFO = {
@@ -87,7 +96,7 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
 
     /** Abas visíveis, de cima para baixo (TAB_POWER, TAB_INFO, TAB_UPGRADES, TAB_EXTRA). */
     private int[] tabs() {
-        java.util.List<Integer> ids = new java.util.ArrayList<>(java.util.List.of(TAB_POWER, TAB_INFO));
+        java.util.List<Integer> ids = new java.util.ArrayList<>(java.util.List.of(TAB_POWER, TAB_REDSTONE, TAB_INFO));
         if (menu.hasUpgradeTab()) ids.add(TAB_UPGRADES);
         if (extraTab() != null) ids.add(TAB_EXTRA);
         return ids.stream().mapToInt(Integer::intValue).toArray();
@@ -160,8 +169,11 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
             graphics.fill(x, y + 1, x + w - 1, y + TAB_SIZE - 1, selected ? TechGui.SELECTED : hovered == i ? TechGui.METAL_LIGHT : TechGui.METAL);
             graphics.fill(x, y + 1, x + w - 1, y + 2, TechGui.METAL_HI);
             graphics.fill(x + w - 2, y + 1, x + w - 1, y + TAB_SIZE - 1, TechGui.METAL_SHADOW);
-            String[] icon = i == TAB_POWER ? ICON_POWER : i == TAB_INFO ? ICON_INFO : i == TAB_UPGRADES ? ICON_UPGRADES : extraTabIcon();
-            int color = i == TAB_POWER ? (menu.isEnabled() ? TechGui.TEXT_GOOD : TechGui.ENERGY) : TechGui.TEXT_TEAL;
+            String[] icon = i == TAB_POWER ? ICON_POWER : i == TAB_REDSTONE ? ICON_REDSTONE : i == TAB_INFO ? ICON_INFO
+                    : i == TAB_UPGRADES ? ICON_UPGRADES : extraTabIcon();
+            int color = i == TAB_POWER ? (menu.isEnabled() ? TechGui.TEXT_GOOD : TechGui.ENERGY)
+                    : i == TAB_REDSTONE ? (menu.redstoneMode() == com.atomcraft.block.entity.RedstoneMode.IGNORED ? TechGui.TEXT_DIM : 0xFFE03030)
+                    : TechGui.TEXT_TEAL;
             pixelIcon(graphics, x + 7, y + 6, icon, color);
         }
         if (openPanel() != SidePanel.NONE) {
@@ -219,7 +231,8 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
         if (tab >= 0) {
             Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f));
             switch (tab) {
-                case TAB_POWER -> ClientPacketDistributor.sendToServer(new MachineTogglePayload(menu.pos()));
+                case TAB_POWER -> ClientPacketDistributor.sendToServer(new MachineTogglePayload(menu.pos(), MachineTogglePayload.POWER));
+                case TAB_REDSTONE -> ClientPacketDistributor.sendToServer(new MachineTogglePayload(menu.pos(), MachineTogglePayload.REDSTONE));
                 case TAB_INFO -> sidePanel = sidePanel == SidePanel.INFO ? SidePanel.NONE : SidePanel.INFO;
                 case TAB_EXTRA -> sidePanel = sidePanel == SidePanel.EXTRA ? SidePanel.NONE : SidePanel.EXTRA;
                 default -> sidePanel = sidePanel == SidePanel.UPGRADES ? SidePanel.NONE : SidePanel.UPGRADES;
@@ -268,6 +281,10 @@ public abstract class MachineScreen<M extends BaseMenu> extends AbstractContaine
         switch (tabAt(mouseX, mouseY)) {
             case TAB_POWER -> tooltip(graphics, mouseX, mouseY, Component.translatable(menu.isEnabled()
                     ? "gui.atomcraft.power_on" : "gui.atomcraft.power_off"), Component.translatable("gui.atomcraft.power_hint"));
+            case TAB_REDSTONE -> tooltip(graphics, mouseX, mouseY,
+                    Component.translatable("gui.atomcraft.redstone", menu.redstoneMode().label()),
+                    menu.redstoneMode().description().copy().withColor(TechGui.TEXT_DIM),
+                    Component.translatable("gui.atomcraft.redstone_hint"));
             case TAB_INFO -> tooltip(graphics, mouseX, mouseY, Component.translatable("gui.atomcraft.info"));
             case TAB_EXTRA -> {
                 Component title = extraTab();

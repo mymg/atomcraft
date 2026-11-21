@@ -22,7 +22,9 @@ public enum EquipmentModule {
     THRUSTER("thruster", 3, 0, EquipmentKind.JETPACK),
     HOVER("hover", 1, 0, EquipmentKind.JETPACK),
     EFFICIENCY("efficiency", 3, 0, EquipmentKind.DISINTEGRATOR),
-    AREA("area", 1, 0, EquipmentKind.DISINTEGRATOR);
+    AREA("area", 1, 0, EquipmentKind.DISINTEGRATOR),
+    SILK_TOUCH("silk_touch", 1, 0, EquipmentKind.DISINTEGRATOR),
+    FORTUNE("fortune", 3, 0, EquipmentKind.DISINTEGRATOR);
 
     private final String id;
     private final int maxLevel;
@@ -46,6 +48,11 @@ public enum EquipmentModule {
 
     public int energyPerTick() {
         return energyPerTick;
+    }
+
+    /** Módulos que não podem ficar juntos no mesmo equipamento (Toque Suave × Fortuna). */
+    public boolean conflictsWith(EquipmentModule other) {
+        return (this == SILK_TOUCH && other == FORTUNE) || (this == FORTUNE && other == SILK_TOUCH);
     }
 
     public boolean fits(EquipmentKind kind) {
