@@ -23,18 +23,39 @@ public class QuantumReplicatorBlock extends MachineBlock {
 
     public QuantumReplicatorBlock(Properties properties) {
         super(properties);
-        registerDefaultState(defaultBlockState().setValue(FORMED, false));
+        registerDefaultState(defaultBlockState().setValue(FORMED, false).setValue(TallMachineBlock.ACTIVE, false));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(FORMED);
+        builder.add(FORMED, TallMachineBlock.ACTIVE);
     }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
         return CODEC;
+    }
+
+    /** Formado, quem desenha é o modelo grande (o controlador é a frente da base do modelo). */
+    @Override
+    protected net.minecraft.world.level.block.RenderShape getRenderShape(BlockState state) {
+        return state.getValue(FORMED) ? net.minecraft.world.level.block.RenderShape.INVISIBLE : net.minecraft.world.level.block.RenderShape.MODEL;
+    }
+
+    @Override
+    protected net.minecraft.world.phys.shapes.VoxelShape getOcclusionShape(BlockState state) {
+        return state.getValue(FORMED) ? net.minecraft.world.phys.shapes.Shapes.empty() : super.getOcclusionShape(state);
+    }
+
+    @Override
+    protected int getLightDampening(BlockState state) {
+        return state.getValue(FORMED) ? 0 : super.getLightDampening(state);
+    }
+
+    @Override
+    protected boolean propagatesSkylightDown(BlockState state) {
+        return state.getValue(FORMED) || super.propagatesSkylightDown(state);
     }
 
     @Override

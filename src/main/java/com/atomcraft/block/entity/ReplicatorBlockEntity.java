@@ -146,7 +146,10 @@ public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyR
         var result = com.atomcraft.replication.QuantumStructure.check(level, worldPosition,
                 state.getValue(com.atomcraft.block.MachineBlock.FACING));
         boolean changed = result.formed() != formed || !ports.equals(result.ports());
+        // Formado, as peças (inclusive as portas: o modelo desenha os conectores) somem e aparece o modelo grande.
+        if (formed && !result.formed()) disassemble();
         formed = result.formed();
+        if (formed) com.atomcraft.block.StructurePartBlock.setFormed(level, result.members(), true);
         ports.clear();
         ports.addAll(result.ports());
         for (BlockPos pos : ports) {
@@ -158,6 +161,15 @@ public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyR
             for (BlockPos pos : ports) level.invalidateCapabilities(pos);
         }
         return formed;
+    }
+
+    /** Mostra de novo todas as peças do projeto (ao desformar ou quebrar o controlador). */
+    public void disassemble() {
+        if (level == null || level.isClientSide() || tier() != com.atomcraft.replication.ReplicatorTier.QUANTUM) return;
+        java.util.List<BlockPos> all = new java.util.ArrayList<>();
+        for (var slot : com.atomcraft.replication.QuantumStructure.blueprint(worldPosition,
+                getBlockState().getValue(com.atomcraft.block.MachineBlock.FACING))) all.add(slot.pos());
+        com.atomcraft.block.StructurePartBlock.setFormed(level, all, false);
     }
 
     public java.util.List<BlockPos> ports() {
@@ -361,6 +373,7 @@ public class ReplicatorBlockEntity extends MachineBlockEntity implements EnergyR
         if (level != null && !level.isClientSide()) {
             cancelJob();
             dropContents(level, pos, output);
+            disassemble();
         }
     }
 
