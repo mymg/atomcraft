@@ -20,17 +20,17 @@ import java.util.Map;
  * para cima), z 0..2 (da frente para o fundo). O controlador fica no meio da face da frente da camada
  * de baixo (1, 0, 0).
  * <pre>
- * 'C' carcaça   'P' carcaça ou Interface da Matriz   'G' vidro (ou carcaça)   'X' núcleo   'K' controlador
+ * 'C' carcaça   'P' carcaça ou Interface da Matriz   'G' vidro   'X' núcleo   'K' controlador
  * </pre>
  * Base e topo: carcaça, com Interfaces possíveis só no meio de cada face (onde o modelo tem os
- * conectores). Nas 3 camadas do meio: carcaça nas arestas, vidro no centro das faces e um núcleo no
- * centro (3 núcleos empilhados).
+ * conectores). Nas 3 camadas do meio: vidro em volta e um núcleo no centro (3 núcleos empilhados),
+ * como no modelo.
  */
 public final class MatrixStructure {
 
     public static final int WIDTH = 3, HEIGHT = 5, CORES = 3, CONTROLLER_Y = 0;
     private static final String[] BASE = {"CKC", "PCP", "CPC"};
-    private static final String[] RING = {"CGC", "GXG", "CGC"};
+    private static final String[] RING = {"GGG", "GXG", "GGG"};
     private static final String[] TOP = {"CPC", "PCP", "CPC"};
     private static final String[][] LAYERS = {BASE, RING, RING, RING, TOP};
 
@@ -73,7 +73,7 @@ public final class MatrixStructure {
         return switch (c) {
             case 'C' -> actual == MatrixPart.CASING;
             case 'P' -> actual == MatrixPart.CASING || actual == MatrixPart.PORT;
-            case 'G' -> actual == MatrixPart.GLASS || actual == MatrixPart.CASING;
+            case 'G' -> actual == MatrixPart.GLASS;
             default -> actual == expected(c);
         };
     }

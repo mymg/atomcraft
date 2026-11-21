@@ -523,10 +523,14 @@ final class SelfTest {
                 "Porta Quântica expõe energia e itens");
         check(failures, quantumBe.checkStructure() && quantumBe.isFormed()
                 && level.getBlockState(controller).getValue(com.atomcraft.block.QuantumReplicatorBlock.FORMED), "quântico forma com a estrutura 3×3×3");
+        check(failures, level.getBlockState(controller.south()).getValue(com.atomcraft.block.StructurePartBlock.FORMED)
+                && level.getBlockState(controller).getRenderShape() == net.minecraft.world.level.block.RenderShape.INVISIBLE,
+                "quântico formado: peças e controlador somem (modelo grande)");
         quantumBe.tick();
         check(failures, quantumBe.status() == MachineStatus.IDLE, "quântico formado fica pronto (" + quantumBe.status() + ")");
         level.setBlock(controller.south().above(), Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
         check(failures, !quantumBe.checkStructure(), "quântico desforma sem o núcleo");
+        check(failures, !level.getBlockState(controller.south()).getValue(com.atomcraft.block.StructurePartBlock.FORMED), "peças do quântico reaparecem");
     }
 
     /** Materiais: elementos novos, receitas da forja sem criar/destruir matéria, Forja de Ligas e minérios no mundo. */

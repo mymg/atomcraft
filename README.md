@@ -207,7 +207,8 @@ O controlador fica no meio da face da frente da **camada de baixo**; a estrutura
 Cabos só ligam no controlador e nas Portas Quânticas (os blocos do meio da camada de baixo). Um Cabo Atômico ligado a
 uma porta põe o replicador na rede (elementos e energia), e canos de itens retiram os itens replicados por ela. Com a
 estrutura incompleta, a interface lista as peças que faltam e o botão **Mostrar estrutura** mostra um holograma de
-cada peça no lugar onde ela vai.
+cada peça no lugar onde ela vai. Formado, os blocos somem e aparece o modelo do replicador (com os conectores das
+portas), animado enquanto replica.
 
 ## Ferramentas, armaduras e acesso sem fio
 
@@ -364,8 +365,8 @@ O botão de ligar/desligar corta a saída. Ao quebrar, a célula guarda a energi
 
 - base e topo: **Carcaças da Matriz**; no meio de cada face (3 na base, 4 no topo) pode ir uma **Interface da Matriz
   de Energia**;
-- nas 3 camadas do meio: carcaça nas 4 arestas, **Vidro da Matriz** no centro de cada face e um **Núcleo da Matriz**
-  no centro (3 núcleos empilhados).
+- nas 3 camadas do meio: **Vidro da Matriz** em volta (8 por camada) e um **Núcleo da Matriz** no centro (3 núcleos
+  empilhados).
 
 Cabos só ligam nas Interfaces. Cada interface é de **entrada** (azul), **saída** (laranja, empurra energia para os
 vizinhos) ou **entrada/saída** (vermelha, padrão): agachado + clique com a mão vazia troca. Clique normal abre a matriz.

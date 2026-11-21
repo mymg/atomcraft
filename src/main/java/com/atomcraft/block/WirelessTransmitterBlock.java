@@ -32,6 +32,27 @@ public class WirelessTransmitterBlock extends MachineBlock {
         return SHAPE;
     }
 
+    // Não bloqueia luz: as faces de dentro do modelo usam a luz do próprio bloco e ficariam pretas.
+    @Override
+    protected int getLightDampening(BlockState state) {
+        return 0;
+    }
+
+    @Override
+    protected boolean propagatesSkylightDown(BlockState state) {
+        return true;
+    }
+
+    @Override
+    protected float getShadeBrightness(BlockState state, net.minecraft.world.level.BlockGetter level, BlockPos pos) {
+        return 1.0f;
+    }
+
+    @Override
+    protected net.minecraft.world.phys.shapes.VoxelShape getOcclusionShape(BlockState state) {
+        return net.minecraft.world.phys.shapes.Shapes.empty();
+    }
+
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new WirelessTransmitterBlockEntity(pos, state);
