@@ -355,11 +355,11 @@ final class Showcase {
             case 2520 -> base.offset(-6, 1, -3);
             case 2720 -> base.south(6);
             case 3120 -> base.south(8);
-            case 3320 -> base.south(9);
+            case 3240 -> base.south(9);
             default -> null;
         };
         if (target != null) {
-            if (ticks == 3120 || ticks == 3320) {
+            if (ticks == 3120 || ticks == 3240) {
                 // O carregador fica longe do ponto inicial: o menu fecharia por distância.
                 player.connection.teleport(target.getX() - 1.5, target.getY(), target.getZ() + 0.5, player.getYRot(), player.getXRot());
             } else {
