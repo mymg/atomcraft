@@ -72,9 +72,10 @@ final class ClientShowcase {
                 }
             }
             if (idleTicks == 720) AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture world_structures");
-            if (idleTicks == 1060) {
+            if (idleTicks == 1060) AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture world_fluids");
+            if (idleTicks == 1270) {
                 machinesCaptured = true;
-                AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture world_fluids");
+                AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture world_armor");
             }
             return;
         }

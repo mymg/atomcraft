@@ -43,3 +43,10 @@ type="optional"
 versionRange="[30.0,)"
 ordering="NONE"
 side="CLIENT"
+
+[[dependencies.${mod_id}]]
+modId="jade"
+type="optional"
+versionRange="[26.2,)"
+ordering="NONE"
+side="BOTH"
