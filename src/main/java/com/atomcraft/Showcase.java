@@ -323,7 +323,7 @@ final class Showcase {
             level.addFreshEntity(stand);
         }
         // Minério na mira: com os Óculos Analisadores, o Jade mostra a fórmula
-        level.setBlock(origin.offset(0, 1, -1), net.minecraft.world.level.block.Blocks.DIAMOND_ORE.defaultBlockState(), Block.UPDATE_ALL);
+        level.setBlock(origin.offset(0, 0, -2), net.minecraft.world.level.block.Blocks.DIAMOND_ORE.defaultBlockState(), Block.UPDATE_ALL);
     }
 
     /** Quatro tanques (um de cada nível) com água e lava, ligados por canos; um lado em modo "puxar". */
@@ -450,7 +450,11 @@ final class Showcase {
         }
         if (ticks >= 4520 && ticks < 4740 && ticks % 20 == 0) {
             // Armadura Nano Desgastada e Jetpack em suportes de armadura
-            player.connection.teleport(base.getX() + 0.5, base.getY() + 0.6, base.getZ() + 20.6, 0f, 8f);
+            player.connection.teleport(base.getX() + 0.5, base.getY(), base.getZ() + 20.6, 0f, 24f);
+            if (ticks == 4520) {
+                player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD,
+                        new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.ANALYZER_GLASSES.get()));
+            }
         }
         if (ticks == 5600) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
     }
