@@ -229,7 +229,7 @@ for tag, formula, rarity in COMPAT:
     w(f"data/atomcraft/atomcraft/compositions/compat/{tag.replace(':', '_').replace('/', '_')}.json", entry)
 
 # ---------- Blocos ----------
-MACHINES = ["atomizer", "analyzer", "replicator", "advanced_replicator", "drive", "terminal", "combustion_generator", "carbon_generator", "fusion_reactor", "synthesizer", "alloy_forge", "quantum_replicator", "wireless_transmitter", "chunk_loader"]
+MACHINES = ["atomizer", "analyzer", "replicator", "advanced_replicator", "drive", "terminal", "combustion_generator", "carbon_generator", "fusion_reactor", "synthesizer", "alloy_forge", "quantum_replicator", "wireless_transmitter", "chunk_loader", "pump"]
 GENERATORS = ["combustion_generator", "carbon_generator"]
 for b in MACHINES:
     if b == "quantum_replicator":
@@ -913,7 +913,7 @@ for kind, en_k, pt_k, tag in EXO_KINDS:
     TOOL_TAGS_ITEMS.setdefault(tag, []).append(f"atomcraft:exo_{kind}")
 for tag in ("head_armor", "chest_armor", "leg_armor", "foot_armor"):
     w(f"data/minecraft/tags/item/{tag}.json", {"values": TOOL_TAGS_ITEMS[tag]})
-for name in ("hydrogen_jetpack", "magnet_ring", "analyzer_ring", "blank_module"):
+for name in ("hydrogen_jetpack", "magnet_ring", "analyzer_ring", "blank_augment"):
     item_model(name)
 EQUIP_MODULES = [  # (id, en, pt, descrição en, descrição pt, cor, receita sem o módulo vazio)
     ("night_vision", "Night Vision", "Visão Noturna", "See in the dark", "Enxergar no escuro", (120, 230, 120), ["minecraft:golden_carrot", "minecraft:glowstone_dust"]),
@@ -933,12 +933,12 @@ EQUIP_MODULES = [  # (id, en, pt, descrição en, descrição pt, cor, receita s
     ("fortune", "Fortune", "Fortuna", "More ore drops per level (not with Silk Touch)", "Mais minério por nível (não junto com Toque Suave)", (255, 220, 60), ["minecraft:lapis_block", "minecraft:gold_ingot", "minecraft:diamond"]),
 ]
 for mid, en, pt, den, dpt, color, ingredients in EQUIP_MODULES:
-    item_model(f"{mid}_module")
-    MAT_LANG[f"item.atomcraft.{mid}_module"] = (f"{en} Module", f"Módulo de {pt}")
-    MAT_LANG[f"module.atomcraft.{mid}"] = (en, pt)
-    MAT_LANG[f"module.atomcraft.{mid}.desc"] = (den, dpt)
-    shapeless(f"{mid}_module", ["atomcraft:blank_module"] + ingredients, f"atomcraft:{mid}_module")
-shaped("blank_module", ["PWP", "WCW", "PWP"], {"P": pl("steel"), "W": WIRE, "C": CIRCUIT}, "atomcraft:blank_module", 2)
+    item_model(f"{mid}_augment")
+    MAT_LANG[f"item.atomcraft.{mid}_augment"] = (f"{en} Augment", f"Aprimoramento de {pt}")
+    MAT_LANG[f"augment.atomcraft.{mid}"] = (en, pt)
+    MAT_LANG[f"augment.atomcraft.{mid}.desc"] = (den, dpt)
+    shapeless(f"{mid}_augment", ["atomcraft:blank_augment"] + ingredients, f"atomcraft:{mid}_augment")
+shaped("blank_augment", ["PWP", "WCW", "PWP"], {"P": pl("steel"), "W": WIRE, "C": CIRCUIT}, "atomcraft:blank_augment", 2)
 shaped("module_bench", ["CTC", "P P", "PPP"], {"C": CIRCUIT, "T": "minecraft:smithing_table", "P": pl("steel")}, "atomcraft:module_bench")
 TI = pl("titanium_alloy")
 shaped("exo_helmet", ["TCT", "TGT"], {"T": TI, "C": CIRCUIT, "G": "minecraft:tinted_glass"}, "atomcraft:exo_helmet")
@@ -954,11 +954,11 @@ w("data/atomcraft/curios/entities/atomcraft.json", {"entities": ["player"], "slo
 w("data/curios/tags/item/ring.json", {"values": ["atomcraft:magnet_ring", "atomcraft:analyzer_ring"]})
 w("data/curios/tags/item/back.json", {"values": ["atomcraft:hydrogen_jetpack"]})
 MAT_LANG.update({
-    "block.atomcraft.module_bench": ("Module Bench", "Bancada de Módulos"),
+    "block.atomcraft.module_bench": ("Augment Bench", "Bancada de Aprimoramentos"),
     "item.atomcraft.hydrogen_jetpack": ("Hydrogen Jetpack", "Jetpack a Hidrogênio"),
     "item.atomcraft.magnet_ring": ("Magnet Ring", "Anel Magnético"),
     "item.atomcraft.analyzer_ring": ("Analyzer Ring", "Anel Analisador"),
-    "item.atomcraft.blank_module": ("Blank Module", "Módulo Vazio"),
+    "item.atomcraft.blank_augment": ("Blank Augment", "Aprimoramento Vazio"),
     "equipment_kind.atomcraft.exo_helmet": ("Exo Helmet", "Capacete Exo"),
     "equipment_kind.atomcraft.exo_chestplate": ("Exo Chestplate", "Peitoral Exo"),
     "equipment_kind.atomcraft.exo_leggings": ("Exo Leggings", "Calças Exo"),
@@ -966,7 +966,7 @@ MAT_LANG.update({
     "equipment_kind.atomcraft.jetpack": ("Jetpack", "Jetpack"),
     "equipment_kind.atomcraft.disintegrator": ("Disintegrator", "Desintegrador"),
     "tooltip.atomcraft.module_level": ("%s %s", "%s %s"),
-    "tooltip.atomcraft.module_slots": ("Modules: %s/%s (Module Bench)", "Módulos: %s/%s (Bancada de Módulos)"),
+    "tooltip.atomcraft.module_slots": ("Augments: %s/%s (Augment Bench)", "Aprimoramentos: %s/%s (Bancada de Aprimoramentos)"),
     "tooltip.atomcraft.module_for": ("Fits: %s", "Serve em: %s"),
     "tooltip.atomcraft.module_max": ("Stack up to %s in the slot for more levels", "Até %s no slot para mais níveis"),
     "tooltip.atomcraft.module_energy": ("Uses %s FE/t per level", "Gasta %s FE/t por nível"),
@@ -982,17 +982,102 @@ MAT_LANG.update({
     "message.atomcraft.magnet_off": ("Magnet off", "Ímã desligado"),
     "message.atomcraft.hover_on": ("Jetpack: flight on", "Jetpack: voo ligado"),
     "message.atomcraft.hover_off": ("Jetpack: flight off", "Jetpack: voo desligado"),
-    "message.atomcraft.hover_missing": ("The jetpack needs a Flight Module", "O jetpack precisa de um Módulo de Voo"),
+    "message.atomcraft.hover_missing": ("The jetpack needs a Flight Augment", "O jetpack precisa de um Aprimoramento de Voo"),
     "hud.atomcraft.no_composition": ("No known composition", "Sem composição conhecida"),
     "gui.atomcraft.equipment": ("Equipment", "Equipamento"),
-    "gui.atomcraft.modules": ("Modules", "Módulos"),
-    "gui.atomcraft.no_modules": ("No modules installed", "Nenhum módulo instalado"),
+    "gui.atomcraft.augments": ("Augments", "Aprimoramentos"),
+    "gui.atomcraft.no_modules": ("No augments installed", "Nenhum aprimoramento instalado"),
     "gui.atomcraft.bench_hint_1": ("Place an exoskeleton", "Coloque uma peça do"),
     "gui.atomcraft.bench_hint_2": ("piece, jetpack or", "exoesqueleto, o jetpack"),
     "gui.atomcraft.bench_hint_3": ("disintegrator on the left", "ou o desintegrador"),
-    "gui.atomcraft.module_slot": ("Module slot. Fits:", "Slot de módulo. Aceita:"),
+    "gui.atomcraft.module_slot": ("Augment slot. Fits:", "Slot de aprimoramento. Aceita:"),
     "key.atomcraft.jetpack_hover": ("Jetpack: toggle flight", "Jetpack: voo"),
     "atomcraft.configuration.equipment": ("Equipment", "Equipamentos"),
+})
+
+
+# ---------- Fluidos: tanques, canos e bomba ----------
+FLUID_TIERS = [("basic", "Basic", "Básico", (154, 164, 174), "steel"), ("advanced", "Advanced", "Avançado", (224, 162, 58), "stainless_steel"),
+               ("elite", "Elite", "Elite", (70, 200, 220), "titanium_alloy"), ("ultimate", "Ultimate", "Supremo", (180, 90, 230), "superalloy")]
+def tex_face(uv, t):
+    return {"uv": uv, "texture": t}
+prev_tank = prev_pipe = None
+for tid, en, pt, color, metal in FLUID_TIERS:
+    tank = f"{tid}_fluid_tank"
+    w(f"assets/atomcraft/blockstates/{tank}.json", {"variants": {"": {"model": f"atomcraft:block/{tank}"}}})
+    w(f"assets/atomcraft/models/block/{tank}.json", {"parent": "minecraft:block/block", "render_type": "minecraft:translucent",
+        "textures": {"side": f"atomcraft:block/{tank}_side", "top": f"atomcraft:block/{tank}_top", "particle": f"atomcraft:block/{tank}_side"},
+        "elements": [{"from": [1, 0, 1], "to": [15, 16, 15], "faces": {
+            **{f: tex_face([1, 0, 15, 16], "#side") for f in ("north", "south", "east", "west")},
+            "up": tex_face([1, 1, 15, 15], "#top"), "down": tex_face([1, 1, 15, 15], "#top")}}]})
+    w(f"assets/atomcraft/items/{tank}.json", {"model": {"type": "minecraft:model", "model": f"atomcraft:block/{tank}"}})
+    w(f"data/atomcraft/loot_table/blocks/{tank}.json", {"type": "minecraft:block", "pools": [{"rolls": 1, "bonus_rolls": 0,
+        "entries": [{"type": "minecraft:item", "name": f"atomcraft:{tank}", "functions": [{"function": "minecraft:copy_components",
+            "source": "block_entity", "include": ["atomcraft:fluid_content"]}]}], "conditions": [{"condition": "minecraft:survives_explosion"}]}]})
+    MAT_LANG[f"block.atomcraft.{tank}"] = (f"{en} Fluid Tank", f"Tanque de Fluidos {pt}")
+    if prev_tank is None:
+        shaped(tank, ["PGP", "G G", "PGP"], {"P": pl(metal), "G": "minecraft:glass"}, f"atomcraft:{tank}")
+    else:
+        shaped(tank, ["PGP", "GTG", "PGP"], {"P": pl(metal), "G": "minecraft:glass", "T": f"atomcraft:{prev_tank}"}, f"atomcraft:{tank}")
+    prev_tank = tank
+
+    pipe = f"{tid}_fluid_pipe"
+    textures = {"pipe": f"atomcraft:block/{pipe}", "particle": f"atomcraft:block/{pipe}"}
+    w(f"assets/atomcraft/models/block/{pipe}_core.json", {"textures": textures, "elements": [{"from": [5, 5, 5], "to": [11, 11, 11],
+        "faces": {f: tex_face([5, 5, 11, 11], "#pipe") for f in ("north", "south", "east", "west", "up", "down")}}]})
+    w(f"assets/atomcraft/models/block/{pipe}_side.json", {"textures": textures, "elements": [{"from": [5.5, 5.5, 0], "to": [10.5, 10.5, 5],
+        "faces": {"north": tex_face([5.5, 5.5, 10.5, 10.5], "#pipe"), "east": tex_face([0, 5.5, 5, 10.5], "#pipe"),
+                  "west": tex_face([0, 5.5, 5, 10.5], "#pipe"), "up": tex_face([5.5, 0, 10.5, 5], "#pipe"), "down": tex_face([5.5, 0, 10.5, 5], "#pipe")}}]})
+    w(f"assets/atomcraft/models/block/{pipe}_item.json", {"parent": "minecraft:block/block", "textures": textures, "elements": [
+        {"from": [5, 5, 5], "to": [11, 11, 11], "faces": {f: tex_face([5, 5, 11, 11], "#pipe") for f in ("north", "south", "east", "west", "up", "down")}},
+        {"from": [5.5, 5.5, 0], "to": [10.5, 10.5, 16], "faces": {"north": tex_face([5.5, 5.5, 10.5, 10.5], "#pipe"), "south": tex_face([5.5, 5.5, 10.5, 10.5], "#pipe"),
+            "east": tex_face([0, 5.5, 16, 10.5], "#pipe"), "west": tex_face([0, 5.5, 16, 10.5], "#pipe"),
+            "up": tex_face([5.5, 0, 10.5, 16], "#pipe"), "down": tex_face([5.5, 0, 10.5, 16], "#pipe")}}]})
+    parts = [{"apply": {"model": f"atomcraft:block/{pipe}_core"}}]
+    for d, rot in (("north", {}), ("east", {"y": 90}), ("south", {"y": 180}), ("west", {"y": 270}), ("up", {"x": 270}), ("down", {"x": 90})):
+        parts.append({"when": {d: "normal|pull"}, "apply": {"model": f"atomcraft:block/{pipe}_side", "uvlock": True} | rot})
+        parts.append({"when": {d: "pull"}, "apply": {"model": "atomcraft:block/fluid_pipe_pull"} | rot})
+    w(f"assets/atomcraft/blockstates/{pipe}.json", {"multipart": parts})
+    w(f"assets/atomcraft/items/{pipe}.json", {"model": {"type": "minecraft:model", "model": f"atomcraft:block/{pipe}_item"}})
+    self_drop(pipe)
+    MAT_LANG[f"block.atomcraft.{pipe}"] = (f"{en} Fluid Pipe", f"Cano de Fluido {pt}")
+    if prev_pipe is None:
+        shaped(pipe, ["PGP"], {"P": pl(metal), "G": "minecraft:glass"}, f"atomcraft:{pipe}", 8)
+    else:
+        shaped(pipe, ["CCC", "CPC", "CCC"], {"C": f"atomcraft:{prev_pipe}", "P": pl(metal)}, f"atomcraft:{pipe}", 8)
+    prev_pipe = pipe
+# Flange do modo "puxar" (aro laranja na ponta do cano)
+w("assets/atomcraft/models/block/fluid_pipe_pull.json", {"textures": {"flange": "atomcraft:block/fluid_pipe_pull", "particle": "atomcraft:block/fluid_pipe_pull"},
+    "elements": [{"from": [4, 4, 0], "to": [12, 12, 2], "faces": {f: tex_face([4, 4, 12, 12] if f in ("north", "south") else [0, 4, 2, 12], "#flange")
+        for f in ("north", "south", "east", "west", "up", "down")}}]})
+shaped("pump", ["PBP", "CXC", "PHP"], {"P": pl("steel"), "B": "minecraft:bucket", "C": CIRCUIT, "X": "minecraft:piston", "H": "minecraft:hopper"}, "atomcraft:pump")
+w("data/minecraft/tags/block/mineable/pickaxe.json", {"values": [f"atomcraft:{b}" for b in MACHINES + ["atomic_cable", "module_bench"] + REACTOR_PARTS + MATERIAL_BLOCKS + ORE_BLOCKS + ENERGY_BLOCKS]
+    + [f"atomcraft:{t}_fluid_{k}" for t, *_ in FLUID_TIERS for k in ("tank", "pipe")]})
+MAT_LANG.update({
+    "block.atomcraft.pump": ("Pump", "Bomba"),
+    "message.atomcraft.tank_empty": ("Empty tank (%s mB)", "Tanque vazio (%s mB)"),
+    "message.atomcraft.tank_contents": ("%s: %s / %s mB", "%s: %s / %s mB"),
+    "message.atomcraft.tank_mode_bucket": ("Fluid tank: bucket mode", "Tanque: modo balde"),
+    "message.atomcraft.tank_mode_block": ("Fluid tank: block mode", "Tanque: modo bloco"),
+    "tooltip.atomcraft.tank_empty": ("Empty · %s mB", "Vazio · %s mB"),
+    "tooltip.atomcraft.tank_contents": ("%s: %s / %s mB", "%s: %s / %s mB"),
+    "tooltip.atomcraft.tank_mode_bucket": ("Mode: bucket (picks up and places fluids)", "Modo: balde (pega e coloca fluidos)"),
+    "tooltip.atomcraft.tank_mode_block": ("Mode: block (places the tank)", "Modo: bloco (coloca o tanque)"),
+    "tooltip.atomcraft.tank_hint": ("Sneak + use in the air: switch mode", "Agachado + clique no ar: troca o modo"),
+    "message.atomcraft.pipe_info": ("%2$s: %1$s · %3$s mB/t (sneak + empty hand: change)", "%2$s: %1$s · %3$s mB/t (agachado + mão vazia: muda)"),
+    "message.atomcraft.pipe_mode": ("%s side: %s", "Lado %s: %s"),
+    "pipe_mode.atomcraft.none": ("not connected", "sem conexão"),
+    "pipe_mode.atomcraft.normal": ("connected (delivers)", "ligado (entrega)"),
+    "pipe_mode.atomcraft.pull": ("pulling", "puxando"),
+    "pipe_mode.atomcraft.disabled": ("disabled", "desligado"),
+    "direction.atomcraft.north": ("North", "norte"), "direction.atomcraft.south": ("South", "sul"),
+    "direction.atomcraft.east": ("East", "leste"), "direction.atomcraft.west": ("West", "oeste"),
+    "direction.atomcraft.up": ("Up", "cima"), "direction.atomcraft.down": ("Down", "baixo"),
+    "gui.atomcraft.fluid_label": ("Fluid", "Fluido"),
+    "gui.atomcraft.fluid_empty": ("Empty", "Vazio"),
+    "jei.atomcraft.element_number": ("Atomic number %s", "Número atômico %s"),
+    "jei.atomcraft.element_hint": ("R: what gives it · U: what uses it", "R: o que dá · U: onde é usado"),
+    "atomcraft.configuration.pump": ("Pump", "Bomba"),
 })
 
 # ---------- Traduções ----------
@@ -1257,7 +1342,7 @@ def atom(d, c, cx=7.5, cy=7.5):
     d.point((int(cx), int(cy)), fill=(255, 255, 255, 255)); d.point((int(cx) + 1, int(cy) + 1), fill=(255, 255, 255, 255))
 
 COLORS = {"atomizer": (80, 220, 255, 255), "analyzer": (190, 110, 240, 255), "replicator": (255, 170, 60, 255), "drive": (90, 220, 120, 255),
-    "terminal": (39, 201, 181, 255), "synthesizer": (120, 230, 140, 255), "combustion_generator": (255, 120, 30, 255), "carbon_generator": (226, 50, 50, 255), "fusion_reactor": (255, 90, 190, 255), "alloy_forge": (255, 140, 40, 255), "advanced_replicator": (190, 110, 255, 255), "wireless_transmitter": (80, 220, 255, 255), "chunk_loader": (255, 192, 64, 255)}
+    "terminal": (39, 201, 181, 255), "synthesizer": (120, 230, 140, 255), "combustion_generator": (255, 120, 30, 255), "carbon_generator": (226, 50, 50, 255), "fusion_reactor": (255, 90, 190, 255), "alloy_forge": (255, 140, 40, 255), "advanced_replicator": (190, 110, 255, 255), "wireless_transmitter": (80, 220, 255, 255), "chunk_loader": (255, 192, 64, 255), "pump": (70, 140, 255, 255)}
 img, d = frame(); d.line([4, 5, 11, 5], fill=(60, 63, 70, 255)); d.line([4, 10, 11, 10], fill=(60, 63, 70, 255)); save(img, "block/machine_side.png")
 for name, c in COLORS.items():
     if name not in GENERATORS:  # os geradores usam generator_top.png / generator_side.png
@@ -1294,6 +1379,10 @@ for name, c in COLORS.items():
             for gy in range(3):
                 x0, y0 = 3 + gx * 4, 3 + gy * 4
                 d.rectangle([x0, y0, x0 + 2, y0 + 2], fill=c if (gx, gy) == (1, 1) else (40, 70, 80, 255))
+    elif name == "pump":
+        # Gota de fluido sobre um cano
+        d.polygon([(7, 3), (10, 8), (9, 10), (6, 10), (5, 8)], fill=c); d.point((6, 7), fill=(200, 230, 255, 255))
+        d.rectangle([3, 11, 12, 12], fill=(90, 96, 108, 255))
     elif name == "alloy_forge":
         # Cadinho com metal derretido
         d.polygon([(4, 5), (11, 5), (10, 12), (5, 12)], fill=(60, 62, 70, 255), outline=(120, 124, 136, 255))
@@ -1647,9 +1736,38 @@ def module_tex(c):
     else:
         d.rectangle([5, 5, 10, 10], fill=(18, 20, 26, 255), outline=(90, 96, 104, 255))
     return img
-save(module_tex(None), "item/blank_module.png")
+save(module_tex(None), "item/blank_augment.png")
 for mid, en, pt, den, dpt, color, ingredients in EQUIP_MODULES:
-    save(module_tex(color), f"item/{mid}_module.png")
+    save(module_tex(color), f"item/{mid}_augment.png")
+
+
+# Texturas dos fluidos
+for tid, en, pt, color, metal in FLUID_TIERS:
+    c = color + (255,)
+    dark = tuple(int(v * 0.55) for v in color) + (255,)
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+    d.rectangle([1, 0, 14, 15], fill=(200, 225, 235, 46))
+    d.rectangle([1, 0, 14, 15], outline=(70, 74, 84, 255)); d.rectangle([2, 1, 13, 14], outline=c)
+    d.rectangle([1, 0, 14, 1], fill=(70, 74, 84, 255)); d.rectangle([1, 14, 14, 15], fill=(70, 74, 84, 255))
+    d.line([2, 1, 13, 1], fill=c); d.line([2, 14, 13, 14], fill=c)
+    d.line([4, 3, 4, 8], fill=(255, 255, 255, 90)); d.line([5, 3, 5, 5], fill=(255, 255, 255, 60))
+    save(img, f"block/{tid}_fluid_tank_side.png")
+    img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+    d.rectangle([1, 1, 14, 14], fill=(200, 225, 235, 46))
+    d.rectangle([1, 1, 14, 14], outline=(70, 74, 84, 255)); d.rectangle([2, 2, 13, 13], outline=c)
+    d.rectangle([5, 5, 10, 10], outline=dark)
+    save(img, f"block/{tid}_fluid_tank_top.png")
+    img = Image.new("RGBA", (16, 16), (64, 68, 78, 255)); d = ImageDraw.Draw(img)
+    d.rectangle([5, 5, 10, 10], fill=(46, 50, 58, 255))
+    for k in (0, 5, 10, 15):
+        d.line([k, 0, k, 15], fill=dark)
+    d.rectangle([6, 0, 9, 15], fill=c); d.rectangle([0, 6, 15, 9], fill=c)
+    d.rectangle([6, 6, 9, 9], fill=(210, 235, 255, 255))
+    save(img, f"block/{tid}_fluid_pipe.png")
+img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+d.rectangle([0, 0, 15, 15], fill=(230, 130, 40, 255)); d.rectangle([4, 4, 11, 11], fill=(120, 60, 20, 255))
+d.rectangle([0, 0, 15, 15], outline=(140, 70, 20, 255))
+save(img, "block/fluid_pipe_pull.png")
 
 print("ok", len(BASE), "itens base,", len(TAGS), "tags vanilla,", len(COMPAT), "tags de compatibilidade,",
       len(kept), "arquivos de aparência preservados")

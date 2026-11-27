@@ -64,10 +64,10 @@ public enum EquipmentModule {
     }
 
     public Component label() {
-        return Component.translatable("module.atomcraft." + id);
+        return Component.translatable("augment.atomcraft." + id);
     }
 
     public Component description() {
-        return Component.translatable("module.atomcraft." + id + ".desc");
+        return Component.translatable("augment.atomcraft." + id + ".desc");
     }
 }

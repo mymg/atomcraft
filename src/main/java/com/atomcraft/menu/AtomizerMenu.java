@@ -16,7 +16,7 @@ import net.neoforged.neoforge.transfer.item.ResourceHandlerSlot;
 
 public class AtomizerMenu extends BaseMenu {
 
-    public static final int WIDTH = 176, HEIGHT = 204;
+    public static final int WIDTH = 176, HEIGHT = 216;
     public static final int GRID_X = 26, GRID_Y = 25;
 
     private final ContainerData data;
@@ -60,6 +60,14 @@ public class AtomizerMenu extends BaseMenu {
 
     public int capacity() {
         return combine(data.get(AtomizerBlockEntity.DATA_CAPACITY_LO), data.get(AtomizerBlockEntity.DATA_CAPACITY_HI));
+    }
+
+    public net.minecraft.world.level.material.Fluid fluid() {
+        return net.minecraft.core.registries.BuiltInRegistries.FLUID.byId(data.get(AtomizerBlockEntity.DATA_FLUID));
+    }
+
+    public int fluidAmount() {
+        return data.get(AtomizerBlockEntity.DATA_FLUID_AMOUNT);
     }
 
     public MachineStatus status() {

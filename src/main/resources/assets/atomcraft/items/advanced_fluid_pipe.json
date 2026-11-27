@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "atomcraft:block/advanced_fluid_pipe_item"
+  }
+}

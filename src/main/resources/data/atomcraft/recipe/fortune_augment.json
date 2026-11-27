@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "atomcraft:blank_augment",
+    "minecraft:lapis_block",
+    "minecraft:gold_ingot",
+    "minecraft:diamond"
+  ],
+  "result": {
+    "id": "atomcraft:fortune_augment",
+    "count": 1
+  }
+}

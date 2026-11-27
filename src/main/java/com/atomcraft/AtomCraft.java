@@ -38,6 +38,7 @@ public class AtomCraft {
         com.atomcraft.material.ModMaterials.init(); // registra os materiais antes de entregar os registros ao NeoForge
         com.atomcraft.tools.ModTools.init();
         com.atomcraft.equipment.ModEquipment.init();
+        com.atomcraft.fluid.ModFluids.init();
         ModBlocks.BLOCKS.register(modBus);
         ModItems.ITEMS.register(modBus);
         ModBlockEntities.BLOCK_ENTITIES.register(modBus);

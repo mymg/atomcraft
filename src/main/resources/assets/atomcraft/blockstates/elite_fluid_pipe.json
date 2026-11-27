@@ -1,0 +1,121 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "atomcraft:block/elite_fluid_pipe_core"
+      }
+    },
+    {
+      "when": {
+        "north": "normal|pull"
+      },
+      "apply": {
+        "model": "atomcraft:block/elite_fluid_pipe_side",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "north": "pull"
+      },
+      "apply": {
+        "model": "atomcraft:block/fluid_pipe_pull"
+      }
+    },
+    {
+      "when": {
+        "east": "normal|pull"
+      },
+      "apply": {
+        "model": "atomcraft:block/elite_fluid_pipe_side",
+        "uvlock": true,
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "east": "pull"
+      },
+      "apply": {
+        "model": "atomcraft:block/fluid_pipe_pull",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "south": "normal|pull"
+      },
+      "apply": {
+        "model": "atomcraft:block/elite_fluid_pipe_side",
+        "uvlock": true,
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "south": "pull"
+      },
+      "apply": {
+        "model": "atomcraft:block/fluid_pipe_pull",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "west": "normal|pull"
+      },
+      "apply": {
+        "model": "atomcraft:block/elite_fluid_pipe_side",
+        "uvlock": true,
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "west": "pull"
+      },
+      "apply": {
+        "model": "atomcraft:block/fluid_pipe_pull",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "up": "normal|pull"
+      },
+      "apply": {
+        "model": "atomcraft:block/elite_fluid_pipe_side",
+        "uvlock": true,
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "up": "pull"
+      },
+      "apply": {
+        "model": "atomcraft:block/fluid_pipe_pull",
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "down": "normal|pull"
+      },
+      "apply": {
+        "model": "atomcraft:block/elite_fluid_pipe_side",
+        "uvlock": true,
+        "x": 90
+      }
+    },
+    {
+      "when": {
+        "down": "pull"
+      },
+      "apply": {
+        "model": "atomcraft:block/fluid_pipe_pull",
+        "x": 90
+      }
+    }
+  ]
+}

@@ -61,6 +61,15 @@ public final class ModBlockEntities {
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<TerminalBlockEntity>> TERMINAL =
             BLOCK_ENTITIES.register("terminal", () -> new BlockEntityType<>(TerminalBlockEntity::new, ModBlocks.TERMINAL.get()));
 
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.atomcraft.fluid.TankBlockEntity>> FLUID_TANK =
+            BLOCK_ENTITIES.register("fluid_tank", () -> new BlockEntityType<>(com.atomcraft.fluid.TankBlockEntity::new,
+                    com.atomcraft.fluid.ModFluids.tankBlocks()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.atomcraft.fluid.PipeBlockEntity>> FLUID_PIPE =
+            BLOCK_ENTITIES.register("fluid_pipe", () -> new BlockEntityType<>(com.atomcraft.fluid.PipeBlockEntity::new,
+                    com.atomcraft.fluid.ModFluids.pipeBlocks()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.atomcraft.fluid.PumpBlockEntity>> PUMP =
+            BLOCK_ENTITIES.register("pump", () -> new BlockEntityType<>(com.atomcraft.fluid.PumpBlockEntity::new,
+                    com.atomcraft.fluid.ModFluids.PUMP.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<com.atomcraft.block.entity.ChunkLoaderBlockEntity>> CHUNK_LOADER =
             BLOCK_ENTITIES.register("chunk_loader", () -> new BlockEntityType<>(com.atomcraft.block.entity.ChunkLoaderBlockEntity::new,
                     ModBlocks.CHUNK_LOADER.get()));

@@ -14,6 +14,7 @@
     "atomcraft:quantum_replicator",
     "atomcraft:wireless_transmitter",
     "atomcraft:chunk_loader",
+    "atomcraft:pump",
     "atomcraft:atomic_cable",
     "atomcraft:module_bench",
     "atomcraft:reactor_casing",
@@ -114,6 +115,14 @@
     "atomcraft:matrix_casing",
     "atomcraft:matrix_glass",
     "atomcraft:matrix_core",
-    "atomcraft:matrix_port"
+    "atomcraft:matrix_port",
+    "atomcraft:basic_fluid_tank",
+    "atomcraft:basic_fluid_pipe",
+    "atomcraft:advanced_fluid_tank",
+    "atomcraft:advanced_fluid_pipe",
+    "atomcraft:elite_fluid_tank",
+    "atomcraft:elite_fluid_pipe",
+    "atomcraft:ultimate_fluid_tank",
+    "atomcraft:ultimate_fluid_pipe"
   ]
 }

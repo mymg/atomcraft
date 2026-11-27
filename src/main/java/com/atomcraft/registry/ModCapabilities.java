@@ -10,6 +10,17 @@ import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 public final class ModCapabilities {
 
     public static void register(RegisterCapabilitiesEvent event) {
+        // Fluidos: tanques, canos, bomba e entrada de fluido do Atomizador
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.FLUID_TANK.get(), (be, side) -> be.tank());
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.FLUID_PIPE.get(), (be, side) -> be.handler(side));
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.PUMP.get(), (be, side) -> be.automation());
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, ModBlockEntities.PUMP.get(), (be, side) -> be.energy());
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.ATOMIZER.get(), (be, side) -> be.fluidAutomation());
+        for (var entry : com.atomcraft.fluid.ModFluids.TANK_ITEMS.entrySet()) {
+            int capacity = entry.getKey().tankCapacity();
+            event.registerItem(Capabilities.Fluid.ITEM, (stack, access) -> new net.neoforged.neoforge.transfer.fluid.ItemAccessFluidHandler(
+                    access, ModComponents.FLUID_CONTENT.get(), capacity), entry.getValue().get());
+        }
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.ATOMIZER.get(), (be, side) -> be.automation());
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.ANALYZER.get(), (be, side) -> be.automation());
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.REPLICATOR.get(), (be, side) -> be.automation());

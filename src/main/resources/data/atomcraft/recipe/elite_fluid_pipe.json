@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "CCC",
+    "CPC",
+    "CCC"
+  ],
+  "key": {
+    "C": "atomcraft:advanced_fluid_pipe",
+    "P": "atomcraft:titanium_alloy_plate"
+  },
+  "result": {
+    "id": "atomcraft:elite_fluid_pipe",
+    "count": 8
+  }
+}

@@ -22,9 +22,17 @@ public final class ClientState {
 
     private ClientState() {}
 
-    public static void setResearch(Map<Item, Integer> progress, List<ChemicalElement> elements) {
+    /** Guarda a pesquisa recebida; devolve se a lista de elementos descobertos mudou. */
+    public static boolean setResearch(Map<Item, Integer> progress, List<ChemicalElement> elements) {
         research = Map.copyOf(progress);
-        discovered = elements.isEmpty() ? Set.of() : Set.copyOf(EnumSet.copyOf(elements));
+        Set<ChemicalElement> fresh = elements.isEmpty() ? Set.of() : Set.copyOf(EnumSet.copyOf(elements));
+        boolean changed = !fresh.equals(discovered);
+        discovered = fresh;
+        return changed;
+    }
+
+    public static Set<ChemicalElement> discovered() {
+        return discovered;
     }
 
     /** Se o jogador já descobriu o elemento (analisando um item que o contém). */

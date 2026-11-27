@@ -38,7 +38,7 @@ final class ClientShowcase {
 
     private static void onTick(ClientTickEvent.Post event) {
         Screen screen = Minecraft.getInstance().gui.screen();
-        if (machinesCaptured && jeiTicks < 320) {
+        if (machinesCaptured && jeiTicks < 390) {
             // Por último, as abas do AtomCraft no JEI (se o JEI estiver instalado)
             jeiTicks++;
             String[] categories = {"alloy_forge", "atomizer", "combustion_fuel", "synthesizer"};
@@ -46,10 +46,12 @@ final class ClientShowcase {
                 if (jeiTicks == 20 + i * 70) com.atomcraft.compat.JeiBridge.showCategory.accept(categories[i]);
                 if (jeiTicks == 70 + i * 70 && screen != null) AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture jei_{}", categories[i]);
             }
-            if (jeiTicks == 310 && screen != null) Minecraft.getInstance().gui.setScreen(null);
+            if (jeiTicks == 300) com.atomcraft.compat.JeiBridge.showCategory.accept("element:H");
+            if (jeiTicks == 350 && screen != null) AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture jei_element_hydrogen");
+            if (jeiTicks == 380 && screen != null) Minecraft.getInstance().gui.setScreen(null);
             return;
         }
-        if (screen == null && screensSeen >= 16 && !machinesCaptured) {
+        if (screen == null && screensSeen >= 17 && !machinesCaptured) {
             // Depois das interfaces, o servidor fecha o menu e posiciona a câmera nas máquinas e depois no reator.
             idleTicks++;
             if (idleTicks == 100 && !worldCaptured) {
@@ -69,9 +71,10 @@ final class ClientShowcase {
                     }
                 }
             }
-            if (idleTicks == 720) {
+            if (idleTicks == 720) AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture world_structures");
+            if (idleTicks == 1060) {
                 machinesCaptured = true;
-                AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture world_structures");
+                AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture world_fluids");
             }
             return;
         }

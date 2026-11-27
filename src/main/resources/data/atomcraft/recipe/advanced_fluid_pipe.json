@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "CCC",
+    "CPC",
+    "CCC"
+  ],
+  "key": {
+    "C": "atomcraft:basic_fluid_pipe",
+    "P": "atomcraft:stainless_steel_plate"
+  },
+  "result": {
+    "id": "atomcraft:advanced_fluid_pipe",
+    "count": 8
+  }
+}

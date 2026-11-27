@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PGP"
+  ],
+  "key": {
+    "P": "atomcraft:steel_plate",
+    "G": "minecraft:glass"
+  },
+  "result": {
+    "id": "atomcraft:basic_fluid_pipe",
+    "count": 8
+  }
+}

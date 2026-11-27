@@ -43,7 +43,7 @@ public class ModuleBenchScreen extends MachineScreen<ModuleBenchMenu> {
         float benchFill = menu.capacity() <= 0 ? 0 : (float) menu.energy() / menu.capacity();
         TechGui.verticalBar(graphics, leftPos + BENCH_BAR_X, topPos + BENCH_BAR_Y, BENCH_BAR_W, BENCH_BAR_H, benchFill, TechGui.ENERGY);
         TechGui.smallText(graphics, font, Component.translatable("gui.atomcraft.equipment").getString(), left, topPos + 26, TechGui.TEXT_TEAL, false);
-        TechGui.smallText(graphics, font, (kind == null ? Component.translatable("gui.atomcraft.modules") : kind.label()).getString(),
+        TechGui.smallText(graphics, font, (kind == null ? Component.translatable("gui.atomcraft.augments") : kind.label()).getString(),
                 right, topPos + 26, TechGui.TEXT_TEAL, false);
 
         // Slots de módulo que o equipamento não tem ficam riscados

@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PGP",
+    "GTG",
+    "PGP"
+  ],
+  "key": {
+    "P": "atomcraft:titanium_alloy_plate",
+    "G": "minecraft:glass",
+    "T": "atomcraft:advanced_fluid_tank"
+  },
+  "result": {
+    "id": "atomcraft:elite_fluid_tank",
+    "count": 1
+  }
+}

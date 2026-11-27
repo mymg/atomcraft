@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "atomcraft:blank_augment",
+    "minecraft:emerald",
+    "minecraft:string",
+    "minecraft:slime_ball"
+  ],
+  "result": {
+    "id": "atomcraft:silk_touch_augment",
+    "count": 1
+  }
+}

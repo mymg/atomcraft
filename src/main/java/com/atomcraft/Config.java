@@ -220,6 +220,26 @@ public final class Config {
             .defineInRange("capacity", 500_000, 1_000, Integer.MAX_VALUE);
 
     static {
+        BUILDER.pop().push("pump");
+    }
+
+    public static final ModConfigSpec.IntValue PUMP_ENERGY = BUILDER
+            .comment("Bomba: FE gastos por balde (1.000 mB) bombeado")
+            .defineInRange("energyPerBucket", 200, 0, 1_000_000);
+    public static final ModConfigSpec.IntValue PUMP_TICKS = BUILDER
+            .comment("Bomba: ticks entre um balde e outro")
+            .defineInRange("ticksPerBucket", 10, 1, 1_200);
+    public static final ModConfigSpec.IntValue PUMP_RANGE = BUILDER
+            .comment("Bomba: distância máxima (em blocos) das fontes que ela alcança")
+            .defineInRange("range", 32, 1, 128);
+    public static final ModConfigSpec.BooleanValue PUMP_INFINITE_WATER = BUILDER
+            .comment("Bomba: não remove fontes de água (a água é infinita, como num poço)")
+            .define("infiniteWater", true);
+    public static final ModConfigSpec.IntValue PUMP_CAPACITY = BUILDER
+            .comment("Energia guardada na bomba (FE)")
+            .defineInRange("capacity", 100_000, 1_000, Integer.MAX_VALUE);
+
+    static {
         BUILDER.pop();
     }
 

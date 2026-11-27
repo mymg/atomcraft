@@ -29,7 +29,10 @@ public final class ModNetwork {
                     com.atomcraft.compat.JeiBridge.dataChanged();
                 });
         registrar.playToClient(ResearchSyncPayload.TYPE, ResearchSyncPayload.STREAM_CODEC,
-                (payload, context) -> ClientState.setResearch(payload.progress(), payload.discovered()));
+                (payload, context) -> {
+                    // Elemento novo descoberto: o JEI passa a mostrá-lo (sai do "?")
+                    if (ClientState.setResearch(payload.progress(), payload.discovered())) com.atomcraft.compat.JeiBridge.dataChanged();
+                });
         registrar.playToClient(AlloySyncPayload.TYPE, AlloySyncPayload.STREAM_CODEC,
                 (payload, context) -> {
                     com.atomcraft.alloy.AlloyRecipes.set(payload.recipes());

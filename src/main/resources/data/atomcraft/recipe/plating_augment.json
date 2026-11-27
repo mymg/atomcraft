@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "atomcraft:blank_augment",
+    "atomcraft:titanium_alloy_plate",
+    "atomcraft:titanium_alloy_plate",
+    "atomcraft:tungsten_carbide_plate"
+  ],
+  "result": {
+    "id": "atomcraft:plating_augment",
+    "count": 1
+  }
+}

@@ -222,6 +222,11 @@ Com o JEI instalado, o AtomCraft ganha abas próprias:
 Os elementos aparecem com os mesmos ícones redondos do Terminal de Elementos, seguidos da quantidade (passe o mouse
 para ver o nome); elementos ainda não descobertos aparecem como "?".
 
+Os elementos também são **ingredientes do JEI**: os já descobertos aparecem na lista de itens (pesquise pelo nome,
+como "hidrogênio", ou use `@atomcraft`). **R** num elemento mostra tudo o que o dá no Atomizador (itens e fluidos);
+**U** mostra as ligas e sínteses que o usam. O mesmo vale ao passar o mouse num elemento dentro de uma receita.
+Elementos que você ainda não descobriu ficam fora da lista e continuam como "?" nas receitas.
+
 ## Carregador de Chunks
 
 Mantém chunks carregadas enquanto tiver energia. A interface mostra uma grade 5×5 centrada na chunk do bloco
@@ -230,6 +235,54 @@ Cada chunk escolhida custa 25 FE/t; sem energia, desligado ou sem permissão da 
 
 Na configuração (`chunkLoader`) dá para desativar o bloco por completo (útil em modpacks com FTB Chunks e afins),
 limitar o raio (0–2), o número máximo de chunks por bloco, o custo por chunk e a capacidade de energia.
+
+## Fluidos
+
+### Tanque de Fluidos
+
+| Nível | Capacidade |
+|---|---|
+| Básico | 32.000 mB |
+| Avançado | 64.000 mB |
+| Elite | 128.000 mB |
+| Supremo | 256.000 mB |
+
+Guarda um fluido. Clique no bloco com um balde (ou outro tanque em modo balde) para encher ou esvaziar; sem nada na
+mão, mostra o conteúdo. Um tanque em cima de outro despeja nele. Quebrado, o fluido fica no item.
+
+O item tem dois modos, trocados com **agachado + clique no ar**:
+- **Bloco**: coloca o tanque no mundo (com o fluido dentro);
+- **Balde**: pega fontes de fluido do mundo e coloca de volta, 1 balde por clique, e enche/esvazia blocos com fluido
+  (outros tanques, o Atomizador, máquinas de outros mods).
+
+### Bomba
+
+Puxa as fontes de fluido de baixo dela (o lago inteiro, até 32 blocos de distância) gastando 200 FE por balde, e
+empurra o fluido para os canos, tanques e máquinas em volta. A **água não é removida** (é infinita, como num poço);
+dá para mudar isso na configuração (`pump`). Aceita chips de velocidade.
+
+### Canos de Fluido
+
+| Nível | Vazão |
+|---|---|
+| Básico | 250 mB/t |
+| Avançado | 1.000 mB/t |
+| Elite | 4.000 mB/t |
+| Supremo | 16.000 mB/t |
+
+Os canos se ligam a canos do mesmo nível e a qualquer bloco com fluido (de qualquer mod). Cada lado ligado a um bloco
+**entrega** fluido a ele. Para **tirar** fluido de um bloco (um tanque, por exemplo), use **agachado + mão vazia** no
+lado do cano encostado nele: o lado vira "puxar" (aparece um aro laranja). Repetindo, o lado fica "desligado" e depois
+volta ao normal. Clique sem agachar para ver o modo do lado. A Bomba empurra sozinha, então não precisa de "puxar".
+
+Os canos não guardam fluido: a cada tick movem até a vazão do nível direto da origem para os destinos, em rodízio.
+Nada se perde ao quebrar canos ou salvar o mundo.
+
+### Atomizar fluidos
+
+O Atomizador tem um tanque de 8.000 mB (barra "Fluido" na interface) que aceita canos, a Bomba, tanques e baldes.
+Cada 1.000 mB vira os elementos de um balde cheio menos os do balde vazio (água: H16 O8). Fluidos de outros mods
+funcionam se o balde deles tiver composição. O JEI mostra os fluidos na aba do Atomizador.
 
 ## Controle por redstone
 
@@ -277,17 +330,17 @@ quebrados viram elementos direto nos Drives (o que não couber cai normalmente).
 | **Cartão de Rede** | ouro, placa de circuito, fio de cobre, redstone |
 | **Desintegrador Atômico** | chapas de carbeto de tungstênio, diamante, placa de circuito, lingote de liga de titânio |
 
-### Bancada de Módulos
+### Bancada de Aprimoramentos
 
-Coloque um equipamento no slot da esquerda: os módulos instalados aparecem à direita. Ponha ou tire módulos e eles
-são gravados na hora no equipamento; tirar o equipamento leva os módulos junto. Módulos com níveis (II, III) são
-empilhados no mesmo slot. Todo módulo é feito com um **Módulo Vazio** mais os ingredientes do efeito.
+Coloque um equipamento no slot da esquerda: os aprimoramentos instalados aparecem à direita. Ponha ou tire aprimoramentos e eles
+são gravados na hora no equipamento; tirar o equipamento leva os aprimoramentos junto. Aprimoramentos com níveis (II, III) são
+empilhados no mesmo slot. Todo aprimoramento é feito com um **Aprimoramento Vazio** mais os ingredientes do efeito.
 
 A bancada guarda energia própria (500.000 FE; ligue ao Cabo Atômico ou a cabos de energia de qualquer mod) e
 recarrega, com a interface aberta, o equipamento da bancada e a armadura vestida. A coluna à esquerda mostra a
 armadura vestida: troque peças sem sair da bancada.
 
-| Equipamento | Slots | Módulos |
+| Equipamento | Slots | Aprimoramentos |
 |---|---|---|
 | Capacete do Exoesqueleto | 2 | Visão Noturna, Respirador, Analisador |
 | Peitoral do Exoesqueleto | 3 | Blindagem (I–III), Escudo de Energia |
@@ -299,15 +352,15 @@ armadura vestida: troque peças sem sair da bancada.
 ### Exoesqueleto
 
 Armadura de liga de titânio com bateria de 250.000 FE em cada peça. As peças recarregam pelo Transmissor Sem Fio
-(com o seu cartão num slot dele) ou na Bancada de Módulos. Sem energia, os módulos ativos param (Blindagem e Amortecedor são passivos).
+(com o seu cartão num slot dele) ou na Bancada de Aprimoramentos. Sem energia, os aprimoramentos ativos param (Blindagem e Amortecedor são passivos).
 O Escudo de Energia absorve o dano gastando 1.000 FE por ponto.
-Calças e botas só gastam energia enquanto o jogador anda: parado, os módulos continuam ativos sem consumir nada.
+Calças e botas só gastam energia enquanto o jogador anda: parado, os aprimoramentos continuam ativos sem consumir nada.
 
 ### Jetpack a Hidrogênio
 
 Vista no peito (ou nas costas, com o Curios) e segure **pular** para subir. O tanque (16.000 H) enche sozinho com o
 hidrogênio dos Drives, pelo Transmissor Sem Fio. Subir com o jetpack nunca freia (o pulo continua com a força dele).
-Com o módulo de **Voo**, você voa como no modo criativo (dois toques no pulo) enquanto houver hidrogênio; a tecla
+Com o aprimoramento de **Voo**, você voa como no modo criativo (dois toques no pulo) enquanto houver hidrogênio; a tecla
 **H** liga/desliga o voo.
 
 ### Acessórios
@@ -493,6 +546,20 @@ Arquivos derivados da sua arte, que o script sempre recria:
 - O **Analisador** é um modelo GeckoLib (`geckolib/models/block/analyzer.geo.json`, animações `idle` e `analyzing`);
   o item também usa o modelo animado.
 
+### Canos e cabos no Blockbench
+
+Canos e cabos usam o **multipart** dos blockstates do Minecraft (não precisam de GeckoLib nem de "bones"): o modelo é
+dividido em peças e o blockstate liga cada peça conforme as conexões.
+
+1. Faça o **núcleo** (o cubo do meio) num modelo, por exemplo `basic_fluid_pipe_core.json`.
+2. Faça **um braço só**, apontando para o **norte** (de z 0 até o núcleo), em outro modelo: `basic_fluid_pipe_side.json`.
+   O blockstate gira esse mesmo braço para os outros 5 lados (`y` 90/180/270 e `x` 90/270), então não modele os 6.
+3. Peças opcionais por modo também apontam para o norte, como o aro do modo puxar (`fluid_pipe_pull.json`).
+4. Para o ícone no inventário, um modelo de item (`basic_fluid_pipe_item.json`) com o núcleo e um braço reto.
+
+Exporte cada parte como "Java Block/Item" com esses nomes e substitua os arquivos em `models/block/`; o script não
+os sobrescreve. Os cabos atômicos seguem o mesmo esquema (`cable_core.json`, `cable_side.json`, `cable_item.json`).
+
 ## Desenvolvimento
 
 Pré-requisito: **JDK 25**.
@@ -527,7 +594,7 @@ O `.jar` fica disponível em **Actions → Artifacts**.
 - [x] Complexidade e níveis de replicador (Avançado e Quântico)
 - [x] Células de Energia e Matriz de Energia
 - [x] Ferramentas/armaduras de liga, Transmissor Sem Fio, Cartão de Rede e Desintegrador Atômico
-- [x] Bancada de Módulos, Exoesqueleto, Jetpack a Hidrogênio, Anel Magnético, Anel Analisador e Curios
+- [x] Bancada de Aprimoramentos, Exoesqueleto, Jetpack a Hidrogênio, Anel Magnético, Anel Analisador e Curios
 - [ ] Suporte a fluidos (tanques e fluid pipes)
 - [ ] Texturas e modelos definitivos
 - [ ] Integração com JEI/EMI (mostrar fórmula e custo)
