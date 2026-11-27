@@ -30,6 +30,21 @@ public final class CuriosClient {
     @SuppressWarnings({"unchecked", "rawtypes"})
     static final class JetpackRenderer implements ICurioRenderer {
         private GeoArmors.Renderer renderer;
+        private static java.lang.reflect.Field levelRenderState;
+
+        /** Estado da câmera do quadro atual (campo interno do LevelRenderer, o mesmo que o GeckoLib usa). */
+        private static net.minecraft.client.renderer.state.level.@org.jspecify.annotations.Nullable CameraRenderState camera() {
+            try {
+                if (levelRenderState == null) {
+                    levelRenderState = net.minecraft.client.renderer.LevelRenderer.class.getDeclaredField("levelRenderState");
+                    levelRenderState.setAccessible(true);
+                }
+                Object state = levelRenderState.get(Minecraft.getInstance().levelRenderer);
+                return (net.minecraft.client.renderer.state.level.CameraRenderState) state.getClass().getField("cameraRenderState").get(state);
+            } catch (ReflectiveOperationException | RuntimeException e) {
+                return null;
+            }
+        }
 
         @Override
         public <S extends LivingEntityRenderState, M extends EntityModel<? super S>> void render(ItemStack stack, SlotContext slotContext,
@@ -42,9 +57,12 @@ public final class CuriosClient {
             HumanoidRenderState state = new HumanoidRenderState();
             state.lightCoords = light;
             float partialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
+            var camera = camera();
+            if (camera == null) return;
+            Object geoState = state;
             renderer.fillRenderState(jetpack, new com.geckolib.renderer.GeoArmorRenderer.RenderData(stack, EquipmentSlot.CHEST,
-                    slotContext.entity(), model), state, partialTick);
-            renderer.performRenderPass(state, poseStack, collector, Minecraft.getInstance().levelRenderer.levelRenderState.cameraRenderState);
+                    slotContext.entity(), model), (com.geckolib.renderer.base.GeoRenderState) geoState, partialTick);
+            renderer.performRenderPass((com.geckolib.renderer.base.GeoRenderState) geoState, poseStack, collector, camera);
         }
     }
 }
