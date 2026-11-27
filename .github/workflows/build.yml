@@ -17,9 +17,12 @@ jobs:
           ./gradlew compileJava -q
           CP=$(find build ~/.gradle -name "*.jar" | grep -v sources | tr '\n' ':')
           find ~/.gradle -name "curios*.jar" | head
-          for c in top.theillusivec4.curios.api.client.ICurioRenderer top.theillusivec4.curios.api.client.CuriosRendererRegistry com.geckolib.renderer.GeoArmorRenderer com.geckolib.renderer.internal.ArmorRenderingHelper net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer net.minecraft.client.renderer.entity.state.HumanoidRenderState net.neoforged.neoforge.event.entity.living.LivingEquipmentChangeEvent net.minecraft.world.item.enchantment.Enchantment net.neoforged.neoforge.event.enchanting.GetEnchantmentLevelEvent net.minecraft.world.item.component.ItemAttributeModifiers net.neoforged.neoforge.event.ItemAttributeModifierEvent; do
-            javap -cp "$CP" -protected "$c" > /tmp/out.txt 2>&1 || true
-            echo "===== $c"; cat /tmp/out.txt
-          done > probe.txt
-          cat probe.txt
-          for j in $(find ~/.gradle -name "geckolib*.jar" -o -name "curios*.jar" | grep -v sources); do echo JAR $j; unzip -l $j | awk '{print $4}' | grep -iE "armor|curio.*render|client/.*class" | grep -v '[$]' | head -40; done
+          curl -sL -o /tmp/cfr.jar https://repo1.maven.org/maven2/org/benf/cfr/0.152/cfr-0.152.jar
+          G=$(find ~/.gradle -name "geckolib-neoforge-26.2-5.5.6.jar" | head -1)
+          mkdir -p /tmp/dec && cd /tmp/dec && unzip -q -o $G 'com/geckolib/renderer/GeoArmorRenderer*' 'com/geckolib/mixin/client/HumanoidArmorLayerMixin*' 'com/geckolib/renderer/base/GeoRenderer.class'
+          java -jar /tmp/cfr.jar com/geckolib/renderer/GeoArmorRenderer.class --silent true > ga.java 2>&1 || true
+          java -jar /tmp/cfr.jar com/geckolib/mixin/client/HumanoidArmorLayerMixin.class --silent true > mix.java 2>&1 || true
+          java -jar /tmp/cfr.jar com/geckolib/renderer/base/GeoRenderer.class --silent true > gr.java 2>&1 || true
+          echo "=== MIXIN"; cat mix.java
+          echo "=== ARMOR"; sed -n '/tryRenderGeoArmorPiece/,/^    }/p;/captureRenderStates/,/^    }/p;/record RenderData/,/}/p;/createRenderState/,/^    }/p' ga.java
+          echo "=== GEORENDERER"; grep -n "default\|void " gr.java | head -60
