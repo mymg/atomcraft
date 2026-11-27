@@ -924,6 +924,10 @@ for tag in ("head_armor", "chest_armor", "leg_armor", "foot_armor"):
     w(f"data/minecraft/tags/item/{tag}.json", {"values": TOOL_TAGS_ITEMS[tag]})
 for name in ("hydrogen_jetpack", "magnet_ring", "analyzer_glasses", "blank_augment"):
     item_model(name)
+# Óculos na cabeça (slot de capacete): na altura dos olhos, do tamanho do rosto
+wf("assets/atomcraft/models/item/analyzer_glasses.json", {"parent": "minecraft:item/generated",
+    "textures": {"layer0": "atomcraft:item/analyzer_glasses"},
+    "display": {"head": {"rotation": [0, 180, 0], "translation": [0, 3, 7.6], "scale": [0.6, 0.6, 0.6]}}})
 EQUIP_MODULES = [  # (id, en, pt, descrição en, descrição pt, cor, receita sem o módulo vazio)
     ("night_vision", "Night Vision", "Visão Noturna", "See in the dark", "Enxergar no escuro", (120, 230, 120), ["minecraft:golden_carrot", "minecraft:glowstone_dust"]),
     ("respirator", "Respirator", "Respirador", "Breathe underwater", "Respirar debaixo d'água", (90, 160, 255), ["minecraft:kelp", "minecraft:glass_bottle", "atomcraft:stainless_steel_plate"]),

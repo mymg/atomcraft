@@ -322,6 +322,8 @@ final class Showcase {
             for (int i = 0; i < order.length; i++) stand.setItemSlot(order[i], new net.minecraft.world.item.ItemStack(items[i]));
             level.addFreshEntity(stand);
         }
+        // Minério na mira: com os Óculos Analisadores, o Jade mostra a fórmula
+        level.setBlock(origin.offset(0, 1, -1), net.minecraft.world.level.block.Blocks.DIAMOND_ORE.defaultBlockState(), Block.UPDATE_ALL);
     }
 
     /** Quatro tanques (um de cada nível) com água e lava, ligados por canos; um lado em modo "puxar". */
