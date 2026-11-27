@@ -73,6 +73,8 @@ final class ClientShowcase {
             }
             if (idleTicks == 720) AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture world_structures");
             if (idleTicks == 1060) AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture world_fluids");
+            if (idleTicks == 1200) Minecraft.getInstance().options.setCameraType(net.minecraft.client.CameraType.THIRD_PERSON_BACK);
+            if (idleTicks == 1300) Minecraft.getInstance().options.setCameraType(net.minecraft.client.CameraType.FIRST_PERSON);
             if (idleTicks == 1270) {
                 machinesCaptured = true;
                 AtomCraft.LOGGER.info("AtomCraft SHOWCASE capture world_armor");

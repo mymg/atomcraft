@@ -459,6 +459,10 @@ final class Showcase {
             if (ticks == 4520) {
                 player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD,
                         new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.ANALYZER_GLASSES.get()));
+                // Visto de trás (câmera em 3ª pessoa): peitoral Nano + Jetpack no slot de costas do Curios
+                player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST,
+                        new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.NANO_CHESTPLATE.get()));
+                com.atomcraft.compat.Curios.equip(player, "back", new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.JETPACK.get()));
             }
         }
         if (ticks == 5600) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
