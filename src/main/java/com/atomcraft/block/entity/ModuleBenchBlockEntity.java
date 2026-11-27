@@ -2,11 +2,9 @@ package com.atomcraft.block.entity;
 
 import com.atomcraft.Config;
 import com.atomcraft.equipment.Battery;
-import com.atomcraft.equipment.ExoArmorItem;
 import com.atomcraft.menu.ModuleBenchMenu;
 import com.atomcraft.registry.ModBlockEntities;
 import com.atomcraft.storage.EnergyReceiver;
-import com.atomcraft.tools.AtomicDisintegratorItem;
 import com.atomcraft.upgrade.UpgradeType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -80,21 +78,13 @@ public class ModuleBenchBlockEntity extends MachineBlockEntity implements Energy
      * Devolve quanto passou.
      */
     public int charge(ItemStack stack, int max) {
-        int capacity, current;
-        if (stack.getItem() instanceof ExoArmorItem) {
-            capacity = ExoArmorItem.CAPACITY;
-            current = Battery.energy(stack);
-        } else if (stack.getItem() instanceof AtomicDisintegratorItem) {
-            capacity = AtomicDisintegratorItem.CAPACITY;
-            current = AtomicDisintegratorItem.energy(stack);
-        } else {
-            return 0;
-        }
+        int capacity = com.atomcraft.equipment.Powered.capacity(stack);
+        if (capacity <= 0) return 0;
+        int current = Battery.energy(stack);
         int amount = Math.min(Math.min(capacity - current, max), energy.getAmountAsInt());
         if (amount <= 0 || !isEnabled()) return 0;
         energy.set(energy.getAmountAsInt() - amount);
-        if (stack.getItem() instanceof ExoArmorItem) Battery.set(stack, current + amount, capacity);
-        else AtomicDisintegratorItem.setEnergy(stack, current + amount);
+        Battery.set(stack, current + amount, capacity);
         return amount;
     }
 

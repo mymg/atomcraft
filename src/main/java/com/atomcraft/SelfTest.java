@@ -567,6 +567,64 @@ final class SelfTest {
                 AtomCraft.id("chests/weathered_nano_ancient_city"));
         check(failures, level.getServer().reloadableRegistries().getLootTable(lootKey) != net.minecraft.world.level.storage.loot.LootTable.EMPTY,
                 "tabela de loot da armadura nano na Cidade Ancestral");
+        nanoBonuses(level, player, failures);
+    }
+
+    /** Bônus da Armadura Nano, Aprimoramento de Encantamento e Katana. */
+    private static void nanoBonuses(ServerLevel level, net.minecraft.world.entity.player.Player player, List<String> failures) {
+        var chest = new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.NANO_CHESTPLATE.get());
+        check(failures, com.atomcraft.equipment.Powered.capacity(chest) == 8 * com.atomcraft.equipment.ExoArmorItem.CAPACITY,
+                "Armadura Nano guarda 8× a energia do Exoesqueleto");
+        com.atomcraft.equipment.Battery.set(chest, 100_000, com.atomcraft.equipment.Powered.capacity(chest));
+        player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, chest);
+        com.atomcraft.equipment.EquipmentEvents.tickExo(player, 10);
+        check(failures, player.getMaxHealth() == 30f, "peitoral Nano: +5 corações (" + player.getMaxHealth() + ")");
+
+        var boots = new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.NANO_BOOTS.get());
+        com.atomcraft.equipment.Battery.set(boots, 10_000, com.atomcraft.equipment.Powered.capacity(boots));
+        player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.FEET, boots);
+        check(failures, com.atomcraft.equipment.EquipmentEvents.nanoBootsBlock(player, level.damageSources().fall())
+                && com.atomcraft.equipment.EquipmentEvents.nanoBootsBlock(player, level.damageSources().hotFloor())
+                && !com.atomcraft.equipment.EquipmentEvents.nanoBootsBlock(player, level.damageSources().generic()),
+                "botas Nano anulam queda e magma (mas não outros danos)");
+
+        // Aprimoramento de Encantamento: Proteção III + Proteção II do peitoral Nano = Proteção V
+        var protection = level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.ENCHANTMENT)
+                .getOrThrow(net.minecraft.world.item.enchantment.Enchantments.PROTECTION);
+        var augment = new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.MODULES
+                .get(com.atomcraft.equipment.EquipmentModule.ENCHANTMENT).get());
+        augment.enchant(protection, 3);
+        chest.enchant(protection, 2);
+        com.atomcraft.equipment.ModularItem.setModules(chest, List.of(augment.copy(), net.minecraft.world.item.ItemStack.EMPTY, net.minecraft.world.item.ItemStack.EMPTY));
+        int nanoLevel = net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel(protection, chest);
+        check(failures, nanoLevel == 5, "Aprimoramento de Encantamento: Proteção II + III = V no peitoral Nano (" + nanoLevel + ")");
+        var exo = new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.EXO_CHESTPLATE.get());
+        com.atomcraft.equipment.ModularItem.setModules(exo, List.of(augment.copy(), net.minecraft.world.item.ItemStack.EMPTY, net.minecraft.world.item.ItemStack.EMPTY));
+        int exoLevel = net.minecraft.world.item.enchantment.EnchantmentHelper.getItemEnchantmentLevel(protection, exo);
+        check(failures, exoLevel == 2, "no Exoesqueleto o aprimoramento soma no máximo II (" + exoLevel + ")");
+
+        // Katana: 12 de dano com energia (+2 por nível de Afiação), 1 sem energia
+        var katana = new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.NANO_KATANA.get());
+        check(failures, katanaDamage(katana) == 0, "katana sem energia: só o dano da mão");
+        com.atomcraft.equipment.Battery.set(katana, 50_000, com.atomcraft.tools.NanoKatanaItem.CAPACITY);
+        check(failures, katanaDamage(katana) == 11, "katana com energia: 12 de dano (" + (1 + katanaDamage(katana)) + ")");
+        var sharp = new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.MODULES
+                .get(com.atomcraft.equipment.EquipmentModule.SHARPNESS).get(), 2);
+        com.atomcraft.equipment.ModularItem.setModules(katana, List.of(sharp, net.minecraft.world.item.ItemStack.EMPTY, net.minecraft.world.item.ItemStack.EMPTY));
+        check(failures, katanaDamage(katana) == 15, "Afiação II na katana: +4 de dano (" + (1 + katanaDamage(katana)) + ")");
+
+        player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, net.minecraft.world.item.ItemStack.EMPTY);
+        player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.FEET, net.minecraft.world.item.ItemStack.EMPTY);
+        com.atomcraft.equipment.EquipmentEvents.tickExo(player, 10);
+    }
+
+    /** Soma dos modificadores de dano de ataque do item na mão principal. */
+    private static double katanaDamage(net.minecraft.world.item.ItemStack stack) {
+        double[] total = {0};
+        stack.forEachModifier(net.minecraft.world.entity.EquipmentSlot.MAINHAND, (attribute, modifier) -> {
+            if (attribute.is(net.minecraft.world.entity.ai.attributes.Attributes.ATTACK_DAMAGE)) total[0] += modifier.amount();
+        });
+        return total[0];
     }
 
     /** Células de Energia (lados, rede, item) e Matriz de Energia (estrutura 3×5×3 e portas). */

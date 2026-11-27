@@ -220,6 +220,20 @@ public final class Config {
             .defineInRange("capacity", 500_000, 1_000, Integer.MAX_VALUE);
 
     static {
+        BUILDER.pop().push("weatheredNano");
+    }
+
+    public static final ModConfigSpec.IntValue KATANA_ENERGY = BUILDER
+            .comment("Katana Nano Desgastada: FE gastos por golpe")
+            .defineInRange("katanaEnergyPerHit", 500, 0, 1_000_000);
+    public static final ModConfigSpec.IntValue NANO_BONUS_ENERGY = BUILDER
+            .comment("Armadura Nano Desgastada: FE por tick de cada bônus ativo (visão noturna, vida, velocidade)")
+            .defineInRange("bonusEnergyPerTick", 5, 0, 100_000);
+    public static final ModConfigSpec.IntValue NANO_BOOTS_ENERGY = BUILDER
+            .comment("Botas Nano Desgastadas: FE gastos a cada dano de queda/ambiente anulado")
+            .defineInRange("bootsEnergyPerHit", 200, 0, 1_000_000);
+
+    static {
         BUILDER.pop().push("pump");
     }
 

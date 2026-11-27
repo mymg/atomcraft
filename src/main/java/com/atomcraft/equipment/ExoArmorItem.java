@@ -14,15 +14,26 @@ import java.util.function.Consumer;
  * velocidade, subida de degraus, salto e amortecedor). A bateria recarrega pelo Transmissor Sem Fio
  * com um Cartão de Rede vinculado; os efeitos ficam em {@link EquipmentEvents}.
  */
-public class ExoArmorItem extends Item implements ModularItem {
+public class ExoArmorItem extends Item implements ModularItem, Powered {
 
     public static final int CAPACITY = 250_000;
 
     private final EquipmentKind kind;
+    private final int capacity;
 
     public ExoArmorItem(EquipmentKind kind, Properties properties) {
+        this(kind, CAPACITY, properties);
+    }
+
+    protected ExoArmorItem(EquipmentKind kind, int capacity, Properties properties) {
         super(properties);
         this.kind = kind;
+        this.capacity = capacity;
+    }
+
+    @Override
+    public int capacity() {
+        return capacity;
     }
 
     @Override
@@ -37,7 +48,7 @@ public class ExoArmorItem extends Item implements ModularItem {
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        return Battery.barWidth(stack, CAPACITY);
+        return Battery.barWidth(stack, capacity);
     }
 
     @Override
@@ -49,7 +60,7 @@ public class ExoArmorItem extends Item implements ModularItem {
     public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display,
                                 Consumer<Component> tooltip, TooltipFlag flag) {
         tooltip.accept(Component.translatable("tooltip.atomcraft.stored_energy",
-                String.format("%,d", Battery.energy(stack)), String.format("%,d", CAPACITY)).withStyle(ChatFormatting.GRAY));
+                String.format("%,d", Battery.energy(stack)), String.format("%,d", capacity)).withStyle(ChatFormatting.GRAY));
         ModularItem.appendModules(stack, kind, tooltip);
     }
 }

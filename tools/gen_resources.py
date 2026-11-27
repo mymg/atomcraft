@@ -944,6 +944,8 @@ EQUIP_MODULES = [  # (id, en, pt, descrição en, descrição pt, cor, receita s
     ("area", "Area", "Área", "Breaks 3×3 (sneak: single block)", "Quebra 3×3 (agachado: um bloco)", (255, 170, 230), ["atomcraft:tungsten_carbide_plate", "atomcraft:tungsten_carbide_plate", "minecraft:diamond"]),
     ("silk_touch", "Silk Touch", "Toque Suave", "Blocks drop themselves (not with Fortune)", "Blocos caem inteiros (não junto com Fortuna)", (120, 255, 220), ["minecraft:emerald", "minecraft:string", "minecraft:slime_ball"]),
     ("fortune", "Fortune", "Fortuna", "More ore drops per level (not with Silk Touch)", "Mais minério por nível (não junto com Toque Suave)", (255, 220, 60), ["minecraft:lapis_block", "minecraft:gold_ingot", "minecraft:diamond"]),
+    ("sharpness", "Sharpness", "Afiação", "+2 attack damage per level", "+2 de dano de ataque por nível", (230, 70, 70), ["minecraft:diamond", "minecraft:flint", "minecraft:quartz"]),
+    ("enchantment", "Enchantment", "Encantamento", "Adds its enchantments to the equipment", "Soma os encantamentos dele aos do equipamento", (170, 90, 255), ["minecraft:book", "minecraft:lapis_block", "minecraft:amethyst_shard"]),
 ]
 for mid, en, pt, den, dpt, color, ingredients in EQUIP_MODULES:
     item_model(f"{mid}_augment")
@@ -979,6 +981,15 @@ MAT_LANG.update({
     "equipment_kind.atomcraft.exo_boots": ("Exo Boots", "Botas Exo"),
     "equipment_kind.atomcraft.jetpack": ("Jetpack", "Jetpack"),
     "equipment_kind.atomcraft.disintegrator": ("Disintegrator", "Desintegrador"),
+    "equipment_kind.atomcraft.nano_helmet": ("Weathered Nano Helmet", "Elmo Nano"),
+    "equipment_kind.atomcraft.nano_chestplate": ("Weathered Nano Chestplate", "Peitoral Nano"),
+    "equipment_kind.atomcraft.nano_leggings": ("Weathered Nano Leggings", "Calças Nano"),
+    "equipment_kind.atomcraft.nano_boots": ("Weathered Nano Boots", "Botas Nano"),
+    "equipment_kind.atomcraft.katana": ("Weathered Nano Katana", "Katana Nano"),
+    "tooltip.atomcraft.module_for_all": ("any equipment or tool", "qualquer equipamento ou ferramenta"),
+    "tooltip.atomcraft.enchant_augment_hint": ("Enchant it (table or anvil). Adds up to II (Exo, Jetpack, Disintegrator) or III (Nano)",
+                                               "Encante-o (mesa ou bigorna). Soma até II (Exo, Jetpack, Desintegrador) ou III (Nano)"),
+    "tooltip.atomcraft.enchant_bonus": (" (+%s)", " (+%s)"),
     "tooltip.atomcraft.module_level": ("%s %s", "%s %s"),
     "tooltip.atomcraft.module_slots": ("Augments: %s/%s (Augment Bench)", "Aprimoramentos: %s/%s (Bancada de Aprimoramentos)"),
     "tooltip.atomcraft.module_for": ("Fits: %s", "Serve em: %s"),
@@ -1109,11 +1120,31 @@ for tag in ("head_armor", "chest_armor", "leg_armor", "foot_armor"):
 w("data/atomcraft/loot_table/chests/weathered_nano_ancient_city.json", {"type": "minecraft:chest", "pools": [{"rolls": 1, "entries":
     [{"type": "minecraft:item", "name": f"atomcraft:weathered_nano_{piece}", "weight": 1, "functions": [
         {"function": "minecraft:set_damage", "damage": {"type": "minecraft:uniform", "min": 0.35, "max": 0.8}}]} for piece, *_ in NANO_PIECES]
-    + [{"type": "minecraft:empty", "weight": 96}]}]})
+    + [{"type": "minecraft:item", "name": "atomcraft:weathered_nano_katana", "weight": 1}]
+    + [{"type": "minecraft:empty", "weight": 115}]}]})
 w("data/atomcraft/loot_modifiers/weathered_nano_ancient_city.json", {"type": "neoforge:add_table",
     "conditions": [{"condition": "neoforge:loot_table_id", "loot_table_id": "minecraft:chests/ancient_city"}],
     "table": "atomcraft:chests/weathered_nano_ancient_city"})
+_katana = os.path.join(R, "assets/atomcraft/models/item/weathered_nano_katana.json")
+if os.path.exists(_katana):
+    _km = json.load(open(_katana))
+    _km["textures"] = {k: (v if ":" in v else f"atomcraft:item/{v}") for k, v in _km.get("textures", {}).items()}
+    wf("assets/atomcraft/models/item/weathered_nano_katana.json", _km)
+w("assets/atomcraft/items/weathered_nano_katana.json", {"model": {"type": "minecraft:model", "model": "atomcraft:item/weathered_nano_katana"}})
+w("data/minecraft/tags/item/swords.json", {"values": TOOL_TAGS_ITEMS.get("swords", []) + ["atomcraft:weathered_nano_katana"]})
+# Aprimoramento de Encantamento: aceita qualquer encantamento (está em todas as listas "enchantable")
+for tag in ("armor", "head_armor", "chest_armor", "leg_armor", "foot_armor", "equippable", "durability", "vanishing", "weapon",
+            "sharp_weapon", "sword", "fire_aspect", "melee_weapon", "mining", "mining_loot", "bow", "crossbow", "trident", "mace",
+            "fishing", "lunge"):
+    w(f"data/minecraft/tags/item/enchantable/{tag}.json", {"values": ["atomcraft:enchantment_augment"]})
 MAT_LANG.update({
+    "item.atomcraft.weathered_nano_katana": ("Weathered Nano Katana", "Katana Nano Desgastada"),
+    "tooltip.atomcraft.katana_empty": ("No energy: 1 attack damage", "Sem energia: 1 de dano"),
+    "tooltip.atomcraft.nano_bonus.nano_helmet": ("Night vision (uses energy)", "Visão noturna (usa energia)"),
+    "tooltip.atomcraft.nano_bonus.nano_chestplate": ("+5 hearts (uses energy)", "+5 corações (usa energia)"),
+    "tooltip.atomcraft.nano_bonus.nano_leggings": ("Faster walking, swimming and flying (uses energy)", "Mais rápido andando, nadando e voando (usa energia)"),
+    "tooltip.atomcraft.nano_bonus.nano_boots": ("No fall or environment damage (uses energy)", "Sem dano de queda e de ambiente (usa energia)"),
+    "atomcraft.configuration.weatheredNano": ("Weathered Nano", "Nano Desgastada"),
     "tooltip.atomcraft.weathered_nano": ("Ancient tech, found in Ancient Cities", "Tecnologia antiga, achada nas Cidades Ancestrais"),
 })
 

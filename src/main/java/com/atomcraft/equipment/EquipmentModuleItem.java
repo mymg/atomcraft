@@ -27,9 +27,13 @@ public class EquipmentModuleItem extends Item {
     public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display,
                                 Consumer<Component> tooltip, TooltipFlag flag) {
         tooltip.accept(module.description().copy().withStyle(ChatFormatting.GRAY));
-        Component kinds = module.kinds().stream().map(EquipmentKind::label)
+        Component kinds = module == EquipmentModule.ENCHANTMENT ? Component.translatable("tooltip.atomcraft.module_for_all")
+                : java.util.Arrays.stream(EquipmentKind.values()).filter(module::fits).map(EquipmentKind::label)
                 .reduce((a, b) -> a.copy().append(", ").append(b)).orElse(Component.empty());
         tooltip.accept(Component.translatable("tooltip.atomcraft.module_for", kinds).withStyle(ChatFormatting.DARK_AQUA));
+        if (module == EquipmentModule.ENCHANTMENT) {
+            tooltip.accept(Component.translatable("tooltip.atomcraft.enchant_augment_hint").withStyle(ChatFormatting.DARK_GRAY));
+        }
         if (module.maxLevel() > 1) {
             tooltip.accept(Component.translatable("tooltip.atomcraft.module_max", module.maxLevel()).withStyle(ChatFormatting.DARK_GRAY));
         }

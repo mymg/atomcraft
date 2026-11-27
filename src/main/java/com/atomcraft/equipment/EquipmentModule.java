@@ -24,7 +24,10 @@ public enum EquipmentModule {
     EFFICIENCY("efficiency", 3, 0, EquipmentKind.DISINTEGRATOR),
     AREA("area", 1, 0, EquipmentKind.DISINTEGRATOR),
     SILK_TOUCH("silk_touch", 1, 0, EquipmentKind.DISINTEGRATOR),
-    FORTUNE("fortune", 3, 0, EquipmentKind.DISINTEGRATOR);
+    FORTUNE("fortune", 3, 0, EquipmentKind.DISINTEGRATOR),
+    SHARPNESS("sharpness", 3, 0, EquipmentKind.KATANA),
+    /** Encantável com qualquer encantamento: soma os níveis dele ao equipamento (até o limite do equipamento). */
+    ENCHANTMENT("enchantment", 1, 0, EquipmentKind.EXO_HELMET, EquipmentKind.values());
 
     private final String id;
     private final int maxLevel;
@@ -56,7 +59,7 @@ public enum EquipmentModule {
     }
 
     public boolean fits(EquipmentKind kind) {
-        return kinds.contains(kind);
+        return kinds.contains(kind) || (kind.base() != null && kinds.contains(kind.base()));
     }
 
     public Set<EquipmentKind> kinds() {

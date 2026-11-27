@@ -51,14 +51,15 @@ public class PipeBlock extends BaseEntityBlock {
         }
     }
 
-    private static final VoxelShape CORE = Block.box(5, 5, 5, 11, 11, 11);
+    // Mesmas medidas do modelo: núcleo de 5 px, braço de 4 px com o aro de 5 px na ponta
+    private static final VoxelShape CORE = Block.box(5.5, 5.5, 5.5, 10.5, 10.5, 10.5);
     private static final Map<Direction, VoxelShape> ARMS = new EnumMap<>(Map.of(
-            Direction.NORTH, Block.box(5.5, 5.5, 0, 10.5, 10.5, 5),
-            Direction.SOUTH, Block.box(5.5, 5.5, 11, 10.5, 10.5, 16),
-            Direction.WEST, Block.box(0, 5.5, 5.5, 5, 10.5, 10.5),
-            Direction.EAST, Block.box(11, 5.5, 5.5, 16, 10.5, 10.5),
-            Direction.DOWN, Block.box(5.5, 0, 5.5, 10.5, 5, 10.5),
-            Direction.UP, Block.box(5.5, 11, 5.5, 10.5, 16, 10.5)));
+            Direction.NORTH, Shapes.or(Block.box(6, 6, 0, 10, 10, 5.5), Block.box(5.5, 5.5, 0, 10.5, 10.5, 0.5)),
+            Direction.SOUTH, Shapes.or(Block.box(6, 6, 10.5, 10, 10, 16), Block.box(5.5, 5.5, 15.5, 10.5, 10.5, 16)),
+            Direction.WEST, Shapes.or(Block.box(0, 6, 6, 5.5, 10, 10), Block.box(0, 5.5, 5.5, 0.5, 10.5, 10.5)),
+            Direction.EAST, Shapes.or(Block.box(10.5, 6, 6, 16, 10, 10), Block.box(15.5, 5.5, 5.5, 16, 10.5, 10.5)),
+            Direction.DOWN, Shapes.or(Block.box(6, 0, 6, 10, 5.5, 10), Block.box(5.5, 0, 5.5, 10.5, 0.5, 10.5)),
+            Direction.UP, Shapes.or(Block.box(6, 10.5, 6, 10, 16, 10), Block.box(5.5, 15.5, 5.5, 10.5, 16, 10.5))));
     private final Map<BlockState, VoxelShape> shapeCache = new ConcurrentHashMap<>();
 
     private final FluidTier tier;
@@ -201,7 +202,7 @@ public class PipeBlock extends BaseEntityBlock {
         Vec3 rel = hit.getLocation().subtract(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5);
         double ax = Math.abs(rel.x), ay = Math.abs(rel.y), az = Math.abs(rel.z);
         double max = Math.max(ax, Math.max(ay, az));
-        if (max < 0.19) return hit.getDirection();
+        if (max < 0.16) return hit.getDirection();
         if (max == ax) return rel.x > 0 ? Direction.EAST : Direction.WEST;
         if (max == ay) return rel.y > 0 ? Direction.UP : Direction.DOWN;
         return rel.z > 0 ? Direction.SOUTH : Direction.NORTH;

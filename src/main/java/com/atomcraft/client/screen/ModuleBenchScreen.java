@@ -4,11 +4,9 @@ import com.atomcraft.equipment.Battery;
 import com.atomcraft.equipment.EquipmentKind;
 import com.atomcraft.equipment.EquipmentModule;
 import com.atomcraft.equipment.EquipmentModuleItem;
-import com.atomcraft.equipment.ExoArmorItem;
 import com.atomcraft.equipment.JetpackItem;
 import com.atomcraft.equipment.ModularItem;
 import com.atomcraft.menu.ModuleBenchMenu;
-import com.atomcraft.tools.AtomicDisintegratorItem;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -66,17 +64,14 @@ public class ModuleBenchScreen extends MachineScreen<ModuleBenchMenu> {
         long amount = 0, capacity = 1;
         String unit = " FE";
         int color = TechGui.ENERGY;
-        if (equipment.getItem() instanceof ExoArmorItem) {
+        if (equipment.getItem() instanceof com.atomcraft.equipment.Powered powered) {
             amount = Battery.energy(equipment);
-            capacity = ExoArmorItem.CAPACITY;
+            capacity = powered.capacity();
         } else if (equipment.getItem() instanceof JetpackItem) {
             amount = JetpackItem.fuel(equipment);
             capacity = JetpackItem.capacity();
             unit = " H";
             color = 0xFFE8F0FF;
-        } else if (equipment.getItem() instanceof AtomicDisintegratorItem) {
-            amount = AtomicDisintegratorItem.energy(equipment);
-            capacity = AtomicDisintegratorItem.CAPACITY;
         }
         TechGui.horizontalBar(graphics, left, topPos + 66, 44, 7, (float) amount / capacity, color);
         TechGui.smallText(graphics, font, GuiUtil.formatAmount(amount) + unit, left, topPos + 76, TechGui.TEXT_LIGHT, false);

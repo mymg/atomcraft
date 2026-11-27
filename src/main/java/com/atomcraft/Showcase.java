@@ -320,6 +320,11 @@ final class Showcase {
             stand.setYHeadRot(180f);
             var items = (net.minecraft.world.item.Item[]) entry[1];
             for (int i = 0; i < order.length; i++) stand.setItemSlot(order[i], new net.minecraft.world.item.ItemStack(items[i]));
+            if (items[0] == com.atomcraft.equipment.ModEquipment.NANO_HELMET.get()) {
+                stand.setShowArms(true);
+                stand.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND,
+                        new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.NANO_KATANA.get()));
+            }
             level.addFreshEntity(stand);
         }
         // Minério na mira: com os Óculos Analisadores, o Jade mostra a fórmula

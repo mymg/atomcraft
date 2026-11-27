@@ -186,6 +186,68 @@ public final class EquipmentEvents {
         modifier(player, Attributes.JUMP_STRENGTH, JUMP, feetOn ? jump * 0.1 : 0, AttributeModifier.Operation.ADD_VALUE);
         modifier(player, Attributes.SAFE_FALL_DISTANCE, FALL, ModularItem.level(feet, EquipmentModule.SHOCK_ABSORBER) * 4.0,
                 AttributeModifier.Operation.ADD_VALUE);
+
+        tickNano(player, interval, head, chest, legs, moving);
+    }
+
+    // ---------------------------------------------------------------- Armadura Nano Desgastada
+
+    private static final Identifier NANO_HEALTH = AtomCraft.id("nano_health");
+    private static final Identifier NANO_SPEED = AtomCraft.id("nano_speed");
+    private static final Identifier NANO_SWIM = AtomCraft.id("nano_swim");
+    /** Velocidade de voo padrão do jogador (criativo / voo do jetpack). */
+    private static final float BASE_FLY_SPEED = 0.05f;
+    private static final java.util.Set<UUID> NANO_FLY = new java.util.HashSet<>();
+
+    private static boolean nano(ItemStack piece) {
+        return piece.getItem() instanceof NanoArmorItem;
+    }
+
+    /** Gasta a energia de um bônus da peça Nano; falso se acabou (o bônus para). */
+    private static boolean nanoPowered(ItemStack piece, int interval) {
+        return nano(piece) && Battery.use(piece, Config.NANO_BONUS_ENERGY.get() * interval, Powered.capacity(piece));
+    }
+
+    /**
+     * Bônus de cada peça da Armadura Nano Desgastada, enquanto há energia: capacete = visão noturna,
+     * peitoral = +10 de vida (5 corações), calças = mais rápido andando, nadando e voando.
+     */
+    private static void tickNano(Player player, int interval, ItemStack head, ItemStack chest, ItemStack legs, boolean moving) {
+        if (nanoPowered(head, interval)) {
+            player.addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 300, 0, true, false, false));
+        }
+        modifier(player, Attributes.MAX_HEALTH, NANO_HEALTH, nanoPowered(chest, interval) ? 10 : 0, AttributeModifier.Operation.ADD_VALUE);
+        if (player.getHealth() > player.getMaxHealth()) player.setHealth(player.getMaxHealth());
+
+        boolean flying = player.getAbilities().flying;
+        boolean legsOn = nano(legs) && ((moving || flying) ? nanoPowered(legs, interval) : Battery.energy(legs) > 0);
+        modifier(player, Attributes.MOVEMENT_SPEED, NANO_SPEED, legsOn ? 0.3 : 0, AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
+        modifier(player, net.neoforged.neoforge.common.NeoForgeMod.SWIM_SPEED, NANO_SWIM, legsOn ? 0.6 : 0, AttributeModifier.Operation.ADD_MULTIPLIED_BASE);
+        var abilities = player.getAbilities();
+        if (legsOn) {
+            if (abilities.getFlyingSpeed() < BASE_FLY_SPEED * 1.6f) {
+                abilities.setFlyingSpeed(BASE_FLY_SPEED * 1.6f);
+                NANO_FLY.add(player.getUUID());
+                player.onUpdateAbilities();
+            }
+        } else if (NANO_FLY.remove(player.getUUID())) {
+            abilities.setFlyingSpeed(BASE_FLY_SPEED);
+            player.onUpdateAbilities();
+        }
+    }
+
+    /** Botas Nano: anulam dano de queda e de ambiente (magma, cacto, arbusto de frutas, estalagmite...). */
+    public static boolean nanoBootsBlock(Player player, net.minecraft.world.damagesource.DamageSource source) {
+        boolean environment = source.is(net.minecraft.tags.DamageTypeTags.IS_FALL)
+                || source.is(net.minecraft.world.damagesource.DamageTypes.HOT_FLOOR)
+                || source.is(net.minecraft.world.damagesource.DamageTypes.CACTUS)
+                || source.is(net.minecraft.world.damagesource.DamageTypes.SWEET_BERRY_BUSH)
+                || source.is(net.minecraft.world.damagesource.DamageTypes.STALAGMITE)
+                || source.is(net.minecraft.world.damagesource.DamageTypes.FLY_INTO_WALL)
+                || source.is(net.minecraft.world.damagesource.DamageTypes.FREEZE);
+        if (!environment) return false;
+        ItemStack feet = Worn.exo(player, EquipmentSlot.FEET);
+        return nano(feet) && Battery.use(feet, Config.NANO_BOOTS_ENERGY.get(), Powered.capacity(feet));
     }
 
     private static final Map<UUID, net.minecraft.world.phys.Vec3> LAST_POSITION = new HashMap<>();
@@ -202,7 +264,7 @@ public final class EquipmentEvents {
         if (piece.isEmpty()) return false;
         int cost = (levelA * a.energyPerTick() + levelB * b.energyPerTick()) * interval;
         if (cost == 0) return levelA + levelB > 0;
-        return Battery.use(piece, cost, ExoArmorItem.CAPACITY);
+        return Battery.use(piece, cost, Powered.capacity(piece));
     }
 
     private static void modifier(Player player, Holder<Attribute> attribute, Identifier id, double amount, AttributeModifier.Operation operation) {
@@ -220,6 +282,10 @@ public final class EquipmentEvents {
     private static void onIncomingDamage(LivingIncomingDamageEvent event) {
         if (!(event.getEntity() instanceof ServerPlayer player)) return;
         if (event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return;
+        if (nanoBootsBlock(player, event.getSource())) {
+            event.setCanceled(true);
+            return;
+        }
         float remaining = absorb(player, event.getAmount());
         if (remaining <= 0) event.setCanceled(true);
         else if (remaining < event.getAmount()) event.setAmount(remaining);
@@ -233,10 +299,10 @@ public final class EquipmentEvents {
         int energy = Battery.energy(chest);
         int needed = (int) Math.ceil(amount * perPoint);
         if (energy >= needed) {
-            Battery.set(chest, energy - needed, ExoArmorItem.CAPACITY);
+            Battery.set(chest, energy - needed, Powered.capacity(chest));
             return 0;
         }
-        Battery.set(chest, 0, ExoArmorItem.CAPACITY);
+        Battery.set(chest, 0, Powered.capacity(chest));
         return amount - (float) energy / perPoint;
     }
 
@@ -248,13 +314,13 @@ public final class EquipmentEvents {
         boolean searched = false;
         for (EquipmentSlot slot : new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
             ItemStack piece = Worn.exo(player, slot);
-            if (piece.isEmpty() || Battery.energy(piece) >= ExoArmorItem.CAPACITY) continue;
+            if (piece.isEmpty() || Battery.energy(piece) >= Powered.capacity(piece)) continue;
             if (!searched) {
                 transmitter = Wireless.find(player);
                 searched = true;
             }
             if (transmitter == null) return;
-            Battery.charge(piece, ExoArmorItem.CAPACITY, transmitter, Config.EXO_CHARGE.get());
+            Battery.charge(piece, Powered.capacity(piece), transmitter, Config.EXO_CHARGE.get() * (piece.getItem() instanceof NanoArmorItem ? 8 : 1));
         }
         ItemStack jetpack = Worn.jetpack(player);
         if (!jetpack.isEmpty() && JetpackItem.fuel(jetpack) < JetpackItem.capacity()) {
