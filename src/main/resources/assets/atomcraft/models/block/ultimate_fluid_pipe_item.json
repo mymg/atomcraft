@@ -1,145 +1,76 @@
 {
-  "parent": "minecraft:block/block",
-  "textures": {
-    "pipe": "atomcraft:block/ultimate_fluid_pipe",
-    "particle": "atomcraft:block/ultimate_fluid_pipe"
-  },
-  "elements": [
-    {
-      "from": [
-        5,
-        5,
-        5
-      ],
-      "to": [
-        11,
-        11,
-        11
-      ],
-      "faces": {
-        "north": {
-          "uv": [
-            5,
-            5,
-            11,
-            11
-          ],
-          "texture": "#pipe"
-        },
-        "south": {
-          "uv": [
-            5,
-            5,
-            11,
-            11
-          ],
-          "texture": "#pipe"
-        },
-        "east": {
-          "uv": [
-            5,
-            5,
-            11,
-            11
-          ],
-          "texture": "#pipe"
-        },
-        "west": {
-          "uv": [
-            5,
-            5,
-            11,
-            11
-          ],
-          "texture": "#pipe"
-        },
-        "up": {
-          "uv": [
-            5,
-            5,
-            11,
-            11
-          ],
-          "texture": "#pipe"
-        },
-        "down": {
-          "uv": [
-            5,
-            5,
-            11,
-            11
-          ],
-          "texture": "#pipe"
-        }
-      }
-    },
-    {
-      "from": [
-        5.5,
-        5.5,
-        0
-      ],
-      "to": [
-        10.5,
-        10.5,
-        16
-      ],
-      "faces": {
-        "north": {
-          "uv": [
-            5.5,
-            5.5,
-            10.5,
-            10.5
-          ],
-          "texture": "#pipe"
-        },
-        "south": {
-          "uv": [
-            5.5,
-            5.5,
-            10.5,
-            10.5
-          ],
-          "texture": "#pipe"
-        },
-        "east": {
-          "uv": [
-            0,
-            5.5,
-            16,
-            10.5
-          ],
-          "texture": "#pipe"
-        },
-        "west": {
-          "uv": [
-            0,
-            5.5,
-            16,
-            10.5
-          ],
-          "texture": "#pipe"
-        },
-        "up": {
-          "uv": [
-            5.5,
-            0,
-            10.5,
-            16
-          ],
-          "texture": "#pipe"
-        },
-        "down": {
-          "uv": [
-            5.5,
-            0,
-            10.5,
-            16
-          ],
-          "texture": "#pipe"
-        }
-      }
-    }
-  ]
+	"format_version": "26.3",
+	"credit": "Made with Blockbench",
+	"parent": "minecraft:block/block",
+	"texture_size": [32, 32],
+	"textures": {
+		"particle": "atomcraft:block/ultimate_fluid_pipe",
+		"pipe": "atomcraft:block/ultimate_fluid_pipe"
+	},
+	"elements": [
+		{
+			"name": "pipe",
+			"from": [6, 6, 0],
+			"to": [10, 10, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0.5, 0.5, 0]},
+			"faces": {
+				"east": {"uv": [0, 6, 16, 10], "texture": "#pipe"},
+				"west": {"uv": [0, 6, 16, 10], "texture": "#pipe"},
+				"up": {"uv": [6, 0, 10, 16], "texture": "#pipe"},
+				"down": {"uv": [6, 0, 10, 16], "texture": "#pipe"}
+			}
+		},
+		{
+			"from": [4.3, 4.4, 15],
+			"to": [11.6, 11.6, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [7, 7, 15]},
+			"faces": {
+				"north": {"uv": [11, 0, 16, 5], "texture": "#pipe"},
+				"east": {"uv": [15, 5.5, 16, 10.5], "texture": "#pipe"},
+				"south": {"uv": [11, 0, 16, 5], "texture": "#pipe"},
+				"west": {"uv": [15, 5.5, 16, 10.5], "texture": "#pipe"},
+				"up": {"uv": [15, 5.5, 16, 10.5], "rotation": 90, "texture": "#pipe"},
+				"down": {"uv": [15, 5.5, 16, 10.5], "rotation": 90, "texture": "#pipe"}
+			}
+		},
+		{
+			"from": [5.5, 5.5, 5.5],
+			"to": [10.5, 10.5, 10.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8.2, 8.1, 5.5]},
+			"faces": {
+				"north": {"uv": [5.5, 5.5, 10.5, 10.5], "rotation": 90, "texture": "#pipe"},
+				"east": {"uv": [5.5, 5.5, 10.5, 10.5], "texture": "#pipe"},
+				"south": {"uv": [5.5, 5.5, 10.5, 10.5], "rotation": 90, "texture": "#pipe"},
+				"west": {"uv": [5.5, 5.5, 10.5, 10.5], "texture": "#pipe"},
+				"up": {"uv": [5.5, 5.5, 10.5, 10.5], "rotation": 90, "texture": "#pipe"},
+				"down": {"uv": [5.5, 5.5, 10.5, 10.5], "rotation": 90, "texture": "#pipe"}
+			}
+		},
+		{
+			"from": [5.5, 5.5, 15],
+			"to": [10.5, 10.5, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8.2, 8.1, 13]},
+			"faces": {
+				"north": {"uv": [11, 0, 16, 5], "texture": "#pipe"},
+				"east": {"uv": [15, 5.5, 16, 10.5], "texture": "#pipe"},
+				"south": {"uv": [11, 0, 16, 5], "texture": "#pipe"},
+				"west": {"uv": [15, 5.5, 16, 10.5], "texture": "#pipe"},
+				"up": {"uv": [15, 5.5, 16, 10.5], "rotation": 90, "texture": "#pipe"},
+				"down": {"uv": [15, 5.5, 16, 10.5], "rotation": 90, "texture": "#pipe"}
+			}
+		},
+		{
+			"from": [5.5, 5.5, 0],
+			"to": [10.5, 10.5, 1],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8.2, 8.1, -2]},
+			"faces": {
+				"north": {"uv": [11, 0, 16, 5], "texture": "#pipe"},
+				"east": {"uv": [15, 5.5, 16, 10.5], "texture": "#pipe"},
+				"south": {"uv": [11, 0, 16, 5], "texture": "#pipe"},
+				"west": {"uv": [15, 5.5, 16, 10.5], "texture": "#pipe"},
+				"up": {"uv": [15, 5.5, 16, 10.5], "rotation": 90, "texture": "#pipe"},
+				"down": {"uv": [15, 5.5, 16, 10.5], "rotation": 90, "texture": "#pipe"}
+			}
+		}
+	]
 }
