@@ -2,9 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    " C ",
-    "GAG",
-    " G "
+    "G G",
+    "ACA"
   ],
   "key": {
     "C": "atomcraft:circuit_board",
@@ -12,7 +11,7 @@
     "A": "minecraft:amethyst_shard"
   },
   "result": {
-    "id": "atomcraft:analyzer_ring",
+    "id": "atomcraft:analyzer_glasses",
     "count": 1
   }
 }

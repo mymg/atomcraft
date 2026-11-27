@@ -270,7 +270,7 @@ final class Showcase {
             for (int cell : new int[]{7, 11, 13, 17, 6}) loader.toggle(cell);
         }
         player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND,
-                new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.ANALYZER_RING.get()));
+                new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.ANALYZER_GLASSES.get()));
         // Bomba (interface) e uma fileira de tanques ligados por canos (print do mundo)
         level.setBlock(base.south(9), com.atomcraft.fluid.ModFluids.PUMP.get().defaultBlockState(), Block.UPDATE_ALL);
         if (level.getBlockEntity(base.south(9)) instanceof com.atomcraft.fluid.PumpBlockEntity pump) {
@@ -279,6 +279,7 @@ final class Showcase {
             pump.tank().setStack(new net.neoforged.neoforge.fluids.FluidStack(net.minecraft.world.level.material.Fluids.LAVA, 9_000));
         }
         fluidDisplay(level, base.offset(0, 0, 14));
+        armorDisplay(level, base.offset(0, 0, 24));
 
         level.setBlock(base.south(4), ModBlocks.ALLOY_FORGE.get().defaultBlockState(), Block.UPDATE_ALL);
         if (level.getBlockEntity(base.south(4)) instanceof com.atomcraft.block.entity.AlloyForgeBlockEntity forge) {
@@ -299,6 +300,29 @@ final class Showcase {
     }
 
     private static BlockPos reactor = BlockPos.ZERO;
+
+    /** Suportes de armadura: Armadura Nano Desgastada completa e o Jetpack (modelos do GeckoLib). */
+    private static void armorDisplay(ServerLevel level, BlockPos origin) {
+        Object[][] stands = {
+                {origin.west(), new net.minecraft.world.item.Item[]{com.atomcraft.equipment.ModEquipment.NANO_HELMET.get(),
+                        com.atomcraft.equipment.ModEquipment.NANO_CHESTPLATE.get(), com.atomcraft.equipment.ModEquipment.NANO_LEGGINGS.get(),
+                        com.atomcraft.equipment.ModEquipment.NANO_BOOTS.get()}},
+                {origin.east(), new net.minecraft.world.item.Item[]{com.atomcraft.equipment.ModEquipment.ANALYZER_GLASSES.get(),
+                        com.atomcraft.equipment.ModEquipment.JETPACK.get(), com.atomcraft.equipment.ModEquipment.EXO_LEGGINGS.get(),
+                        com.atomcraft.equipment.ModEquipment.EXO_BOOTS.get()}}};
+        var order = new net.minecraft.world.entity.EquipmentSlot[]{net.minecraft.world.entity.EquipmentSlot.HEAD,
+                net.minecraft.world.entity.EquipmentSlot.CHEST, net.minecraft.world.entity.EquipmentSlot.LEGS, net.minecraft.world.entity.EquipmentSlot.FEET};
+        for (Object[] entry : stands) {
+            BlockPos pos = (BlockPos) entry[0];
+            var stand = new net.minecraft.world.entity.decoration.ArmorStand(level, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+            stand.setYRot(180f);
+            stand.setYBodyRot(180f);
+            stand.setYHeadRot(180f);
+            var items = (net.minecraft.world.item.Item[]) entry[1];
+            for (int i = 0; i < order.length; i++) stand.setItemSlot(order[i], new net.minecraft.world.item.ItemStack(items[i]));
+            level.addFreshEntity(stand);
+        }
+    }
 
     /** Quatro tanques (um de cada nível) com água e lava, ligados por canos; um lado em modo "puxar". */
     private static void fluidDisplay(ServerLevel level, BlockPos origin) {
@@ -422,6 +446,10 @@ final class Showcase {
             // Tanques (um de cada nível) com água e lava, ligados por canos
             player.connection.teleport(base.getX() + 0.5, base.getY() + 2.2, base.getZ() + 9.5, 0f, 22f);
         }
-        if (ticks == 5100) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
+        if (ticks >= 4520 && ticks < 4740 && ticks % 20 == 0) {
+            // Armadura Nano Desgastada e Jetpack em suportes de armadura
+            player.connection.teleport(base.getX() + 0.5, base.getY() + 0.6, base.getZ() + 20.6, 0f, 8f);
+        }
+        if (ticks == 5600) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
     }
 }

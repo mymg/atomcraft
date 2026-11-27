@@ -9,16 +9,16 @@ import net.minecraft.world.item.component.TooltipDisplay;
 
 import java.util.function.Consumer;
 
-/** Anel Analisador: no inventário ou num slot de anel do Curios, mostra a composição do bloco ou item mirado. */
-public class AnalyzerRingItem extends Item {
+/** Óculos Analisadores: no inventário, na cabeça ou no slot de cabeça do Curios, mostram a composição do bloco ou item mirado. */
+public class AnalyzerGlassesItem extends Item {
 
-    public AnalyzerRingItem(Properties properties) {
+    public AnalyzerGlassesItem(Properties properties) {
         super(properties);
     }
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display,
                                 Consumer<Component> tooltip, TooltipFlag flag) {
-        tooltip.accept(Component.translatable("tooltip.atomcraft.analyzer_ring").withStyle(ChatFormatting.GRAY));
+        tooltip.accept(Component.translatable("tooltip.atomcraft.analyzer_glasses").withStyle(ChatFormatting.GRAY));
     }
 }

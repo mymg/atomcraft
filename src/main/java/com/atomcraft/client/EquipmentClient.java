@@ -35,7 +35,7 @@ import net.neoforged.neoforge.common.NeoForge;
 
 /**
  * Lado do cliente dos equipamentos: voo do Jetpack (o movimento do jogador é calculado no cliente),
- * tecla de flutuação e o painel do Anel Analisador (composição do bloco ou item mirado).
+ * tecla de flutuação e o painel dos Óculos Analisadores (composição do bloco ou item mirado).
  */
 public final class EquipmentClient {
 
@@ -45,6 +45,7 @@ public final class EquipmentClient {
 
     private static int lastState;
     private static boolean analyzer;
+    private static final boolean JADE = net.neoforged.fml.ModList.get().isLoaded("jade");
 
     private EquipmentClient() {}
 
@@ -96,11 +97,13 @@ public final class EquipmentClient {
         }
     }
 
-    // ---------------------------------------------------------------- Anel Analisador
+    // ---------------------------------------------------------------- Óculos Analisadores
 
     private static void renderHud(GuiGraphicsExtractor graphics, DeltaTracker delta) {
         Minecraft mc = Minecraft.getInstance();
         if (!analyzer || mc.player == null || mc.level == null || mc.gui.screen() != null) return;
+        // Com o Jade instalado, a fórmula vai para o tooltip dele (compat/jade)
+        if (JADE) return;
         Item item = null;
         // Itens no chão ao alcance normal; blocos até 16 blocos de distância (o anel "escaneia" de longe).
         if (mc.hitResult instanceof EntityHitResult entity && entity.getEntity() instanceof ItemEntity dropped) {
@@ -116,10 +119,12 @@ public final class EquipmentClient {
         String formula = value == null ? Component.translatable("hud.atomcraft.no_composition").getString()
                 : ClientState.formula(value.composition());
         formula = font.plainSubstrByWidth(formula, 220);
-        int width = Math.max(font.width(name), font.width(formula)) + 10;
-        int x = mc.getWindow().getGuiScaledWidth() / 2 + 12, y = mc.getWindow().getGuiScaledHeight() / 2 + 10;
-        TechGui.plainGlass(graphics, x, y, width, 24);
+        // Uma linha centralizada acima da barra de vida/armadura (fora do meio da tela)
+        name = font.plainSubstrByWidth(name, 120);
+        int width = font.width(name) + font.width(formula) + 18;
+        int x = (mc.getWindow().getGuiScaledWidth() - width) / 2, y = mc.getWindow().getGuiScaledHeight() - 76;
+        TechGui.plainGlass(graphics, x, y, width, 13);
         graphics.text(font, name, x + 5, y + 3, TechGui.TEXT_LIGHT, false);
-        graphics.text(font, formula, x + 5, y + 13, value == null ? TechGui.TEXT_DIM : TechGui.TEXT_TEAL, false);
+        graphics.text(font, formula, x + 13 + font.width(name), y + 3, value == null ? TechGui.TEXT_DIM : TechGui.TEXT_TEAL, false);
     }
 }

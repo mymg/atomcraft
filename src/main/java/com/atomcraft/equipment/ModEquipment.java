@@ -47,8 +47,18 @@ public final class ModEquipment {
                     Equippable.builder(EquipmentSlot.CHEST).setEquipSound(SoundEvents.ARMOR_EQUIP_IRON).setAsset(asset("hydrogen_jetpack")).build()));
     public static final DeferredItem<MagnetItem> MAGNET = ModItems.ITEMS.registerItem("magnet_ring", MagnetItem::new,
             p -> p.stacksTo(1).rarity(Rarity.UNCOMMON));
-    public static final DeferredItem<AnalyzerRingItem> ANALYZER_RING = ModItems.ITEMS.registerItem("analyzer_ring", AnalyzerRingItem::new,
-            p -> p.stacksTo(1).rarity(Rarity.UNCOMMON));
+    public static final DeferredItem<AnalyzerGlassesItem> ANALYZER_GLASSES = ModItems.ITEMS.registerItem("analyzer_glasses", AnalyzerGlassesItem::new,
+            p -> p.stacksTo(1).rarity(Rarity.UNCOMMON).component(net.minecraft.core.component.DataComponents.EQUIPPABLE,
+                    Equippable.builder(EquipmentSlot.HEAD).setEquipSound(SoundEvents.ARMOR_EQUIP_GENERIC).build()));
+
+    /** Armadura Nano Desgastada (fim de jogo): só em baús das Cidades Ancestrais. */
+    public static final ArmorMaterial NANO_ARMOR = new ArmorMaterial(45, defense(4, 7, 9, 4, 13), 18,
+            SoundEvents.ARMOR_EQUIP_NETHERITE, 4f, 0.2f, TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("c", "ingots/superalloy")),
+            asset("weathered_nano"));
+    public static final DeferredItem<NanoArmorItem> NANO_HELMET = nano("weathered_nano_helmet", ArmorType.HELMET);
+    public static final DeferredItem<NanoArmorItem> NANO_CHESTPLATE = nano("weathered_nano_chestplate", ArmorType.CHESTPLATE);
+    public static final DeferredItem<NanoArmorItem> NANO_LEGGINGS = nano("weathered_nano_leggings", ArmorType.LEGGINGS);
+    public static final DeferredItem<NanoArmorItem> NANO_BOOTS = nano("weathered_nano_boots", ArmorType.BOOTS);
 
     public static final DeferredItem<Item> BLANK_MODULE = ModItems.ITEMS.registerSimpleItem("blank_augment");
 
@@ -56,7 +66,8 @@ public final class ModEquipment {
     public static final List<DeferredItem<? extends Item>> TAB_ORDER = new ArrayList<>();
 
     static {
-        TAB_ORDER.addAll(List.of(MODULE_BENCH_ITEM, EXO_HELMET, EXO_CHESTPLATE, EXO_LEGGINGS, EXO_BOOTS, JETPACK, MAGNET, ANALYZER_RING, BLANK_MODULE));
+        TAB_ORDER.addAll(List.of(MODULE_BENCH_ITEM, EXO_HELMET, EXO_CHESTPLATE, EXO_LEGGINGS, EXO_BOOTS, JETPACK, MAGNET, ANALYZER_GLASSES, BLANK_MODULE,
+                NANO_HELMET, NANO_CHESTPLATE, NANO_LEGGINGS, NANO_BOOTS));
         for (EquipmentModule module : EquipmentModule.values()) {
             DeferredItem<EquipmentModuleItem> item = ModItems.ITEMS.registerItem(module.id() + "_augment",
                     p -> new EquipmentModuleItem(module, p));
@@ -68,6 +79,11 @@ public final class ModEquipment {
     private static DeferredItem<ExoArmorItem> exo(String name, EquipmentKind kind, ArmorType type) {
         return ModItems.ITEMS.registerItem(name, p -> new ExoArmorItem(kind, p),
                 p -> p.humanoidArmor(EXO_ARMOR, type).rarity(Rarity.RARE));
+    }
+
+    private static DeferredItem<NanoArmorItem> nano(String name, ArmorType type) {
+        return ModItems.ITEMS.registerItem(name, NanoArmorItem::new,
+                p -> p.humanoidArmor(NANO_ARMOR, type).rarity(Rarity.EPIC).fireResistant());
     }
 
     private static ResourceKey<EquipmentAsset> asset(String name) {

@@ -15,6 +15,10 @@ base {
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 repositories {
+    exclusiveContent {
+        forRepository { maven { name = 'Modrinth'; url = 'https://api.modrinth.com/maven' } }
+        filter { includeGroup 'maven.modrinth' }
+    }
     // JEI (opcional): abas de receitas do mod
     maven {
         name = 'BlameJared'
@@ -36,6 +40,9 @@ repositories {
 }
 
 dependencies {
+    // Jade (opcional): fórmula dos Óculos Analisadores no tooltip dele
+    compileOnly "maven.modrinth:jade:${jade_version}"
+    runtimeOnly "maven.modrinth:jade:${jade_version}"
     // JEI é opcional: compila contra a API e roda junto só no ambiente de desenvolvimento/CI.
     compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
     compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"

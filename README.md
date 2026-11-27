@@ -367,10 +367,17 @@ Com o aprimoramento de **Voo**, você voa como no modo criativo (dois toques no 
 
 - **Anel Magnético**: puxa itens e orbes de experiência num raio de 8 blocos. Agachado + clique liga/desliga;
   agachar pausa.
-- **Anel Analisador**: mostra a composição química do bloco ou item que você mira.
+- **Óculos Analisadores**: mostram a composição química do bloco ou item que você mira, numa linha acima da barra
+  de vida (fora do meio da tela). Com o **Jade** instalado, a fórmula aparece no próprio tooltip do Jade.
 
-Os dois funcionam no inventário ou num slot de anel do **Curios** (opcional). Com o Curios, o jogador ganha slots de
-anel e costas (jetpack).
+Funcionam no inventário, na cabeça (os óculos) ou nos slots do **Curios** (opcional): anel (ímã), cabeça (óculos) e
+costas (jetpack).
+
+### Armadura Nano Desgastada
+
+A armadura mais forte do mod (fim de jogo): mais proteção e durabilidade que a de netherite, resistente a fogo.
+Não tem receita: cada baú de **Cidade Ancestral** tem cerca de 4% de chance de guardar uma peça, já gasta pelo tempo
+(conserte com placas/lingotes de superliga numa bigorna).
 
 Configuração: seção `equipment` (recarga, escudo, tanque e consumo do jetpack, raio do ímã).
 
@@ -546,6 +553,22 @@ Arquivos derivados da sua arte, que o script sempre recria:
 - O **Analisador** é um modelo GeckoLib (`geckolib/models/block/analyzer.geo.json`, animações `idle` e `analyzing`);
   o item também usa o modelo animado.
 
+### Armaduras no Blockbench (GeckoLib)
+
+O Jetpack e a Armadura Nano Desgastada usam modelos do GeckoLib. Para criar ou editar:
+
+1. **File > New > GeckoLib Animated Model** e escolha o tipo **Armor**. O Blockbench cria o boneco de referência
+   (cubos "dontTouch", que não são exportados) e as pastas onde as peças vão.
+2. Coloque os cubos dentro das pastas certas: `armorHead` (capacete), `armorBody`, `armorRightArm` e
+   `armorLeftArm` (peitoral), `armorRightLeg` e `armorLeftLeg` (calças), `armorRightBoot` e `armorLeftBoot`
+   (botas). No AtomCraft há mais uma, opcional: `armorWaist`, a cintura das calças (acompanha o tronco).
+   Subpastas dentro delas (como os chifres do capacete) acompanham a pasta de cima.
+3. **File > Export > Export GeckoLib Model** e salve como `geckolib/models/item/<nome>.geo.json`. A textura vai em
+   `textures/item/armor/<nome>.png` (<nome> = `hydrogen_jetpack` ou `weathered_nano_armor`).
+
+Um projeto "Minecraft Skin" convertido para GeckoLib também funciona, desde que as pastas tenham esses nomes.
+O script `tools/bbmodel_to_geo.py` converte um `.bbmodel` direto para `.geo.json`, se preferir.
+
 ### Canos e cabos no Blockbench
 
 Canos e cabos usam o **multipart** dos blockstates do Minecraft (não precisam de GeckoLib nem de "bones"): o modelo é
@@ -594,7 +617,7 @@ O `.jar` fica disponível em **Actions → Artifacts**.
 - [x] Complexidade e níveis de replicador (Avançado e Quântico)
 - [x] Células de Energia e Matriz de Energia
 - [x] Ferramentas/armaduras de liga, Transmissor Sem Fio, Cartão de Rede e Desintegrador Atômico
-- [x] Bancada de Aprimoramentos, Exoesqueleto, Jetpack a Hidrogênio, Anel Magnético, Anel Analisador e Curios
+- [x] Bancada de Aprimoramentos, Exoesqueleto, Jetpack a Hidrogênio, Anel Magnético, Óculos Analisadores e Curios
 - [ ] Suporte a fluidos (tanques e fluid pipes)
 - [ ] Texturas e modelos definitivos
 - [ ] Integração com JEI/EMI (mostrar fórmula e custo)

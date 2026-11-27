@@ -21,7 +21,23 @@ import java.util.function.Consumer;
  * Módulos: Propulsor (mais força) e Voo (voo como no modo criativo, gastando hidrogênio; a tecla H
  * liga/desliga).
  */
-public class JetpackItem extends Item implements ModularItem {
+public class JetpackItem extends Item implements ModularItem, com.geckolib.animatable.GeoItem {
+
+    private final com.geckolib.animatable.instance.AnimatableInstanceCache geoCache = com.geckolib.util.GeckoLibUtil.createInstanceCache(this);
+
+    /** Modelo GeckoLib {@code hydrogen_jetpack} (Blockbench, tipo Armor). */
+    @Override
+    public void createGeoRenderer(Consumer<com.geckolib.animatable.client.GeoRenderProvider> consumer) {
+        consumer.accept(com.atomcraft.client.render.GeoArmors.provider("hydrogen_jetpack"));
+    }
+
+    @Override
+    public void registerControllers(com.geckolib.animatable.manager.AnimatableManager.ControllerRegistrar controllers) {}
+
+    @Override
+    public com.geckolib.animatable.instance.AnimatableInstanceCache getAnimatableInstanceCache() {
+        return geoCache;
+    }
 
     public static final Composition HYDROGEN = new Composition(Map.of(ChemicalElement.HYDROGEN, 1L));
 

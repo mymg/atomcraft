@@ -540,20 +540,33 @@ final class SelfTest {
                     "Curios: jogador tem slots de anel e costas");
             player.getInventory().clearContent();
             player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST, net.minecraft.world.item.ItemStack.EMPTY);
-            var ring = new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.ANALYZER_RING.get());
-            boolean equipped = com.atomcraft.compat.Curios.equip(player, "ring", ring);
-            check(failures, equipped, "Curios: anel equipado no slot de anel");
-            check(failures, com.atomcraft.equipment.Worn.hasAnalyzer(player), "Curios: Anel Analisador no slot de anel funciona ("
+            var ring = new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.ANALYZER_GLASSES.get());
+            boolean equipped = com.atomcraft.compat.Curios.equip(player, "head", ring);
+            check(failures, equipped, "Curios: óculos equipados no slot de cabeça");
+            check(failures, com.atomcraft.equipment.Worn.hasAnalyzer(player), "Curios: Óculos Analisadores no slot de cabeça funcionam ("
                     + com.atomcraft.compat.Curios.equipped(player).size() + " itens no Curios)");
             boolean back = com.atomcraft.compat.Curios.equip(player, "back", jetpack);
             check(failures, back && com.atomcraft.equipment.Worn.jetpack(player) == jetpack, "Curios: jetpack nas costas funciona");
-            com.atomcraft.compat.Curios.equip(player, "ring", net.minecraft.world.item.ItemStack.EMPTY);
+            com.atomcraft.compat.Curios.equip(player, "head", net.minecraft.world.item.ItemStack.EMPTY);
             com.atomcraft.compat.Curios.equip(player, "back", net.minecraft.world.item.ItemStack.EMPTY);
         } else {
             AtomCraft.LOGGER.info("AtomCraft SELFTEST Curios ausente: integração não testada");
         }
         player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.LEGS, net.minecraft.world.item.ItemStack.EMPTY);
         player.getInventory().clearContent();
+
+        // Óculos Analisadores na cabeça e Armadura Nano Desgastada
+        player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.ANALYZER_GLASSES.get()));
+        check(failures, com.atomcraft.equipment.Worn.hasAnalyzer(player), "Óculos Analisadores na cabeça funcionam");
+        player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD, net.minecraft.world.item.ItemStack.EMPTY);
+        var nano = new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.NANO_CHESTPLATE.get());
+        var netherite = new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.NETHERITE_CHESTPLATE);
+        check(failures, nano.getMaxDamage() > netherite.getMaxDamage(), "peitoral nano dura mais que o de netherite ("
+                + nano.getMaxDamage() + " > " + netherite.getMaxDamage() + ")");
+        var lootKey = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.LOOT_TABLE,
+                AtomCraft.id("chests/weathered_nano_ancient_city"));
+        check(failures, level.getServer().reloadableRegistries().getLootTable(lootKey) != net.minecraft.world.level.storage.loot.LootTable.EMPTY,
+                "tabela de loot da armadura nano na Cidade Ancestral");
     }
 
     /** Células de Energia (lados, rede, item) e Matriz de Energia (estrutura 3×5×3 e portas). */

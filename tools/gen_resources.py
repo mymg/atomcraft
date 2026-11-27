@@ -762,7 +762,11 @@ for mode, tex in (("input", "in"), ("output", "out")):
     wf(f"assets/atomcraft/models/block/energy_matrix_interface_{mode}.json", {"parent": "atomcraft:block/energy_matrix_interface",
         "textures": {"0": f"atomcraft:block/energy_matrix_interface_{tex}", "particle": f"atomcraft:block/energy_matrix_interface_{tex}"}})
 wf("assets/atomcraft/items/matrix_port.json", {"model": {"type": "minecraft:model", "model": "atomcraft:item/energy_matrix_interface"}})
-wf("assets/atomcraft/geckolib/animations/block/energy_matrix.animation.json", {"format_version": "1.8.0", "animations": {}}) if not os.path.exists(os.path.join(R, "assets/atomcraft/geckolib/animations/block/energy_matrix.animation.json")) else None
+_em = os.path.join(R, "assets/atomcraft/geckolib/animations/block/energy_matrix.animation.json")
+if not os.path.exists(_em) or not json.load(open(_em)).get("animations"):
+    # Arquivo de animação vazio dá erro no GeckoLib ("No animation definitions found"): uma animação parada basta
+    wf("assets/atomcraft/geckolib/animations/block/energy_matrix.animation.json",
+       {"format_version": "1.8.0", "animations": {"idle": {"loop": True, "animation_length": 1.0, "bones": {}}}})
 ENERGY_BLOCKS = list(CELLS) + ["energy_matrix", "matrix_casing", "matrix_glass", "matrix_core", "matrix_port"]
 for b in ENERGY_BLOCKS:
     entry = {"type": "minecraft:item", "name": f"atomcraft:{b}"}
@@ -906,14 +910,19 @@ EXO_KINDS = [("helmet", "Helmet", "Capacete", "head_armor"), ("chestplate", "Che
              ("leggings", "Leggings", "Calças", "leg_armor"), ("boots", "Boots", "Botas", "foot_armor")]
 w("assets/atomcraft/equipment/exoskeleton.json", {"layers": {"humanoid": [{"texture": "atomcraft:exoskeleton"}],
                                                           "humanoid_leggings": [{"texture": "atomcraft:exoskeleton"}]}})
-w("assets/atomcraft/equipment/hydrogen_jetpack.json", {"layers": {"humanoid": [{"texture": "atomcraft:hydrogen_jetpack"}]}})
+# Jetpack e Armadura Nano usam modelos do GeckoLib (geckolib/models/item/*.geo.json): sem camadas do vanilla
+wf("assets/atomcraft/equipment/hydrogen_jetpack.json", {"layers": {}})
+wf("assets/atomcraft/equipment/weathered_nano.json", {"layers": {}})
+IDLE_ANIM = {"format_version": "1.8.0", "animations": {"idle": {"loop": True, "animation_length": 1.0, "bones": {}}}}
+for geo in ("hydrogen_jetpack", "weathered_nano_armor"):
+    w(f"assets/atomcraft/geckolib/animations/item/{geo}.animation.json", IDLE_ANIM)
 for kind, en_k, pt_k, tag in EXO_KINDS:
     item_model(f"exo_{kind}")
     MAT_LANG[f"item.atomcraft.exo_{kind}"] = (f"Exoskeleton {en_k}", f"{pt_k} do Exoesqueleto")
     TOOL_TAGS_ITEMS.setdefault(tag, []).append(f"atomcraft:exo_{kind}")
 for tag in ("head_armor", "chest_armor", "leg_armor", "foot_armor"):
     w(f"data/minecraft/tags/item/{tag}.json", {"values": TOOL_TAGS_ITEMS[tag]})
-for name in ("hydrogen_jetpack", "magnet_ring", "analyzer_ring", "blank_augment"):
+for name in ("hydrogen_jetpack", "magnet_ring", "analyzer_glasses", "blank_augment"):
     item_model(name)
 EQUIP_MODULES = [  # (id, en, pt, descrição en, descrição pt, cor, receita sem o módulo vazio)
     ("night_vision", "Night Vision", "Visão Noturna", "See in the dark", "Enxergar no escuro", (120, 230, 120), ["minecraft:golden_carrot", "minecraft:glowstone_dust"]),
@@ -948,16 +957,17 @@ shaped("exo_boots", ["T T", "TCT"], {"T": TI, "C": CIRCUIT}, "atomcraft:exo_boot
 shaped("hydrogen_jetpack", ["SCS", "BWB", "H H"], {"S": pl("stainless_steel"), "C": CIRCUIT, "B": "minecraft:bucket", "W": WIRE,
                                                     "H": "minecraft:hopper"}, "atomcraft:hydrogen_jetpack")
 shaped("magnet_ring", [" R ", "P P", " P "], {"R": RED, "P": pl("invar")}, "atomcraft:magnet_ring")
-shaped("analyzer_ring", [" C ", "GAG", " G "], {"C": CIRCUIT, "G": "minecraft:gold_ingot", "A": AME}, "atomcraft:analyzer_ring")
+shaped("analyzer_glasses", ["G G", "ACA"], {"C": CIRCUIT, "G": "minecraft:gold_ingot", "A": AME}, "atomcraft:analyzer_glasses")
 # Curios (opcional): slots de anel, costas e amuleto para jogadores; os itens que vão em cada um
-w("data/atomcraft/curios/entities/atomcraft.json", {"entities": ["player"], "slots": ["ring", "back"]})
-w("data/curios/tags/item/ring.json", {"values": ["atomcraft:magnet_ring", "atomcraft:analyzer_ring"]})
+w("data/atomcraft/curios/entities/atomcraft.json", {"entities": ["player"], "slots": ["ring", "back", "head"]})
+w("data/curios/tags/item/ring.json", {"values": ["atomcraft:magnet_ring"]})
+w("data/curios/tags/item/head.json", {"values": ["atomcraft:analyzer_glasses"]})
 w("data/curios/tags/item/back.json", {"values": ["atomcraft:hydrogen_jetpack"]})
 MAT_LANG.update({
     "block.atomcraft.module_bench": ("Augment Bench", "Bancada de Aprimoramentos"),
     "item.atomcraft.hydrogen_jetpack": ("Hydrogen Jetpack", "Jetpack a Hidrogênio"),
     "item.atomcraft.magnet_ring": ("Magnet Ring", "Anel Magnético"),
-    "item.atomcraft.analyzer_ring": ("Analyzer Ring", "Anel Analisador"),
+    "item.atomcraft.analyzer_glasses": ("Analyzer Glasses", "Óculos Analisadores"),
     "item.atomcraft.blank_augment": ("Blank Augment", "Aprimoramento Vazio"),
     "equipment_kind.atomcraft.exo_helmet": ("Exo Helmet", "Capacete Exo"),
     "equipment_kind.atomcraft.exo_chestplate": ("Exo Chestplate", "Peitoral Exo"),
@@ -977,7 +987,7 @@ MAT_LANG.update({
     "tooltip.atomcraft.magnet_on": ("Pulling items within %s blocks", "Puxando itens a até %s blocos"),
     "tooltip.atomcraft.magnet_off": ("Off", "Desligado"),
     "tooltip.atomcraft.magnet_hint": ("Sneak + use: on/off · sneaking pauses it", "Agachado + clique: liga/desliga · agachar pausa"),
-    "tooltip.atomcraft.analyzer_ring": ("Shows the composition of the block or item you look at", "Mostra a composição do bloco ou item que você mira"),
+    "tooltip.atomcraft.analyzer_glasses": ("Shows the composition of the block or item you look at", "Mostra a composição do bloco ou item que você mira"),
     "message.atomcraft.magnet_on": ("Magnet on", "Ímã ligado"),
     "message.atomcraft.magnet_off": ("Magnet off", "Ímã desligado"),
     "message.atomcraft.hover_on": ("Jetpack: flight on", "Jetpack: voo ligado"),
@@ -1078,6 +1088,29 @@ MAT_LANG.update({
     "jei.atomcraft.element_number": ("Atomic number %s", "Número atômico %s"),
     "jei.atomcraft.element_hint": ("R: what gives it · U: what uses it", "R: o que dá · U: onde é usado"),
     "atomcraft.configuration.pump": ("Pump", "Bomba"),
+})
+
+
+# ---------- Armadura Nano Desgastada (fim de jogo, loot da Cidade Ancestral) ----------
+NANO_PIECES = [("helmet", "Helmet", "Elmo Nano Desgastado"), ("chestplate", "Chestplate", "Peitoral Nano Desgastado"),
+               ("leggings", "Leggings", "Calças Nano Desgastadas"), ("boots", "Boots", "Botas Nano Desgastadas")]
+for piece, en, pt in NANO_PIECES:
+    item_model(f"weathered_nano_{piece}")
+    MAT_LANG[f"item.atomcraft.weathered_nano_{piece}"] = (f"Weathered Nano {en}", pt)
+    tag = {"helmet": "head_armor", "chestplate": "chest_armor", "leggings": "leg_armor", "boots": "foot_armor"}[piece]
+    TOOL_TAGS_ITEMS.setdefault(tag, []).append(f"atomcraft:weathered_nano_{piece}")
+for tag in ("head_armor", "chest_armor", "leg_armor", "foot_armor"):
+    w(f"data/minecraft/tags/item/{tag}.json", {"values": TOOL_TAGS_ITEMS[tag]})
+# Bem rara: ~4% de chance de uma peça (já gasta) em cada baú da Cidade Ancestral
+w("data/atomcraft/loot_table/chests/weathered_nano_ancient_city.json", {"type": "minecraft:chest", "pools": [{"rolls": 1, "entries":
+    [{"type": "minecraft:item", "name": f"atomcraft:weathered_nano_{piece}", "weight": 1, "functions": [
+        {"function": "minecraft:set_damage", "damage": {"type": "minecraft:uniform", "min": 0.35, "max": 0.8}}]} for piece, *_ in NANO_PIECES]
+    + [{"type": "minecraft:empty", "weight": 96}]}]})
+w("data/atomcraft/loot_modifiers/weathered_nano_ancient_city.json", {"type": "neoforge:add_table",
+    "conditions": [{"condition": "neoforge:loot_table_id", "loot_table_id": "minecraft:chests/ancient_city"}],
+    "table": "atomcraft:chests/weathered_nano_ancient_city"})
+MAT_LANG.update({
+    "tooltip.atomcraft.weathered_nano": ("Ancient tech, found in Ancient Cities", "Tecnologia antiga, achada nas Cidades Ancestrais"),
 })
 
 # ---------- Traduções ----------
@@ -1725,7 +1758,7 @@ save(img, "item/magnet_ring.png")
 img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
 d.ellipse([3, 4, 12, 13], outline=(226, 190, 92, 255), width=2)
 d.polygon([(7, 1), (10, 3), (8, 6), (5, 3)], fill=(190, 110, 240, 255)); d.point((7, 3), fill=(255, 255, 255, 255))
-save(img, "item/analyzer_ring.png")
+save(img, "item/analyzer_glasses.png")
 def module_tex(c):
     img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
     d.rectangle([2, 3, 13, 12], fill=(30, 46, 40, 255), outline=(70, 96, 84, 255))
@@ -1768,6 +1801,27 @@ img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
 d.rectangle([0, 0, 15, 15], fill=(230, 130, 40, 255)); d.rectangle([4, 4, 11, 11], fill=(120, 60, 20, 255))
 d.rectangle([0, 0, 15, 15], outline=(140, 70, 20, 255))
 save(img, "block/fluid_pipe_pull.png")
+
+
+# Ícones da Armadura Nano Desgastada (branco gasto com vermelho, como a textura do modelo)
+NANO_W, NANO_D, NANO_R, NANO_B = (226, 228, 236, 255), (120, 124, 140, 255), (200, 30, 30, 255), (40, 44, 56, 255)
+img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+d.rectangle([3, 4, 12, 12], fill=NANO_W, outline=NANO_D); d.rectangle([5, 8, 10, 10], fill=NANO_B); d.line([3, 7, 12, 7], fill=NANO_R)
+d.polygon([(2, 1), (5, 4), (3, 4)], fill=NANO_W); d.polygon([(13, 1), (10, 4), (12, 4)], fill=NANO_W)
+save(img, "item/weathered_nano_helmet.png")
+img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+d.polygon([(1, 2), (5, 2), (7, 4), (8, 4), (10, 2), (14, 2), (14, 7), (12, 7), (12, 14), (3, 14), (3, 7), (1, 7)], fill=NANO_W, outline=NANO_D)
+d.line([3, 8, 12, 8], fill=NANO_R); d.rectangle([6, 10, 9, 12], fill=NANO_B)
+save(img, "item/weathered_nano_chestplate.png")
+img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+d.polygon([(3, 2), (12, 2), (13, 14), (9, 14), (8, 6), (7, 6), (6, 14), (2, 14)], fill=NANO_W, outline=NANO_D)
+d.line([3, 4, 12, 4], fill=NANO_R); d.rectangle([3, 11, 5, 13], fill=NANO_B); d.rectangle([10, 11, 12, 13], fill=NANO_B)
+save(img, "item/weathered_nano_leggings.png")
+img = Image.new("RGBA", (16, 16), (0, 0, 0, 0)); d = ImageDraw.Draw(img)
+for x in (2, 9):
+    d.polygon([(x, 5), (x + 4, 5), (x + 4, 11), (x + 6, 11), (x + 6, 14), (x, 14)], fill=NANO_D, outline=NANO_B)
+    d.line([x, 7, x + 4, 7], fill=NANO_R)
+save(img, "item/weathered_nano_boots.png")
 
 print("ok", len(BASE), "itens base,", len(TAGS), "tags vanilla,", len(COMPAT), "tags de compatibilidade,",
       len(kept), "arquivos de aparência preservados")

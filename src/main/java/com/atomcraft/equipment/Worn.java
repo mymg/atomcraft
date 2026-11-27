@@ -54,9 +54,9 @@ public final class Worn {
         return null;
     }
 
-    /** Se o jogador vê a composição dos blocos (Anel Analisador ou capacete com o módulo Analisador). */
+    /** Se o jogador vê a composição dos blocos (Óculos Analisadores ou capacete com o módulo Analisador). */
     public static boolean hasAnalyzer(Player player) {
         if (ModularItem.level(exo(player, EquipmentSlot.HEAD), EquipmentModule.ANALYZER) > 0) return true;
-        return find(player, stack -> stack.getItem() instanceof AnalyzerRingItem) != null;
+        return find(player, stack -> stack.getItem() instanceof AnalyzerGlassesItem) != null;
     }
 }
