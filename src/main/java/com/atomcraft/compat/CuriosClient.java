@@ -54,12 +54,15 @@ public final class CuriosClient {
             // Jetpack vestido no peito já é desenhado pela armadura
             if (slotContext.entity().getItemBySlot(EquipmentSlot.CHEST).getItem() instanceof JetpackItem) return;
             if (renderer == null) renderer = new GeoArmors.Renderer("hydrogen_jetpack");
-            HumanoidRenderState state = new HumanoidRenderState();
-            state.lightCoords = light;
             float partialTick = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(false);
             var camera = camera();
             if (camera == null) return;
-            Object geoState = state;
+            // Estado de render novo e completo do mesmo tipo do jogador (o modelo do jogador exige o tipo certo)
+            var entity = slotContext.entity();
+            Object geoState = ((net.minecraft.client.renderer.entity.EntityRenderer) Minecraft.getInstance().getEntityRenderDispatcher()
+                    .getRenderer(entity)).createRenderState(entity, partialTick);
+            if (!(geoState instanceof HumanoidRenderState humanoid)) return;
+            humanoid.lightCoords = light;
             renderer.fillRenderState(jetpack, new com.geckolib.renderer.GeoArmorRenderer.RenderData(stack, EquipmentSlot.CHEST,
                     slotContext.entity(), model), (com.geckolib.renderer.base.GeoRenderState) geoState, partialTick);
             renderer.performRenderPass((com.geckolib.renderer.base.GeoRenderState) geoState, poseStack, collector, camera);
