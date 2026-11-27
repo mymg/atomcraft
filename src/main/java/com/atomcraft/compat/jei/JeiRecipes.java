@@ -13,7 +13,7 @@ public final class JeiRecipes {
     public record Fuel(Item item, long energy) {}
 
     /** Atomizador: item (ou 1 balde de fluido) → elementos. */
-    public record Atomize(Item item, @org.jspecify.annotations.Nullable net.minecraft.world.level.material.Fluid fluid, Composition elements) {}
+    public record Atomize(Item item, net.minecraft.world.level.material.@org.jspecify.annotations.Nullable Fluid fluid, Composition elements) {}
 
     public static final IRecipeType<AlloyRecipe> ALLOY = IRecipeType.create("atomcraft", "alloy_forge", AlloyRecipe.class);
     public static final IRecipeType<SynthesisRecipe> SYNTHESIS = IRecipeType.create("atomcraft", "synthesizer", SynthesisRecipe.class);

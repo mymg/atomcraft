@@ -318,7 +318,7 @@ final class Showcase {
         }
         // Mostra o aro do modo "puxar" no primeiro cano (do lado do tanque de água para o de lava: não mistura)
         BlockPos firstPipe = origin.offset(-2, 0, 0);
-        BlockState state = level.getBlockState(firstPipe);
+        net.minecraft.world.level.block.state.BlockState state = level.getBlockState(firstPipe);
         if (state.getBlock() instanceof com.atomcraft.fluid.PipeBlock) {
             level.setBlock(firstPipe, state.setValue(com.atomcraft.fluid.PipeBlock.PROPERTIES.get(net.minecraft.core.Direction.WEST),
                     com.atomcraft.fluid.PipeConnection.PULL), Block.UPDATE_ALL);
