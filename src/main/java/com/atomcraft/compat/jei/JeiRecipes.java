@@ -12,8 +12,8 @@ public final class JeiRecipes {
     /** Gerador de Combustão: item → FE. */
     public record Fuel(Item item, long energy) {}
 
-    /** Atomizador: item → elementos. */
-    public record Atomize(Item item, Composition elements) {}
+    /** Atomizador: item (ou 1 balde de fluido) → elementos. */
+    public record Atomize(Item item, @org.jspecify.annotations.Nullable net.minecraft.world.level.material.Fluid fluid, Composition elements) {}
 
     public static final IRecipeType<AlloyRecipe> ALLOY = IRecipeType.create("atomcraft", "alloy_forge", AlloyRecipe.class);
     public static final IRecipeType<SynthesisRecipe> SYNTHESIS = IRecipeType.create("atomcraft", "synthesizer", SynthesisRecipe.class);

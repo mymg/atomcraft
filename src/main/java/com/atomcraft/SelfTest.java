@@ -181,6 +181,7 @@ final class SelfTest {
         toolsAndWireless(level, failures);
         equipment(level, failures);
         chunkLoader(level, failures);
+        fluids(level, failures);
     }
 
     /** Ferramentas/armaduras de liga, Cartão de Rede + Transmissor Sem Fio e o Desintegrador Atômico. */
@@ -238,6 +239,94 @@ final class SelfTest {
                 "pedregulho desintegrado vai para a rede");
         long after = transmitter.network().totals().elements().values().stream().mapToLong(Long::longValue).sum();
         check(failures, after > before, "rede ganhou os elementos do pedregulho (" + before + " → " + after + ")");
+    }
+
+    /** Fluidos: tanque (capability, despejo para baixo, item), canos (puxar → entregar), bomba e Atomizador. */
+    private static void fluids(ServerLevel level, List<String> failures) {
+        var water = net.neoforged.neoforge.transfer.fluid.FluidResource.of(net.minecraft.world.level.material.Fluids.WATER);
+        var fluidCap = net.neoforged.neoforge.capabilities.Capabilities.Fluid.BLOCK;
+        BlockPos base = new BlockPos(0, 120, 160);
+        level.getChunk(base);
+
+        // Tanque: aceita fluido pela capability e despeja no tanque de baixo
+        BlockPos top = base.above(), bottom = base;
+        place(level, bottom, com.atomcraft.fluid.ModFluids.TANKS.get(com.atomcraft.fluid.FluidTier.BASIC).get());
+        place(level, top, com.atomcraft.fluid.ModFluids.TANKS.get(com.atomcraft.fluid.FluidTier.BASIC).get());
+        var topHandler = level.getCapability(fluidCap, top, net.minecraft.core.Direction.UP);
+        int inserted;
+        try (var tx = net.neoforged.neoforge.transfer.transaction.Transaction.openRoot()) {
+            inserted = topHandler == null ? 0 : topHandler.insert(water, 5_000, tx);
+            tx.commit();
+        }
+        check(failures, inserted == 5_000, "tanque aceita 5.000 mB de água (" + inserted + ")");
+        var topTank = (com.atomcraft.fluid.TankBlockEntity) level.getBlockEntity(top);
+        var bottomTank = (com.atomcraft.fluid.TankBlockEntity) level.getBlockEntity(bottom);
+        topTank.serverTick();
+        check(failures, topTank.tank().isEmpty() && bottomTank.tank().amount() == 5_000, "tanque despeja no tanque de baixo");
+        var drops = Block.getDrops(level.getBlockState(bottom), level, bottom, bottomTank);
+        check(failures, drops.size() == 1 && com.atomcraft.fluid.TankItem.contents(drops.get(0)).getAmount() == 5_000,
+                "tanque quebrado guarda o fluido no item");
+
+        // Item do tanque: capability de fluido (outros mods) e troca de modo
+        var stack = new net.minecraft.world.item.ItemStack(com.atomcraft.fluid.ModFluids.TANK_ITEMS.get(com.atomcraft.fluid.FluidTier.BASIC).get());
+        var itemHandler = net.neoforged.neoforge.transfer.access.ItemAccess.forStack(stack)
+                .getCapability(net.neoforged.neoforge.capabilities.Capabilities.Fluid.ITEM);
+        if (itemHandler != null) {
+            try (var tx = net.neoforged.neoforge.transfer.transaction.Transaction.openRoot()) {
+                itemHandler.insert(water, 2_000, tx);
+                tx.commit();
+            }
+        }
+        check(failures, itemHandler != null, "item do tanque tem capability de fluido");
+
+        // Canos: tanque de cima (puxar) → 2 canos → tanque do lado
+        BlockPos source = base.east(4), pipeA = source.east(), pipeB = pipeA.east(), target = pipeB.east();
+        place(level, source, com.atomcraft.fluid.ModFluids.TANKS.get(com.atomcraft.fluid.FluidTier.BASIC).get());
+        place(level, target, com.atomcraft.fluid.ModFluids.TANKS.get(com.atomcraft.fluid.FluidTier.BASIC).get());
+        var pipeBlock = com.atomcraft.fluid.ModFluids.PIPES.get(com.atomcraft.fluid.FluidTier.BASIC).get();
+        level.setBlock(pipeA, pipeBlock.defaultBlockState(), Block.UPDATE_ALL);
+        level.setBlock(pipeB, pipeBlock.defaultBlockState(), Block.UPDATE_ALL);
+        var stateA = level.getBlockState(pipeA);
+        check(failures, com.atomcraft.fluid.PipeBlock.side(stateA, net.minecraft.core.Direction.WEST) == com.atomcraft.fluid.PipeConnection.NORMAL
+                && com.atomcraft.fluid.PipeBlock.side(stateA, net.minecraft.core.Direction.EAST) == com.atomcraft.fluid.PipeConnection.NORMAL,
+                "cano liga no tanque e no outro cano");
+        level.setBlock(pipeA, stateA.setValue(com.atomcraft.fluid.PipeBlock.PROPERTIES.get(net.minecraft.core.Direction.WEST),
+                com.atomcraft.fluid.PipeConnection.PULL), Block.UPDATE_ALL);
+        var sourceTank = (com.atomcraft.fluid.TankBlockEntity) level.getBlockEntity(source);
+        var targetTank = (com.atomcraft.fluid.TankBlockEntity) level.getBlockEntity(target);
+        sourceTank.tank().setStack(new net.neoforged.neoforge.fluids.FluidStack(net.minecraft.world.level.material.Fluids.WATER, 4_000));
+        var pipeEntity = (com.atomcraft.fluid.PipeBlockEntity) level.getBlockEntity(pipeB);
+        var network = pipeEntity.network();
+        check(failures, network.size() == 2 && network.endpoints().size() == 2, "rede de 2 canos com 2 blocos ligados ("
+                + network.size() + " canos, " + network.endpoints().size() + " blocos)");
+        pipeEntity.serverTick();
+        check(failures, targetTank.tank().amount() == com.atomcraft.fluid.FluidTier.BASIC.pipeRate()
+                        && sourceTank.tank().amount() == 4_000 - com.atomcraft.fluid.FluidTier.BASIC.pipeRate(),
+                "cano básico move 250 mB por tick (" + targetTank.tank().amount() + ")");
+
+        // Bomba: puxa a água de baixo (fonte infinita por padrão) e empurra para o tanque do lado
+        BlockPos pump = base.east(12).above(2), pool = pump.below(), side = pump.east();
+        level.setBlock(pool, net.minecraft.world.level.block.Blocks.WATER.defaultBlockState(), Block.UPDATE_ALL);
+        place(level, pump, com.atomcraft.fluid.ModFluids.PUMP.get());
+        place(level, side, com.atomcraft.fluid.ModFluids.TANKS.get(com.atomcraft.fluid.FluidTier.BASIC).get());
+        var pumpEntity = (com.atomcraft.fluid.PumpBlockEntity) level.getBlockEntity(pump);
+        pumpEntity.energy().set(50_000);
+        for (int i = 0; i < Config.PUMP_TICKS.get() + 2; i++) pumpEntity.tick();
+        var sideTank = (com.atomcraft.fluid.TankBlockEntity) level.getBlockEntity(side);
+        check(failures, pumpEntity.tank().amount() + sideTank.tank().amount() >= 1_000, "bomba puxa 1 balde de água ("
+                + (pumpEntity.tank().amount() + sideTank.tank().amount()) + ")");
+        check(failures, level.getFluidState(pool).isSource(), "a fonte de água continua lá (água infinita)");
+        check(failures, pumpEntity.energy().getAmountAsInt() < 50_000, "bomba gasta energia");
+
+        // Atomizador aceita fluido com composição conhecida
+        var waterValue = com.atomcraft.chemistry.FluidValues.perBucket(net.minecraft.world.level.material.Fluids.WATER, false);
+        check(failures, waterValue != null && waterValue.get(com.atomcraft.chemistry.ChemicalElement.HYDROGEN) == 16
+                && waterValue.get(com.atomcraft.chemistry.ChemicalElement.OXYGEN) == 8
+                && waterValue.get(com.atomcraft.chemistry.ChemicalElement.IRON) == 0, "1 balde de água = H16 O8 (sem o ferro do balde)");
+
+        for (BlockPos pos : List.of(top, bottom, source, pipeA, pipeB, target, pump, side, pool)) {
+            level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+        }
     }
 
     /** Carregador de Chunks: seleção, custo, energia e liberação. */

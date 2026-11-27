@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PBP",
+    "CXC",
+    "PHP"
+  ],
+  "key": {
+    "P": "atomcraft:steel_plate",
+    "B": "minecraft:bucket",
+    "C": "atomcraft:circuit_board",
+    "X": "minecraft:piston",
+    "H": "minecraft:hopper"
+  },
+  "result": {
+    "id": "atomcraft:pump",
+    "count": 1
+  }
+}

@@ -44,11 +44,18 @@ public class AtomizerBlockEntity extends MachineBlockEntity implements EnergyRec
 
     public static final int SLOTS = 21;
     public static final int DATA_PROGRESS = 0, DATA_STATUS = 1, DATA_ENERGY_LO = 2, DATA_ENERGY_HI = 3,
-            DATA_CAPACITY_LO = 4, DATA_CAPACITY_HI = 5, DATA_COUNT = 6;
+            DATA_CAPACITY_LO = 4, DATA_CAPACITY_HI = 5, DATA_FLUID = 6, DATA_FLUID_AMOUNT = 7, DATA_COUNT = 8;
+    /** Tanque de entrada de fluidos (canos, bomba, tanque, balde). */
+    public static final int FLUID_CAPACITY = 8_000, BUCKET = 1000;
+    /** "Slot" usado quando o trabalho atual é 1 balde de fluido. */
+    private static final int FLUID_WORK = -2;
 
     private final FilteredItemHandler buffer = new FilteredItemHandler(SLOTS, 99,
             (slot, resource) -> AtomicValues.get(resource.getItem(), isClientSide()) != null, this::setChanged);
     private final ResourceHandler<ItemResource> automation = buffer.insertOnly();
+    private final com.atomcraft.fluid.FluidTank fluidInput = new com.atomcraft.fluid.FluidTank(FLUID_CAPACITY,
+            resource -> com.atomcraft.chemistry.FluidValues.canAtomize(resource.getFluid(), isClientSide()), this::setChanged);
+    private final ResourceHandler<net.neoforged.neoforge.transfer.fluid.FluidResource> fluidAutomation = fluidInput.insertOnly();
     private final SimpleEnergyHandler energy = new SimpleEnergyHandler(
             Config.ATOMIZER_CAPACITY.get(), Config.ATOMIZER_MAX_INPUT.get(), 0) {
         @Override
@@ -73,6 +80,8 @@ public class AtomizerBlockEntity extends MachineBlockEntity implements EnergyRec
                 case DATA_ENERGY_HI -> (energy.getAmountAsInt() >>> 16) & 0xFFFF;
                 case DATA_CAPACITY_LO -> energy.getCapacityAsInt() & 0xFFFF;
                 case DATA_CAPACITY_HI -> (energy.getCapacityAsInt() >>> 16) & 0xFFFF;
+                case DATA_FLUID -> fluidInput.fluidId();
+                case DATA_FLUID_AMOUNT -> fluidInput.amount();
                 default -> 0;
             };
         }
@@ -98,6 +107,14 @@ public class AtomizerBlockEntity extends MachineBlockEntity implements EnergyRec
         return automation;
     }
 
+    public com.atomcraft.fluid.FluidTank fluidInput() {
+        return fluidInput;
+    }
+
+    public ResourceHandler<net.neoforged.neoforge.transfer.fluid.FluidResource> fluidAutomation() {
+        return fluidAutomation;
+    }
+
     @Override
     public SimpleEnergyHandler energy() {
         return energy;
@@ -109,20 +126,31 @@ public class AtomizerBlockEntity extends MachineBlockEntity implements EnergyRec
 
     @Override
     public void serverTick() {
-        if (currentSlot < 0 || buffer.getAmountAsInt(currentSlot) == 0) {
+        boolean done = currentSlot == FLUID_WORK ? fluidInput.amount() < BUCKET
+                : currentSlot < 0 || buffer.getAmountAsInt(currentSlot) == 0;
+        if (done) {
             currentSlot = findWork();
             progress = 0;
-            if (currentSlot < 0) {
+            if (currentSlot == -1) {
                 maxProgress = 0;
                 status = MachineStatus.IDLE;
                 return;
             }
         }
 
-        ItemStack stack = buffer.getStack(currentSlot);
-        AtomicValue value = AtomicValues.get(stack.getItem(), false);
-        Composition result = AtomicValues.atomizeResult(stack, false);
+        AtomicValue value;
+        Composition result;
+        if (currentSlot == FLUID_WORK) {
+            // 1 balde de fluido: composição do balde cheio menos a do balde vazio
+            value = AtomicValues.get(fluidInput.fluid().getBucket(), false);
+            result = com.atomcraft.chemistry.FluidValues.perBucket(fluidInput.fluid(), false);
+        } else {
+            ItemStack stack = buffer.getStack(currentSlot);
+            value = AtomicValues.get(stack.getItem(), false);
+            result = AtomicValues.atomizeResult(stack, false);
+        }
         if (value == null || result == null) {
+            if (currentSlot == FLUID_WORK) fluidInput.drain(BUCKET);
             currentSlot = -1;
             return;
         }
@@ -160,7 +188,11 @@ public class AtomizerBlockEntity extends MachineBlockEntity implements EnergyRec
         if (++progress >= maxProgress && energyUsed >= energyNeeded) {
             progress = 0;
             if (network.insert(result, 1)) {
-                buffer.shrink(currentSlot, 1);
+                if (currentSlot == FLUID_WORK) {
+                    fluidInput.drain(BUCKET);
+                } else {
+                    buffer.shrink(currentSlot, 1);
+                }
             }
         }
         setChanged();
@@ -175,7 +207,7 @@ public class AtomizerBlockEntity extends MachineBlockEntity implements EnergyRec
         for (int i = 0; i < SLOTS; i++) {
             if (buffer.getAmountAsInt(i) > 0) return i;
         }
-        return -1;
+        return fluidInput.amount() >= BUCKET ? FLUID_WORK : -1;
     }
 
     @Override
@@ -199,6 +231,7 @@ public class AtomizerBlockEntity extends MachineBlockEntity implements EnergyRec
         super.loadAdditional(input);
         buffer.deserialize(input.childOrEmpty("buffer"));
         energy.deserialize(input.childOrEmpty("energy"));
+        fluidInput.deserialize(input.childOrEmpty("fluid"));
         progress = input.getIntOr("progress", 0);
         energyNeeded = input.getLongOr("energy_needed", 0L);
         energyUsed = input.getLongOr("energy_used", 0L);
@@ -209,6 +242,7 @@ public class AtomizerBlockEntity extends MachineBlockEntity implements EnergyRec
         super.saveAdditional(output);
         buffer.serialize(output.child("buffer"));
         energy.serialize(output.child("energy"));
+        fluidInput.serialize(output.child("fluid"));
         output.putInt("progress", progress);
         output.putLong("energy_needed", energyNeeded);
         output.putLong("energy_used", energyUsed);

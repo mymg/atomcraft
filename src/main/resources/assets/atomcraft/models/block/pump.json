@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "top": "atomcraft:block/pump_top",
+    "front": "atomcraft:block/pump_front",
+    "side": "atomcraft:block/machine_side",
+    "particle": "atomcraft:block/machine_side"
+  }
+}

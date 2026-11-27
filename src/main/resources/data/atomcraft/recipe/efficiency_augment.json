@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "atomcraft:blank_augment",
+    "minecraft:diamond",
+    "minecraft:redstone",
+    "minecraft:redstone"
+  ],
+  "result": {
+    "id": "atomcraft:efficiency_augment",
+    "count": 1
+  }
+}

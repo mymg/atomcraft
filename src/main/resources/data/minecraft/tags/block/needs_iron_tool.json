@@ -14,6 +14,7 @@
     "atomcraft:quantum_replicator",
     "atomcraft:wireless_transmitter",
     "atomcraft:chunk_loader",
+    "atomcraft:pump",
     "atomcraft:reactor_casing",
     "atomcraft:reactor_glass",
     "atomcraft:magnetic_coil",

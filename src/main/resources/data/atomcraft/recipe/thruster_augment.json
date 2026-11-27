@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "atomcraft:blank_augment",
+    "minecraft:fire_charge",
+    "atomcraft:invar_plate"
+  ],
+  "result": {
+    "id": "atomcraft:thruster_augment",
+    "count": 1
+  }
+}

@@ -44,6 +44,17 @@ public final class Categories {
             return ElementTiles.layout(elements(recipe), a[0], a[1], a[2], a[3]);
         }
 
+        /**
+         * Cada elemento vira um slot do JEI (dá para usar R/U nele). O ícone de um elemento ainda não
+         * descoberto é desenhado como "?" e o tooltip não diz o nome.
+         */
+        void addElementSlots(IRecipeLayoutBuilder builder, T recipe, boolean output) {
+            for (ElementTiles.Tile tile : tiles(recipe)) {
+                (output ? builder.addOutputSlot(tile.x(), tile.y()) : builder.addInputSlot(tile.x(), tile.y()))
+                        .add(ElementIngredient.TYPE, tile.element());
+            }
+        }
+
         @Override
         public void draw(T recipe, IRecipeSlotsView slots, GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
             List<ElementTiles.Tile> tiles = tiles(recipe);
@@ -53,7 +64,9 @@ public final class Categories {
         @Override
         public void getTooltip(ITooltipBuilder tooltip, T recipe, IRecipeSlotsView slots, double mouseX, double mouseY) {
             ElementTiles.Tile tile = ElementTiles.at(tiles(recipe), mouseX, mouseY);
-            if (tile != null) tooltip.add(ElementTiles.name(tile));
+            if (tile != null && mouseX >= tile.x() + 16) {
+                tooltip.add(ElementTiles.name(tile));
+            }
         }
 
         static void text(GuiGraphicsExtractor graphics, Component text, int x, int y, int color) {
@@ -84,6 +97,7 @@ public final class Categories {
         @Override
         public void setRecipe(IRecipeLayoutBuilder builder, AlloyRecipe recipe, IFocusGroup focuses) {
             builder.addOutputSlot(138, 14).setOutputSlotBackground().add(new net.minecraft.world.item.ItemStack(recipe.result(), recipe.count()));
+            addElementSlots(builder, recipe, false);
         }
 
         @Override
@@ -117,6 +131,7 @@ public final class Categories {
         @Override
         public void setRecipe(IRecipeLayoutBuilder builder, SynthesisRecipe recipe, IFocusGroup focuses) {
             builder.addOutputSlot(138, 14).setOutputSlotBackground().add(recipe.result());
+            addElementSlots(builder, recipe, false);
         }
 
         @Override
@@ -173,7 +188,13 @@ public final class Categories {
 
         @Override
         public void setRecipe(IRecipeLayoutBuilder builder, JeiRecipes.Atomize recipe, IFocusGroup focuses) {
-            builder.addInputSlot(2, 18).setStandardSlotBackground().add(recipe.item());
+            var input = builder.addInputSlot(2, 18).setStandardSlotBackground();
+            if (recipe.fluid() != null) {
+                input.setFluidRenderer(1000, false, 16, 16).add(recipe.fluid(), 1000);
+            } else {
+                input.add(recipe.item());
+            }
+            addElementSlots(builder, recipe, true);
         }
 
         @Override

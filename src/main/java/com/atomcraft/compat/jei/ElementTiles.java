@@ -2,7 +2,6 @@ package com.atomcraft.compat.jei;
 
 import com.atomcraft.chemistry.ChemicalElement;
 import com.atomcraft.chemistry.Composition;
-import com.atomcraft.client.ClientState;
 import com.atomcraft.client.screen.GuiUtil;
 import com.atomcraft.client.screen.TechGui;
 import net.minecraft.client.Minecraft;
@@ -50,7 +49,7 @@ public final class ElementTiles {
     public static void draw(GuiGraphicsExtractor graphics, List<Tile> tiles, int hidden) {
         Font font = Minecraft.getInstance().font;
         for (Tile tile : tiles) {
-            TechGui.badge(graphics, font, tile.x(), tile.y(), tile.element());
+            // O ícone é desenhado pelo slot do JEI (ElementIngredient.Renderer); aqui só a quantidade
             graphics.text(font, GuiUtil.formatAmount(tile.amount()), tile.x() + 17, tile.y() + 4, TEXT, false);
         }
         if (hidden > 0 && !tiles.isEmpty()) {

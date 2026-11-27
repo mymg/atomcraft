@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "atomcraft:blank_augment",
+    "minecraft:golden_carrot",
+    "minecraft:glowstone_dust"
+  ],
+  "result": {
+    "id": "atomcraft:night_vision_augment",
+    "count": 1
+  }
+}

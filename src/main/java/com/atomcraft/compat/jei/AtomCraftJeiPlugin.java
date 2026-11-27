@@ -51,6 +51,12 @@ public class AtomCraftJeiPlugin implements IModPlugin {
     }
 
     @Override
+    public void registerIngredients(mezz.jei.api.registration.IModIngredientRegistration registration) {
+        registration.register(ElementIngredient.TYPE, ElementIngredient.all(), new ElementIngredient.Helper(),
+                new ElementIngredient.Renderer(), com.atomcraft.chemistry.ChemicalElement.CODEC);
+    }
+
+    @Override
     public void registerCategories(IRecipeCategoryRegistration registration) {
         IGuiHelper gui = registration.getJeiHelpers().getGuiHelper();
         registration.addRecipeCategories(new Categories.Alloy(gui), new Categories.Synthesis(gui),
@@ -91,13 +97,29 @@ public class AtomCraftJeiPlugin implements IModPlugin {
         JeiBridge.showCategory = id -> {};
     }
 
-    /** Troca as receitas que dependem de dados do servidor (valores atômicos e Forja). */
+    /**
+     * Troca as receitas que dependem de dados do servidor (valores atômicos e Forja) e mostra na lista de
+     * ingredientes só os elementos já descobertos.
+     */
     private void refresh() {
         if (runtime == null) return;
         IRecipeManager manager = runtime.getRecipeManager();
         shownAlloys = replace(manager, JeiRecipes.ALLOY, shownAlloys, AlloyRecipes.all());
         shownFuels = replace(manager, JeiRecipes.FUEL, shownFuels, fuels());
         shownAtomize = replace(manager, JeiRecipes.ATOMIZE, shownAtomize, atomize());
+        syncElementList();
+    }
+
+    /** Lista de ingredientes do JEI: só os elementos já descobertos. */
+    private void syncElementList() {
+        if (runtime == null) return;
+        var manager = runtime.getIngredientManager();
+        var listed = new java.util.HashSet<>(manager.getAllIngredients(ElementIngredient.TYPE));
+        var wanted = ElementIngredient.discovered();
+        var remove = listed.stream().filter(e -> !wanted.contains(e)).toList();
+        var add = wanted.stream().filter(e -> !listed.contains(e)).toList();
+        if (!remove.isEmpty()) manager.removeIngredientsAtRuntime(ElementIngredient.TYPE, remove);
+        if (!add.isEmpty()) manager.addIngredientsAtRuntime(ElementIngredient.TYPE, add);
     }
 
     private static <T> List<T> replace(IRecipeManager manager, IRecipeType<T> type, List<T> old, List<T> fresh) {
@@ -109,6 +131,14 @@ public class AtomCraftJeiPlugin implements IModPlugin {
 
     private void show(String id) {
         if (runtime == null) return;
+        if (id.startsWith("element:")) {
+            // Receitas que dão o elemento (Atomizador), como apertar R nele
+            var element = com.atomcraft.chemistry.ChemicalElement.bySymbol(id.substring(8));
+            var focus = runtime.getJeiHelpers().getFocusFactory()
+                    .createFocus(mezz.jei.api.recipe.RecipeIngredientRole.OUTPUT, ElementIngredient.TYPE, element);
+            runtime.getRecipesGui().show(focus);
+            return;
+        }
         IRecipeType<?> type = switch (id) {
             case "alloy_forge" -> JeiRecipes.ALLOY;
             case "synthesizer" -> JeiRecipes.SYNTHESIS;
@@ -146,7 +176,12 @@ public class AtomCraftJeiPlugin implements IModPlugin {
     private static List<JeiRecipes.Atomize> atomize() {
         List<JeiRecipes.Atomize> list = new ArrayList<>();
         for (var entry : values()) {
-            if (!entry.getValue().composition().isEmpty()) list.add(new JeiRecipes.Atomize(entry.getKey(), entry.getValue().composition()));
+            if (!entry.getValue().composition().isEmpty()) list.add(new JeiRecipes.Atomize(entry.getKey(), null, entry.getValue().composition()));
+        }
+        // Fluidos (Bomba / Tanque → Atomizador): 1 balde
+        for (var fluid : com.atomcraft.chemistry.FluidValues.atomizable(true)) {
+            var composition = com.atomcraft.chemistry.FluidValues.perBucket(fluid, true);
+            if (composition != null) list.add(new JeiRecipes.Atomize(fluid.getBucket(), fluid, composition));
         }
         return list;
     }

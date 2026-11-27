@@ -65,5 +65,17 @@ public final class ModComponents {
                     builder -> builder.persistent(com.mojang.serialization.Codec.BOOL)
                             .networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.BOOL));
 
+    /** Fluido guardado no item do Tanque de Fluidos. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<net.neoforged.neoforge.fluids.SimpleFluidContent>> FLUID_CONTENT =
+            COMPONENTS.registerComponentType("fluid_content",
+                    builder -> builder.persistent(net.neoforged.neoforge.fluids.SimpleFluidContent.CODEC)
+                            .networkSynchronized(net.neoforged.neoforge.fluids.SimpleFluidContent.STREAM_CODEC));
+
+    /** Tanque de Fluidos em modo balde (pega/coloca fluido) em vez de modo bloco. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> BUCKET_MODE =
+            COMPONENTS.registerComponentType("bucket_mode",
+                    builder -> builder.persistent(com.mojang.serialization.Codec.BOOL)
+                            .networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.BOOL));
+
     private ModComponents() {}
 }

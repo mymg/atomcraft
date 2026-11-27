@@ -1,0 +1,76 @@
+{
+  "textures": {
+    "flange": "atomcraft:block/fluid_pipe_pull",
+    "particle": "atomcraft:block/fluid_pipe_pull"
+  },
+  "elements": [
+    {
+      "from": [
+        4,
+        4,
+        0
+      ],
+      "to": [
+        12,
+        12,
+        2
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            4,
+            4,
+            12,
+            12
+          ],
+          "texture": "#flange"
+        },
+        "south": {
+          "uv": [
+            4,
+            4,
+            12,
+            12
+          ],
+          "texture": "#flange"
+        },
+        "east": {
+          "uv": [
+            0,
+            4,
+            2,
+            12
+          ],
+          "texture": "#flange"
+        },
+        "west": {
+          "uv": [
+            0,
+            4,
+            2,
+            12
+          ],
+          "texture": "#flange"
+        },
+        "up": {
+          "uv": [
+            0,
+            4,
+            2,
+            12
+          ],
+          "texture": "#flange"
+        },
+        "down": {
+          "uv": [
+            0,
+            4,
+            2,
+            12
+          ],
+          "texture": "#flange"
+        }
+      }
+    }
+  ]
+}

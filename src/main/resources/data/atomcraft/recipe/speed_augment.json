@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "atomcraft:blank_augment",
+    "minecraft:sugar",
+    "minecraft:piston",
+    "minecraft:redstone"
+  ],
+  "result": {
+    "id": "atomcraft:speed_augment",
+    "count": 1
+  }
+}

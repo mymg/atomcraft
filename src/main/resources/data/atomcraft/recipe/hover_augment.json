@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "atomcraft:blank_augment",
+    "minecraft:phantom_membrane",
+    "minecraft:feather"
+  ],
+  "result": {
+    "id": "atomcraft:hover_augment",
+    "count": 1
+  }
+}

@@ -125,6 +125,7 @@ final class Showcase {
         atomizer.buffer().set(2, ItemResource.of(Items.OAK_LOG), 16);
         atomizer.buffer().set(3, ItemResource.of(Items.DIAMOND), 2);
         atomizer.buffer().set(7, ItemResource.of(Items.APPLE), 12);
+        atomizer.fluidInput().setStack(new net.neoforged.neoforge.fluids.FluidStack(net.minecraft.world.level.material.Fluids.WATER, 6_000));
 
         AnalyzerBlockEntity analyzer = (AnalyzerBlockEntity) level.getBlockEntity(base.north(2));
         analyzer.setOwner(player);
@@ -270,6 +271,14 @@ final class Showcase {
         }
         player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.OFFHAND,
                 new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.ANALYZER_RING.get()));
+        // Bomba (interface) e uma fileira de tanques ligados por canos (print do mundo)
+        level.setBlock(base.south(9), com.atomcraft.fluid.ModFluids.PUMP.get().defaultBlockState(), Block.UPDATE_ALL);
+        if (level.getBlockEntity(base.south(9)) instanceof com.atomcraft.fluid.PumpBlockEntity pump) {
+            pump.setOwner(player);
+            pump.energy().set(64_000);
+            pump.tank().setStack(new net.neoforged.neoforge.fluids.FluidStack(net.minecraft.world.level.material.Fluids.LAVA, 9_000));
+        }
+        fluidDisplay(level, base.offset(0, 0, 14));
 
         level.setBlock(base.south(4), ModBlocks.ALLOY_FORGE.get().defaultBlockState(), Block.UPDATE_ALL);
         if (level.getBlockEntity(base.south(4)) instanceof com.atomcraft.block.entity.AlloyForgeBlockEntity forge) {
@@ -290,6 +299,31 @@ final class Showcase {
     }
 
     private static BlockPos reactor = BlockPos.ZERO;
+
+    /** Quatro tanques (um de cada nível) com água e lava, ligados por canos; um lado em modo "puxar". */
+    private static void fluidDisplay(ServerLevel level, BlockPos origin) {
+        var tiers = com.atomcraft.fluid.FluidTier.values();
+        float[] fill = {0.6f, 0.4f, 0.9f, 0.75f};
+        for (int i = 0; i < tiers.length; i++) {
+            BlockPos tankPos = origin.offset(-3 + i * 2, 0, 0);
+            level.setBlock(tankPos, com.atomcraft.fluid.ModFluids.TANKS.get(tiers[i]).get().defaultBlockState(), Block.UPDATE_ALL);
+            if (level.getBlockEntity(tankPos) instanceof com.atomcraft.fluid.TankBlockEntity tank) {
+                var fluid = i % 2 == 0 ? net.minecraft.world.level.material.Fluids.WATER : net.minecraft.world.level.material.Fluids.LAVA;
+                tank.tank().setStack(new net.neoforged.neoforge.fluids.FluidStack(fluid, Math.round(tiers[i].tankCapacity() * fill[i])));
+            }
+            if (i < tiers.length - 1) {
+                BlockPos pipePos = tankPos.east();
+                level.setBlock(pipePos, com.atomcraft.fluid.ModFluids.PIPES.get(tiers[i]).get().defaultBlockState(), Block.UPDATE_ALL);
+            }
+        }
+        // Mostra o aro do modo "puxar" no primeiro cano (do lado do tanque de água para o de lava: não mistura)
+        BlockPos firstPipe = origin.offset(-2, 0, 0);
+        BlockState state = level.getBlockState(firstPipe);
+        if (state.getBlock() instanceof com.atomcraft.fluid.PipeBlock) {
+            level.setBlock(firstPipe, state.setValue(com.atomcraft.fluid.PipeBlock.PROPERTIES.get(net.minecraft.core.Direction.WEST),
+                    com.atomcraft.fluid.PipeConnection.PULL), Block.UPDATE_ALL);
+        }
+    }
 
     /** Câmera a sudoeste e acima, apontada (yaw/pitch calculados) para o meio das máquinas de 2 blocos. */
     private static void machinesView(ServerPlayer player) {
@@ -321,10 +355,11 @@ final class Showcase {
             case 2520 -> base.offset(-6, 1, -3);
             case 2720 -> base.south(6);
             case 3120 -> base.south(8);
+            case 3320 -> base.south(9);
             default -> null;
         };
         if (target != null) {
-            if (ticks == 3120) {
+            if (ticks == 3120 || ticks == 3320) {
                 // O carregador fica longe do ponto inicial: o menu fecharia por distância.
                 player.connection.teleport(target.getX() - 1.5, target.getY(), target.getZ() + 0.5, player.getYRot(), player.getXRot());
             } else {
@@ -383,6 +418,10 @@ final class Showcase {
             // Visão das estruturas: Matriz formada (modelo), Replicador Quântico e um segundo quântico com a prévia
             player.connection.teleport(base.getX() - 13.5, base.getY() + 3.5, base.getZ() + 0.5, -90f, 12f);
         }
-        if (ticks == 4800) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
+        if (ticks >= 4300 && ticks < 4520 && ticks % 20 == 0) {
+            // Tanques (um de cada nível) com água e lava, ligados por canos
+            player.connection.teleport(base.getX() + 0.5, base.getY() + 2.2, base.getZ() + 9.5, 0f, 22f);
+        }
+        if (ticks == 5100) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");
     }
 }

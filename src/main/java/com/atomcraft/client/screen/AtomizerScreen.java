@@ -25,6 +25,12 @@ public class AtomizerScreen extends MachineScreen<AtomizerMenu> {
         storageRow(graphics, 9, 85, 169);
         graphics.text(font, font.plainSubstrByWidth(menu.status().label().getString(), 100), leftPos + 9, topPos + 96,
                 statusColor(menu.status()), false);
+        // Tanque de fluidos (canos, bomba, tanque ou balde)
+        Component label = Component.translatable("gui.atomcraft.fluid_label");
+        graphics.text(font, label, leftPos + 9, topPos + 108, TechGui.TEXT_LIGHT, false);
+        int gx = 9 + font.width(label) + 4;
+        FluidGauge.horizontal(graphics, leftPos + gx, topPos + 107, 169 - gx, 9, menu.fluid(), menu.fluidAmount(),
+                com.atomcraft.block.entity.AtomizerBlockEntity.FLUID_CAPACITY);
     }
 
     @Override
@@ -34,6 +40,9 @@ public class AtomizerScreen extends MachineScreen<AtomizerMenu> {
         } else if (hovering(mouseX, mouseY, 158, 21, 11, 60)) {
             tooltip(graphics, mouseX, mouseY, menu.status().label(),
                     Component.literal(Math.round(menu.progress() * 100) + "%"));
+        } else if (hovering(mouseX, mouseY, 9, 106, 160, 11)) {
+            tooltip(graphics, mouseX, mouseY, FluidGauge.tooltip(menu.fluid(), menu.fluidAmount(),
+                    com.atomcraft.block.entity.AtomizerBlockEntity.FLUID_CAPACITY).toArray(Component[]::new));
         } else if (hovering(mouseX, mouseY, 9, 85, 160, 20)) {
             tooltip(graphics, mouseX, mouseY, storageTooltip());
         }
