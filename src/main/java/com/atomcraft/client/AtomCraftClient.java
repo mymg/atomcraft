@@ -49,6 +49,10 @@ public class AtomCraftClient {
         FusionPreview.register();
         ElementDiskItem.openPartitionScreen = hand -> Minecraft.getInstance().gui.setScreen(new PartitionScreen(hand));
         NeoForge.EVENT_BUS.addListener(AtomCraftClient::onTooltip);
+        NeoForge.EVENT_BUS.addListener(com.atomcraft.client.AugmentTooltip::onTooltip);
+        modBus.addListener((net.neoforged.fml.event.lifecycle.FMLClientSetupEvent event) -> {
+            if (com.atomcraft.compat.Curios.LOADED) event.enqueueWork(com.atomcraft.compat.CuriosClient::register);
+        });
         ClientShowcase.register();
         EquipmentClient.register(modBus);
     }

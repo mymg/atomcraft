@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "atomcraft:blank_augment",
+    "minecraft:diamond",
+    "minecraft:flint",
+    "minecraft:quartz"
+  ],
+  "result": {
+    "id": "atomcraft:sharpness_augment",
+    "count": 1
+  }
+}

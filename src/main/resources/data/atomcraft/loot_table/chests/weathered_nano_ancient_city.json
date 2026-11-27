@@ -65,8 +65,13 @@
           ]
         },
         {
+          "type": "minecraft:item",
+          "name": "atomcraft:weathered_nano_katana",
+          "weight": 1
+        },
+        {
           "type": "minecraft:empty",
-          "weight": 96
+          "weight": 115
         }
       ]
     }

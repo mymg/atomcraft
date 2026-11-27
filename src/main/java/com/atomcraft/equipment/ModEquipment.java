@@ -52,13 +52,17 @@ public final class ModEquipment {
                     Equippable.builder(EquipmentSlot.HEAD).setEquipSound(SoundEvents.ARMOR_EQUIP_GENERIC).build()));
 
     /** Armadura Nano Desgastada (fim de jogo): só em baús das Cidades Ancestrais. */
-    public static final ArmorMaterial NANO_ARMOR = new ArmorMaterial(45, defense(4, 7, 9, 4, 13), 18,
+    public static final ArmorMaterial NANO_ARMOR = new ArmorMaterial(45, defense(5, 8, 10, 5, 13), 18,
             SoundEvents.ARMOR_EQUIP_NETHERITE, 4f, 0.2f, TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("c", "ingots/superalloy")),
             asset("weathered_nano"));
-    public static final DeferredItem<NanoArmorItem> NANO_HELMET = nano("weathered_nano_helmet", ArmorType.HELMET);
-    public static final DeferredItem<NanoArmorItem> NANO_CHESTPLATE = nano("weathered_nano_chestplate", ArmorType.CHESTPLATE);
-    public static final DeferredItem<NanoArmorItem> NANO_LEGGINGS = nano("weathered_nano_leggings", ArmorType.LEGGINGS);
-    public static final DeferredItem<NanoArmorItem> NANO_BOOTS = nano("weathered_nano_boots", ArmorType.BOOTS);
+    public static final DeferredItem<NanoArmorItem> NANO_HELMET = nano("weathered_nano_helmet", EquipmentKind.NANO_HELMET, ArmorType.HELMET);
+    public static final DeferredItem<NanoArmorItem> NANO_CHESTPLATE = nano("weathered_nano_chestplate", EquipmentKind.NANO_CHESTPLATE, ArmorType.CHESTPLATE);
+    public static final DeferredItem<NanoArmorItem> NANO_LEGGINGS = nano("weathered_nano_leggings", EquipmentKind.NANO_LEGGINGS, ArmorType.LEGGINGS);
+    public static final DeferredItem<NanoArmorItem> NANO_BOOTS = nano("weathered_nano_boots", EquipmentKind.NANO_BOOTS, ArmorType.BOOTS);
+    /** Katana Nano Desgastada: 12 de dano e 1,8 de velocidade enquanto tem energia (sem energia, 1 de dano). */
+    public static final DeferredItem<com.atomcraft.tools.NanoKatanaItem> NANO_KATANA = ModItems.ITEMS.registerItem("weathered_nano_katana",
+            com.atomcraft.tools.NanoKatanaItem::new, p -> p.stacksTo(1).rarity(Rarity.EPIC).fireResistant().enchantable(18)
+                    .attributes(com.atomcraft.tools.NanoKatanaItem.attributes()));
 
     public static final DeferredItem<Item> BLANK_MODULE = ModItems.ITEMS.registerSimpleItem("blank_augment");
 
@@ -67,10 +71,11 @@ public final class ModEquipment {
 
     static {
         TAB_ORDER.addAll(List.of(MODULE_BENCH_ITEM, EXO_HELMET, EXO_CHESTPLATE, EXO_LEGGINGS, EXO_BOOTS, JETPACK, MAGNET, ANALYZER_GLASSES, BLANK_MODULE,
-                NANO_HELMET, NANO_CHESTPLATE, NANO_LEGGINGS, NANO_BOOTS));
+                NANO_HELMET, NANO_CHESTPLATE, NANO_LEGGINGS, NANO_BOOTS, NANO_KATANA));
         for (EquipmentModule module : EquipmentModule.values()) {
-            DeferredItem<EquipmentModuleItem> item = ModItems.ITEMS.registerItem(module.id() + "_augment",
-                    p -> new EquipmentModuleItem(module, p));
+            DeferredItem<EquipmentModuleItem> item = module == EquipmentModule.ENCHANTMENT
+                    ? ModItems.ITEMS.registerItem(module.id() + "_augment", p -> new EquipmentModuleItem(module, p), p -> p.enchantable(15))
+                    : ModItems.ITEMS.registerItem(module.id() + "_augment", p -> new EquipmentModuleItem(module, p));
             MODULES.put(module, item);
             TAB_ORDER.add(item);
         }
@@ -81,8 +86,8 @@ public final class ModEquipment {
                 p -> p.humanoidArmor(EXO_ARMOR, type).rarity(Rarity.RARE));
     }
 
-    private static DeferredItem<NanoArmorItem> nano(String name, ArmorType type) {
-        return ModItems.ITEMS.registerItem(name, NanoArmorItem::new,
+    private static DeferredItem<NanoArmorItem> nano(String name, EquipmentKind kind, ArmorType type) {
+        return ModItems.ITEMS.registerItem(name, p -> new NanoArmorItem(kind, p),
                 p -> p.humanoidArmor(NANO_ARMOR, type).rarity(Rarity.EPIC).fireResistant());
     }
 

@@ -320,6 +320,11 @@ final class Showcase {
             stand.setYHeadRot(180f);
             var items = (net.minecraft.world.item.Item[]) entry[1];
             for (int i = 0; i < order.length; i++) stand.setItemSlot(order[i], new net.minecraft.world.item.ItemStack(items[i]));
+            if (items[0] == com.atomcraft.equipment.ModEquipment.NANO_HELMET.get()) {
+                stand.setShowArms(true);
+                stand.setItemSlot(net.minecraft.world.entity.EquipmentSlot.MAINHAND,
+                        new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.NANO_KATANA.get()));
+            }
             level.addFreshEntity(stand);
         }
         // Minério na mira: com os Óculos Analisadores, o Jade mostra a fórmula
@@ -454,6 +459,10 @@ final class Showcase {
             if (ticks == 4520) {
                 player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.HEAD,
                         new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.ANALYZER_GLASSES.get()));
+                // Visto de trás (câmera em 3ª pessoa): peitoral Nano + Jetpack no slot de costas do Curios
+                player.setItemSlot(net.minecraft.world.entity.EquipmentSlot.CHEST,
+                        new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.NANO_CHESTPLATE.get()));
+                com.atomcraft.compat.Curios.equip(player, "back", new net.minecraft.world.item.ItemStack(com.atomcraft.equipment.ModEquipment.JETPACK.get()));
             }
         }
         if (ticks == 5600) AtomCraft.LOGGER.info("AtomCraft SHOWCASE DONE");

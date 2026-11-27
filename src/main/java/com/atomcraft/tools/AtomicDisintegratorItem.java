@@ -33,7 +33,12 @@ import java.util.function.Consumer;
  * quebrados viram elementos direto nos Drives da rede (se couberem), e a bateria recarrega sozinha
  * pelo Transmissor Sem Fio. Agachado + clique alterna entre desintegrar e soltar os itens normalmente.
  */
-public class AtomicDisintegratorItem extends Item implements com.atomcraft.equipment.ModularItem {
+public class AtomicDisintegratorItem extends Item implements com.atomcraft.equipment.ModularItem, com.atomcraft.equipment.Powered {
+
+    @Override
+    public int capacity() {
+        return CAPACITY;
+    }
 
     public static final int CAPACITY = 100_000, CHARGE_PER_TICK = 2_000;
     private static final float SPEED = 14f;

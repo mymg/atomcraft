@@ -375,11 +375,29 @@ costas (jetpack).
 
 ### Armadura Nano Desgastada
 
-A armadura mais forte do mod (fim de jogo): mais proteção e durabilidade que a de netherite, resistente a fogo.
-Não tem receita: cada baú de **Cidade Ancestral** tem cerca de 4% de chance de guardar uma peça, já gasta pelo tempo
-(conserte com placas/lingotes de superliga numa bigorna).
+O conjunto de fim de jogo. Não tem receita: cada baú de **Cidade Ancestral** tem uma pequena chance de guardar uma
+peça (já gasta pelo tempo) ou a Katana. Conserta com superliga numa bigorna.
 
-Configuração: seção `equipment` (recarga, escudo, tanque e consumo do jetpack, raio do ímã).
+Cada peça tem bateria 8× maior que a do Exoesqueleto (2.000.000 FE), recarrega na Bancada de Aprimoramentos ou pelo
+Transmissor Sem Fio, aceita os **mesmos aprimoramentos** da peça equivalente do Exoesqueleto e, enquanto tem energia,
+dá um bônus próprio:
+
+| Peça | Proteção | Bônus |
+|---|---|---|
+| Elmo | 5 | Visão noturna |
+| Peitoral | 10 | +5 corações |
+| Calças | 8 | Mais rápido andando, nadando e voando |
+| Botas | 5 | Sem dano de queda e de ambiente (magma, cacto, arbusto de frutas, estalagmite, congelamento) |
+
+**Katana Nano Desgastada**: 12 de dano e 1,8 de velocidade de ataque enquanto tem energia (cada golpe gasta 500 FE);
+sem energia, o dano cai para 1. Aprimoramentos: **Afiação** (+2 de dano por nível, até III) e o de Encantamento.
+
+### Aprimoramento de Encantamento
+
+Encante-o com qualquer encantamento (mesa de encantamento ou bigorna com livros) e instale num equipamento: os níveis
+dele **somam** aos do equipamento, e o tooltip mostra o total (ex.: "Proteção V (+III)"). Um por equipamento. O quanto
+ele pode somar depende do equipamento: até **II** no Exoesqueleto, Jetpack e Desintegrador; até **III** na Armadura e
+na Katana Nano.
 
 ## Metais, ligas e minérios
 

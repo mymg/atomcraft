@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "atomcraft:blank_augment",
+    "minecraft:book",
+    "minecraft:lapis_block",
+    "minecraft:amethyst_shard"
+  ],
+  "result": {
+    "id": "atomcraft:enchantment_augment",
+    "count": 1
+  }
+}

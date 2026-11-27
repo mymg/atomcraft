@@ -32,14 +32,14 @@ public class CableBlock extends Block implements NetworkNode {
             Direction.UP, BlockStateProperties.UP,
             Direction.DOWN, BlockStateProperties.DOWN));
 
-    private static final VoxelShape CORE = Block.box(5, 5, 5, 11, 11, 11);
+    private static final VoxelShape CORE = Block.box(6, 6, 6, 10, 10, 10);
     private static final Map<Direction, VoxelShape> ARMS = new EnumMap<>(Map.of(
-            Direction.NORTH, Block.box(6, 6, 0, 10, 10, 5),
-            Direction.SOUTH, Block.box(6, 6, 11, 10, 10, 16),
-            Direction.WEST, Block.box(0, 6, 6, 5, 10, 10),
-            Direction.EAST, Block.box(11, 6, 6, 16, 10, 10),
-            Direction.DOWN, Block.box(6, 0, 6, 10, 5, 10),
-            Direction.UP, Block.box(6, 11, 6, 10, 16, 10)));
+            Direction.NORTH, Block.box(6, 6, 0, 10, 10, 6),
+            Direction.SOUTH, Block.box(6, 6, 10, 10, 10, 16),
+            Direction.WEST, Block.box(0, 6, 6, 6, 10, 10),
+            Direction.EAST, Block.box(10, 6, 6, 16, 10, 10),
+            Direction.DOWN, Block.box(6, 0, 6, 10, 6, 10),
+            Direction.UP, Block.box(6, 10, 6, 10, 16, 10)));
     private final Map<BlockState, VoxelShape> shapeCache = new ConcurrentHashMap<>();
 
     public CableBlock(Properties properties) {
